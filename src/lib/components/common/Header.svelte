@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fmtNumber, truncate } from '$lib/utils';
-	import {
-		authenticate,
-		getStxAddress,
-		handlePendingSignin,
-		isLoggedIn,
-		logUserOut
-	} from '$lib/stacks/stacks-connect';
+	import { authenticate, getStxAddress, handlePendingSignin, isLoggedIn, logUserOut } from '$lib/stacks/stacks-connect';
 	import { configStore, switchConfig } from '$stores/stores_config';
 	import { sessionStore } from '$stores/stores';
 	import { goto } from '$app/navigation';
@@ -65,10 +59,7 @@
 		</h1>
 		{#key componentKey}
 			<nav>
-				<button
-					on:click={() => goto('/predictions/market-mgt')}
-					class="rounded px-3 py-1 text-white transition hover:bg-primary-600"
-				>
+				<button on:click={() => goto('/market-mgt')} class="rounded px-3 py-1 text-white transition hover:bg-primary-600">
 					<!-- <ArrowRightAltOutline class="inline" /> -->
 					Create Market
 				</button>
@@ -100,27 +91,12 @@
 					>
 					{heights.bitcoinHeight}
 				</span> -->
-				<a
-					href="/"
-					on:click|preventDefault={() => goto('/settings')}
-					class="mx-2 hover:text-blue-400">settings</a
-				>
-				<a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-blue-400"
-					>{$configStore.VITE_NETWORK}</a
-				>
+				<a href="/" on:click|preventDefault={() => goto('/settings')} class="mx-2 hover:text-blue-400">settings</a>
+				<a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-blue-400">{$configStore.VITE_NETWORK}</a>
 				{#if isLoggedIn()}
-					<a
-						href="/"
-						on:click|preventDefault={() => logoutStacks()}
-						class="mx-2 hover:text-blue-400">{truncate(getStxAddress())}</a
-					>
+					<a href="/" on:click|preventDefault={() => logoutStacks()} class="mx-2 hover:text-blue-400">{truncate(getStxAddress())}</a>
 				{:else}
-					<a
-						id="connect-wallet"
-						href="/"
-						on:click|preventDefault={() => loginStacks()}
-						class="mx-2 hover:text-blue-400">Connect Wallet</a
-					>
+					<a id="connect-wallet" href="/" on:click|preventDefault={() => loginStacks()} class="mx-2 hover:text-blue-400">Connect Wallet</a>
 				{/if}
 			</nav>
 		{/key}

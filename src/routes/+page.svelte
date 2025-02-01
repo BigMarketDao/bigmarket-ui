@@ -1,10 +1,10 @@
 <script lang="ts">
-	import MarketPlace from '$lib/predictions/market/MarketPlace.svelte';
+	import MarketPlace from '$lib/predictions/marketplace/MarketPlace.svelte';
 	import { fetchMarkets } from '$lib/predictions/predictions';
 	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers';
 	import { onMount } from 'svelte';
 
-	let markets: Array<PredictionMarketCreateEvent> = [];
+	let markets: Array<PredictionMarketCreateEvent>;
 
 	onMount(async () => {
 		markets = await fetchMarkets();

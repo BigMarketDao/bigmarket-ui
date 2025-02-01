@@ -21,23 +21,6 @@ export function bitcoinToSats(amountBtc: number) {
 	return Math.round(amountBtc * btcPrecision);
 }
 
-export async function fullBalance() {
-	const cf = getConfig();
-	const ss = getSession();
-	let totalBalanceAtHeight = 0;
-	try {
-		// note the latter is the proposal deploy height but we'd like it to the height that corresponds to the bitcoin start height.
-		const startStacksBlock = ss.stacksInfo.stacks_tip_height;
-		const stxAddress = getStxAddress();
-		const response = await getBalanceAtHeight(cf.VITE_STACKS_API, stxAddress, startStacksBlock);
-		totalBalanceAtHeight = Number(response.stx?.balance || 0);
-		return totalBalanceAtHeight;
-	} catch (e: any) {
-		totalBalanceAtHeight = ss.keySets[cf.VITE_NETWORK].walletBalances?.stacks.amount || 0;
-	}
-	return totalBalanceAtHeight;
-}
-
 export function fmtSatoshiToBitcoin(amountSats: number) {
 	return (Math.round(amountSats) / btcPrecision).toFixed(8);
 }
@@ -69,13 +52,29 @@ export function fmtMicroToStxFormatted(amountStx: number) {
 	return formatted;
 }
 
-export function fmtMicroToStx(amountStx: number) {
-	const converted = amountStx / 1e6; // Divide by 10^6 to shift 6 decimal places
-	return converted;
+export function fmtRoundToNDecimalPlaces(value: number, n: number) {
+	return Number(value.toFixed(n));
 }
 
-export function fmtStxMicro(amountStx: number) {
-	return (Math.round(amountStx) * stxPrecision * stxPrecision) / stxPrecision;
+export function fmtMicroToStx(amount: number, decimals?: number) {
+	const conv = Number(`1e${decimals}`);
+	if (!decimals) {
+		return amount / 1e6;
+	}
+	return (amount / conv).toFixed(decimals);
+}
+
+export function fmtStxMicro(amountStx: number, decimals?: number) {
+	if (!decimals) {
+		return (Math.round(amountStx) * stxPrecision * stxPrecision) / stxPrecision;
+	}
+	const conversion = Number(`1e${decimals}`);
+	return Math.round(amountStx) * conversion;
+}
+
+export function fmtStxMicroGeneral(amountStx: number, decimals: number) {
+	const conversion = Number(`1e${decimals}`);
+	return Math.round(amountStx) * conversion;
 }
 
 export function tsToTime(updated: number | undefined) {
@@ -120,10 +119,7 @@ export function truncateEnd(stringy?: string, amount?: number) {
 	return '..' + stringy.substring(stringy.length - amount);
 }
 
-export function compareCurrencies(
-	a: { value: string; name: string },
-	b: { value: string; name: string }
-) {
+export function compareCurrencies(a: { value: string; name: string }, b: { value: string; name: string }) {
 	if (a.value < b.value) {
 		return -1;
 	}

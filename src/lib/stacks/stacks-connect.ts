@@ -1,8 +1,10 @@
 import { AppConfig, showConnect, UserSession } from '@stacks/connect';
 import { storedStacksWallet } from '$stores/wallet';
-import { getConfig } from '$stores/store_helpers';
+import { getConfig, getSession } from '$stores/store_helpers';
 import { ChainId, STACKS_DEVNET, STACKS_MAINNET, STACKS_TESTNET } from '@stacks/network';
 import { stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
+import { getBalanceAtHeight, getTokenBalances } from '@mijoco/stx_helpers/dist/index';
+import { isSTX } from '$lib/predictions/predictions';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 const userSession = new UserSession({ appConfig });
@@ -113,7 +115,6 @@ export function logUserOut() {
 }
 
 export const coordinators = [
-	{ stxAddress: 'SPSEBFRZZEZSHGRKRR1Z55RX5AWHER3CYM0H9BMW', btcAddress: '' }, // mitchel
 	{ stxAddress: 'ST2SACH111M97FZWN2Z8XMJ1FCKSJM3NGE35S6ZKN', btcAddress: 'xverse testnet' }, // devnet + electrum bob
 	{ stxAddress: 'SP2SACH111M97FZWN2Z8XMJ1FCKSJM3NGE37MGXAT', btcAddress: 'xverse mainnet' }, // devnet + electrum bob
 	{ stxAddress: 'SP2F0DP9Z3KSS0DABDBJN0DA0SHMCVWHXPVTH3PJJ', btcAddress: '' }, // devnet + electrum bob
@@ -138,14 +139,9 @@ export const coordinators = [
 		stxAddress: 'ST3N4AJFZZYC4BK99H53XP8KDGXFGQ2PRSPNET8TN',
 		btcAddress: 'tb1q6ue638m4t5knwxl4kwhwyuffttlp0ffee3zn3e'
 	}, // mijoco production + electrum bob
-	{ stxAddress: 'STS4B251PP2HDR9M6TCRCMJ7S908H8GP9QNKJPAQ', btcAddress: '' }, // max
-	{ stxAddress: 'SP1PHAGEQ5RWM8G84DFGMRPENKQGFC4QJ9YWXAYKF', btcAddress: '' }, // acrossfire
-	{ stxAddress: 'ST306HDPY54T81RZ7A9NGA2F03B8NRGW6Y59ZRZSD', btcAddress: '' }, // coordinator
-	{ stxAddress: 'ST3RBZ4TZ3EK22SZRKGFZYBCKD7WQ5B8FFRS57TT6', btcAddress: '' }, // coordinator
-	{ stxAddress: 'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY', btcAddress: '' }, // coordinator
-	{ stxAddress: 'SP1R1061ZT6KPJXQ7PAXPFB6ZAZ6ZWW28GBQA1W0F', btcAddress: '' }, // coordinator
-	{ stxAddress: 'SP3JP0N1ZXGASRJ0F7QAHWFPGTVK9T2XNXDB908Z', btcAddress: '' }, // marten
-	{ stxAddress: 'SPSEBFRZZEZSHGRKRR1Z55RX5AWHER3CYM0H9BMW', btcAddress: '' } // mitchell
+	{ stxAddress: 'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY', btcAddress: '' },
+	{ stxAddress: 'SP1R1061ZT6KPJXQ7PAXPFB6ZAZ6ZWW28GBQA1W0F', btcAddress: '' },
+	{ stxAddress: 'ST2293W5GRAYMAQTC5D3NZ0R5YR4XT56NW8P920W', btcAddress: '' }
 ];
 
 export function isCoordinator(address: string | undefined) {

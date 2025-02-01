@@ -1,9 +1,10 @@
 <script>
-	import { Progressbar } from 'flowbite-svelte';
+	import { fmtNumber } from '$lib/utils';
+	import { sessionStore } from '$stores/stores';
 
 	export let startBurnHeight;
 	export let stopBurnHeight;
-	export let currentBurnHeight;
+	let currentBurnHeight = $sessionStore.stacksInfo.burn_block_height;
 
 	// Calculate the progress percentage
 	$: progress = (() => {
@@ -31,4 +32,8 @@
 <!-- Progress Bar Display -->
 <div class="h-2.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
 	<div class={`h-2.5 rounded-full ${state}`} style="width: {progress}%"></div>
+</div>
+<div class="flex justify-between text-xs text-gray-500">
+	<span>Start: {fmtNumber(startBurnHeight)}</span>
+	<span>End: {fmtNumber(stopBurnHeight)}</span>
 </div>

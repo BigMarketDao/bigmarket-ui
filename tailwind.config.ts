@@ -9,6 +9,28 @@ export default {
 	],
 	theme: {
 		colors: {
+			// yellow: {
+			// 	100: '#FEF9C3', // Light background for alerts
+			// 	200: '#FDE68A', // Slightly stronger yellow for notices
+			// 	300: '#FCD34D', // Strong yellow for highlighted components
+			// 	600: '#D97706', // Vibrant yellow for links and emphasis
+			// 	700: '#B45309', // Stronger dark yellow for text emphasis
+			// 	800: '#92400E' // Dark yellow for warnings
+			// },
+			green: {
+				100: '#DCFCE7', // Light green background
+				600: '#16A34A', // Strong green for success text
+				700: '#15803D' // Vibrant green for buttons
+			},
+			// blue: {
+			// 	100: '#DBEAFE', // Light blue background for DAO notices
+			// 	600: '#2563EB', // Vibrant blue for voting actions
+			// 	700: '#1D4ED8' // Darker blue for hover effects
+			// },
+			red: {
+				600: '#DC2626', // Strong red for disputes
+				700: '#B91C1C' // Darker red for hover effects
+			},
 			transparent: 'transparent',
 			white: '#ffffff',
 			black: '#000000',

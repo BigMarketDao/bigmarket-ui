@@ -1,65 +1,104 @@
 import axios from 'axios';
-import {
-	openStructuredDataSignatureRequestPopup,
-	showContractCall,
-	type SignatureData
-} from '@stacks/connect';
+import { openStructuredDataSignatureRequestPopup, showContractCall, type SignatureData } from '@stacks/connect';
 import { appDetails } from '$lib/config';
-import {
-	bufferCV,
-	Cl,
-	cvToJSON,
-	PostConditionMode,
-	principalCV,
-	serializeCV,
-	serializeCVBytes,
-	tupleCV,
-	uintCV,
-	type ClarityValue,
-	type TupleCV,
-	type TupleData
-} from '@stacks/transactions';
-import { hashSha256Sync } from '@stacks/encryption';
-import { MerkleTree } from 'merkletreejs';
+import { PostConditionMode, type ClarityValue, type ListCV, type TupleCV, type TupleData } from '@stacks/transactions';
 import { domain, domainCV, getStxAddress, getStxNetwork } from '../stacks/stacks-connect';
 import {
-	type Auth,
-	type PollCreateEvent,
-	type OpinionPoll,
 	type PollVoteMessage,
 	pollVoteMessageToTupleCV,
 	type StoredPollVoteMessage,
 	getStacksNetwork,
 	pollVotesToClarityValue,
 	type PredictionMarketCreateEvent,
-	callContractReadOnly,
 	type StoredOpinionPoll,
 	verifyDaoSignature,
-	type PredictionMarketStakeEvent
+	type PredictionMarketStakeEvent,
+	type PollVoteEvent,
+	generateMerkleTreeUsingStandardPrincipal,
+	generateMerkleProof,
+	proofToClarityValue,
+	type TokenPermissionEvent,
+	type Sip10Data,
+	type DaoOverview,
+	type PredictionMarketClaimEvent,
+	type MarketCategory
 } from '@mijoco/stx_helpers/dist/index';
-import { bytesToHex, hexToBytes } from '@stacks/common';
-import { getConfig, getSession } from '$stores/store_helpers';
-import { sha256 } from '@noble/hashes/sha256';
+import { getConfig, getDaoConfig, getSession } from '$stores/store_helpers';
 
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
+export type ProofObject = {
+	position: 'left' | 'right';
+	data: Buffer;
+};
 
-export type MarketData = {
-	concluded: boolean;
-	creator: string;
-	outcome: boolean;
-	marketType: number;
-	metadataHash: string;
-	yesPool: number;
-	noPool: number;
-};
-export type UserStake = {
-	yesAmount: number;
-	noAmount: number;
-};
-export async function getContractData() {
-	const path = `${getConfig().VITE_BIGMARKET_API}/pm/contract`;
+export function calculatePayout(amount: number, decimals: number, existing: number, pool: number, opposingPool: number) {
+	const mult = Number(`1e${decimals}`);
+	const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
+
+	let totalStake = existing + microStxAmount;
+	return totalStake + totalStake * (opposingPool / (pool + totalStake));
+}
+
+export async function isExecutiveTeamMember(coreExecuteContractId: string | undefined, stxAddress: string): Promise<{ executiveTeamMember: boolean }> {
+	let path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${stxAddress}`;
+	if (coreExecuteContractId) path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${coreExecuteContractId}/${stxAddress}`;
 	const response = await fetch(path);
-	if (response.status === 404) return [];
+	const res = await response.json();
+	return res;
+}
+
+export async function getClarityProofForCreateMarket(): Promise<ListCV<ClarityValue>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/gating/create-market`;
+	const response = await fetch(path);
+	const gateKeeper = await response.json();
+	const { tree, root } = generateMerkleTreeUsingStandardPrincipal(gateKeeper.merkleRootInput);
+	const { proof, valid } = generateMerkleProof(tree, getStxAddress());
+	if (!valid) throw new Error('Invalid proof - user will be denied this operation in contract');
+	return proofToClarityValue(proof);
+}
+const defToken: Sip10Data = {
+	symbol: 'BDG',
+	name: 'BitcoinDAO Governance Token',
+	decimals: 6,
+	balance: 0,
+	tokenUri: '',
+	totalSupply: 0
+};
+
+export async function getAllowedTokens(): Promise<Array<TokenPermissionEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/allowed-tokens`;
+	const response = await fetch(path);
+	const res = (await response.json()) || [];
+	return res;
+}
+
+export async function getMarketCategories(): Promise<Array<MarketCategory>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/categories`;
+	const response = await fetch(path);
+	const res = (await response.json()) || [];
+	return res;
+}
+
+export function getMarketToken(marketTokenContract: string): Sip10Data {
+	const sess = getSession();
+	const token = sess.tokens.find((t) => t.token === marketTokenContract);
+	return token?.sip10Data || defToken;
+}
+
+export function getGovernanceToken(): Sip10Data {
+	const sess = getSession();
+	const token = sess.tokens.find((t) => t.token === `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}`);
+
+	return token?.sip10Data || defToken;
+}
+
+export function isSTX(token: string) {
+	return token.indexOf('stx') > -1;
+}
+
+export async function getDaoOverview(): Promise<DaoOverview> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/market-dao-data`;
+	const response = await fetch(path);
 	const res = await response.json();
 	return res;
 }
@@ -95,65 +134,28 @@ export function myMarket(market: PredictionMarketCreateEvent) {
 	return market.creator === getStxAddress();
 }
 
-export async function fetchMarketsStakesData(
-	marketId: number
-): Promise<Array<PredictionMarketStakeEvent> | undefined> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/stakes/${marketId}`;
+export async function fetchMarketStakes(marketId: number): Promise<Array<PredictionMarketStakeEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/stakes/${marketId}`;
 	const response = await fetch(path);
-	if (response.status === 404) return;
+	if (response.status === 404) return [];
 	const res = await response.json();
 	return res;
 }
 
-export async function fetchMarketData(
-	market: PredictionMarketCreateEvent
-): Promise<MarketData | undefined> {
-	const data = {
-		contractAddress: market.votingContract.split('.')[0],
-		contractName: market.votingContract.split('.')[1],
-		functionName: 'get-market-data',
-		functionArgs: [`0x${serializeCV(uintCV(market.marketId))}`]
-	};
-	try {
-		//data.functionArgs = [`0x${serializeCV(uintCV(market.marketId))}`];
-		const result = await callContractReadOnly(getConfig().VITE_STACKS_API, data);
-		return {
-			concluded: Boolean(result.value.value.concluded.value),
-			creator: result.value.value.creator.value,
-			outcome: Boolean(result.value.value.outcome.value),
-			marketType: Number(result.value.value['market-type'].value),
-			metadataHash: result.value.value['market-data-hash'].value,
-			yesPool: Number(result.value.value['yes-pool'].value),
-			noPool: Number(result.value.value['no-pool'].value)
-		};
-	} catch (err: any) {
-		return undefined;
-	}
+export async function fetchMarketClaims(marketId: number): Promise<Array<PredictionMarketClaimEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/claims/${marketId}`;
+	const response = await fetch(path);
+	if (response.status === 404) return [];
+	const res = await response.json();
+	return res;
 }
 
-export async function fetchUserStake(
-	market: PredictionMarketCreateEvent,
-	user: string
-): Promise<UserStake | undefined> {
-	const data = {
-		contractAddress: market.votingContract.split('.')[0],
-		contractName: market.votingContract.split('.')[1],
-		functionName: 'get-stake-balances',
-		functionArgs: [
-			`0x${serializeCV(uintCV(market.marketId))}`,
-			`0x${serializeCV(principalCV(user))}`
-		]
-	};
-	try {
-		const result = await callContractReadOnly(getConfig().VITE_STACKS_API, data);
-		if (!result.value) return;
-		return {
-			yesAmount: Number(result.value.value['yes-amount'].value),
-			noAmount: Number(result.value.value['no-amount'].value)
-		};
-	} catch (err: any) {
-		return;
-	}
+export async function fetchMarketsVotes(marketId: number): Promise<Array<PollVoteEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/votes/${marketId}`;
+	const response = await fetch(path);
+	if (response.status === 404) return [];
+	const res = await response.json();
+	return res || [];
 }
 
 // export async function fetchMapEntry(
@@ -183,10 +185,7 @@ export async function fetchUserStake(
 // 	}
 // }
 
-export async function submitSip18PollVotes(
-	pollContract: string,
-	votes: Array<StoredPollVoteMessage>
-) {
+export async function submitSip18PollVotes(pollContract: string, votes: Array<StoredPollVoteMessage>) {
 	const args = pollVotesToClarityValue(votes);
 	await showContractCall({
 		network: getStacksNetwork(getConfig().VITE_NETWORK),
@@ -267,72 +266,11 @@ export async function signNewPoll(market: TupleCV<TupleData<ClarityValue>>, call
 			icon: window?.location?.origin || '' + appDetails.icon
 		},
 		onFinish(signature) {
-			let res = verifyDaoSignature(
-				getConfig().VITE_NETWORK,
-				getConfig().VITE_PUBLIC_APP_NAME,
-				getConfig().VITE_PUBLIC_APP_VERSION,
-				market,
-				signature.publicKey,
-				signature.signature
-			);
+			let res = verifyDaoSignature(getConfig().VITE_NETWORK, getConfig().VITE_PUBLIC_APP_NAME, getConfig().VITE_PUBLIC_APP_VERSION, market, signature.publicKey, signature.signature);
 			callback(signature);
 		}
 	});
 }
-
-// function sha256(contractId: string): string {
-// 	const encoder = new TextEncoder(); // Creates a new TextEncoder
-// 	const contractIdBytes = encoder.encode(contractId); // Encodes the string into a Uint8Array
-// 	return bytesToHex(hashSha256Sync(contractIdBytes));
-// }
-
-export function generateMerkleTree(tokens: Array<string>) {
-	const leaves = tokens.map((x) => sha256(x));
-	const tree = new MerkleTree(leaves, hashSha256Sync);
-	// const root = tree.getRoot().toString('hex');
-	return tree;
-}
-
-export function generateMerkleProof(tree: MerkleTree, token: string) {
-	const root = tree.getRoot().toString('hex');
-	const leaf = bytesToHex(sha256(token));
-	const proof = tree.getProof(leaf);
-	const isValid = tree.verify(proof, leaf, root);
-	console.log('Merkle Root:', root);
-	console.log('Proof:', proof);
-	console.log('Is valid proof:', isValid);
-	return isValid;
-}
-
-export async function newStakePredictionMessage(
-	market: PredictionMarketCreateEvent,
-	vote: boolean,
-	voter: string
-): Promise<any> {
-	const ts = new Date().getTime();
-	return {
-		attestation: vote ? 'I agree with the statement' : 'I disagree with the statement',
-		'market-id': market.marketId,
-		'market-data-hash': market.metadataHash,
-		timestamp: ts,
-		vote,
-		voter,
-		nftContract: undefined,
-		ftContract: undefined,
-		tokenId: undefined,
-		proof: undefined
-	};
-}
-// (attestation (string-ascii 100))
-// (poll-id (buff 32))
-// (timestamp uint)
-// (vote bool)
-// (voter principal)
-// (nft-contract (optional <nft-trait>))
-// (ft-contract (optional <ft-trait>))
-// (token-id (optional uint))
-// (proof (list 10 (buff 32)))),
-
 export async function signPollVoteMessage(pollVoteMessage: PollVoteMessage, callback: any) {
 	openStructuredDataSignatureRequestPopup({
 		message: pollVoteMessageToTupleCV(pollVoteMessage),
@@ -348,10 +286,7 @@ export async function signPollVoteMessage(pollVoteMessage: PollVoteMessage, call
 	});
 }
 
-export async function postPollVoteMessage(
-	pollVoteObjectHash: string,
-	auth: { message: PollVoteMessage; signature: SignatureData }
-) {
+export async function postPollVoteMessage(pollVoteObjectHash: string, auth: { message: PollVoteMessage; signature: SignatureData }) {
 	const path = `${getConfig().VITE_BIGMARKET_API}/pm/sip18-votes/${pollVoteObjectHash}`;
 	const response = await fetch(path, {
 		method: 'POST',

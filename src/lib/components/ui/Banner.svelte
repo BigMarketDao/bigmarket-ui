@@ -2,14 +2,7 @@
 	import { Spinner } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 
-	import {
-		Icon,
-		Wifi,
-		InformationCircle,
-		XCircle,
-		ExclamationCircle,
-		CheckCircle
-	} from 'svelte-hero-icons';
+	import { Icon, Wifi, InformationCircle, XCircle, ExclamationCircle, CheckCircle } from 'svelte-hero-icons';
 
 	export let message: string;
 	export let bannerType = 'info';
@@ -23,7 +16,7 @@
 		} else if (bannerType === 'danger') {
 			bannerClassList = clazz + ' bg-error-400';
 		} else if (bannerType === 'success') {
-			bannerClassList = clazz + ' bg-success-400';
+			bannerClassList = clazz + ' bg-success-700 text-white';
 		} else if (bannerType === 'waiting' || bannerType === 'checking') {
 			bannerClassList = clazz + ' bg-lightpurple/60';
 		} else {
@@ -32,24 +25,22 @@
 	});
 </script>
 
-<div class="flex rounded-md px-4 py-3 text-base text-black {bannerClassList}">
+<div class="flex w-full rounded-md px-4 py-3 text-base text-black {bannerClassList}">
 	<div class="flex items-center gap-2">
 		<div class="self-start">
 			{#if bannerType === 'warning'}
-				<Icon src={ExclamationCircle} class="h-5 w-5 text-black" aria-hidden="true" />
+				<Icon src={ExclamationCircle} class="inline h-5 w-5 text-black" aria-hidden="true" />
 			{:else if bannerType === 'danger'}
-				<Icon src={XCircle} class="h-5 w-5 text-black" aria-hidden="true" />
+				<Icon src={XCircle} class="inline h-5 w-5 text-black" aria-hidden="true" />
 			{:else if bannerType === 'success'}
-				<Icon src={CheckCircle} class="h-5 w-5 text-black" aria-hidden="true" />
+				<Icon src={CheckCircle} class="inline h-5 w-5 text-white" aria-hidden="true" />
 			{:else if bannerType === 'waiting'}
-				<Spinner color="blue" class="mb-0.5 h-4 w-4" aria-hidden="true" />
+				<Spinner color="blue" class="mb-0.5 inline h-4 w-4" aria-hidden="true" />
 			{:else if bannerType === 'checking'}
-				<Icon src={Wifi} class="h-5 w-5 text-black" aria-hidden="true" />
+				<Icon src={Wifi} class="inline h-5 w-5 text-black" aria-hidden="true" />
 			{:else}
-				<Icon src={InformationCircle} class="h-5 w-5 text-black" aria-hidden="true" />
+				<Icon src={InformationCircle} class="inline h-5 w-5 text-black" aria-hidden="true" />
 			{/if}
-		</div>
-		<div>
 			<slot name="message">{@html message}</slot>
 		</div>
 	</div>

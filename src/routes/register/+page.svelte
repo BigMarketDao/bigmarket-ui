@@ -69,20 +69,10 @@
 	<meta name="description" content="Create an opinion poll" />
 </svelte:head>
 
-{#if showPollResult}
-	<!-- <SlotModal onClose={() => closeModal()}>
-		<div slot="modalBody">
-			Your transaction has been sent - <a href={explorerUrl} target="_blank">show tx!</a>!
-		</div>
-	</SlotModal> -->
-{/if}
+{#if showPollResult}{/if}
 
 <div class="mx-auto max-w-4xl py-4 md:px-6">
 	<div class="my-2 flex w-full flex-col">
-		{#if canCreate}
-			<CreateMarket {examplePoll} onPollSubmit={handlePollSubmission} />
-		{:else}
-			<EmailRegistration />
-		{/if}
+		<EmailRegistration />
 	</div>
 </div>

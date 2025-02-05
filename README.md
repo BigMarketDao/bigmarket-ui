@@ -48,3 +48,5 @@ Run the script (install npx first if need be);
 ```sh
 npx vitest tests/export2Pdf.test.js
 ```
+
+payout[i]=myTotalStake[i]​ + (myTotalStake[i]​ × ( ∑(all other stakes) / total stakes in category[i] ))

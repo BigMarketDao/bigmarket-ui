@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { MarketData, PredictionMarketCreateEvent, Sip10Data, UserStake } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
-	import { calculatePayout, getMarketToken } from '../predictions';
+	import { calculatePayoutBinary, getMarketToken } from '../predictions';
 	import { fmtMicroToStx } from '$lib/utils';
 
 	export let market: PredictionMarketCreateEvent;
@@ -10,15 +10,12 @@
 	export let votingPowerUstx: number;
 	let sip10Data: Sip10Data | undefined = undefined;
 
-	let noWinnings: number;
-	let yesWinnings: number;
+	let winnings: { payoutYes: number; payoutNo: number };
 
-	$: yesWinnings = calculatePayout(votingPowerUstx || 0, sip10Data?.decimals || 0, userStake?.yesAmount || 0, marketData?.noPool || 0, marketData?.yesPool || 0);
-	$: noWinnings = calculatePayout(votingPowerUstx || 0, sip10Data?.decimals || 0, userStake?.noAmount || 0, marketData?.noPool || 0, marketData?.yesPool || 0);
+	$: winnings = calculatePayoutBinary(votingPowerUstx || 0, sip10Data?.decimals || 0, userStake, marketData?.stakes[1] || 0, marketData?.stakes[0] || 0);
 	onMount(() => {
 		sip10Data = getMarketToken(market.token);
-		yesWinnings = calculatePayout(votingPowerUstx, sip10Data.decimals, userStake?.yesAmount, marketData?.noPool, marketData?.yesPool);
-		noWinnings = calculatePayout(votingPowerUstx, sip10Data.decimals, userStake?.noAmount, marketData?.noPool, marketData?.yesPool);
+		winnings = calculatePayoutBinary(votingPowerUstx, sip10Data.decimals, userStake, marketData?.stakes[1] || 0, marketData?.stakes[0] || 0);
 	});
 </script>
 
@@ -36,7 +33,6 @@
 
 <div class="bg-gray-50 max-w-xl rounded-lg p-4 shadow-md">
 	<h3 class="text-lg font-semibold">Potential Winnings <span class="text-[10px]">(excluding fees)</span></h3>
-	<p class="mt-2">Payout if staking <span class="font-bold">{votingPowerUstx}</span> on "No": <span class="font-bold">{fmtMicroToStx(noWinnings, sip10Data?.decimals)}</span></p>
-	<p class="mt-2">Payout if staking <span class="font-bold">{votingPowerUstx}</span> on "Yes": <span class="font-bold">{fmtMicroToStx(yesWinnings, sip10Data?.decimals)}</span></p>
+	<p class="mt-2">Payout if staking <span class="font-bold">{votingPowerUstx}</span> on "No": <span class="font-bold">{fmtMicroToStx(winnings?.payoutYes || 0, sip10Data?.decimals)}</span></p>
+	<p class="mt-2">Payout if staking <span class="font-bold">{votingPowerUstx}</span> on "Yes": <span class="font-bold">{fmtMicroToStx(winnings?.payoutNo || 0, sip10Data?.decimals)}</span></p>
 </div>
-<!-- </div> -->

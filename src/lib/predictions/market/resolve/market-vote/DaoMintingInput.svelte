@@ -1,50 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fmtMicroToStx, fmtMicroToStxFormatted } from '$lib/utils';
-	import { Icon, PencilSquare } from 'svelte-hero-icons';
-	import BannerSlot from '$lib/components/ui/BannerSlot.svelte';
-	import type { Sip10Data, TokenPermissionEvent } from '@mijoco/stx_helpers';
+	import { fullBalanceInSip10Token, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
+	import { getGovernanceToken } from '$lib/predictions/predictions';
+	import { getConfig, getDaoConfig } from '$stores/store_helpers';
+	import { getStxAddress } from '$lib/stacks/stacks-connect';
 
-	export let onVotingPowerChange;
-	export let onVotingTypeChange;
-
-	export let sip10Data: Sip10Data;
-	export let totalBalanceUstx: number = 0;
-	export let votingPower: number = 0;
-	export let txVoting = false;
-	$: message = txVoting
-		? `Vote by sending a Stacks transaction - you will need enough ${sip10Data.symbol} pay the gas fee.  <a href="/" on:click|preventDefault=${() => (txVoting = !txVoting)}>change</a>`
-		: `Vote by signing a message - voting is free. <a href="/" on:click|preventDefault=${() => (txVoting = !txVoting)}>change</a>`;
+	let sip10Data: Sip10Data;
+	let totalBalanceUstx: number = 0;
 
 	let amountStx: number;
-	const balanceAtHeightF = fmtMicroToStxFormatted(totalBalanceUstx);
-
-	let stxAmount = '';
 
 	// Handle input change
 	function mintToken() {}
-	const updateTxVoting = () => {
-		onVotingTypeChange(!txVoting);
-	};
-
-	function handleSubmit() {
-		if (!stxAmount) {
-			alert(`Please enter a valid ${sip10Data.symbol} amount`);
-			return;
-		}
-
-		// Convert STX to microSTX
-		const microStxAmount = Math.round(parseFloat(stxAmount) * 1_000_000);
-
-		// Log or send the microSTX amount to the contract
-		console.log('Sending to contract:', microStxAmount);
-		// Add your contract call here
-	}
 
 	onMount(async () => {
-		if (votingPower === 0) votingPower = totalBalanceUstx;
-		console.log('sip10Data: ', sip10Data);
-		//amountStx = fmtMicroToStx(totalBalanceUstx);
+		sip10Data = getGovernanceToken();
+		totalBalanceUstx = await fullBalanceInSip10Token(getConfig().VITE_STACKS_API, getStxAddress(), `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}`);
 	});
 </script>
 
@@ -60,7 +31,6 @@
 		<input
 			class="w-full rounded-lg border border-gray-300 p-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 			bind:value={amountStx}
-			on:keyup={() => onVotingPowerChange(amountStx)}
 			placeholder="Enter amount (e.g., 0.000000)"
 			type="number"
 			id="Contribution"

@@ -12,6 +12,7 @@
 	import { getAllowedTokens, getDaoOverview, isExecutiveTeamMember } from '$lib/predictions/predictions';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import type { _ } from '$env/static/private';
+	import { fetchMarketData } from '$lib/predictions/voter';
 
 	const unsubscribe1 = sessionStore.subscribe(() => {});
 	const unsubscribe3 = configStore.subscribe(() => {});
@@ -47,6 +48,7 @@
 	};
 
 	onMount(async () => {
+		const md = await fetchMarketData(getConfig().VITE_STACKS_API, 1, getDaoConfig().VITE_DOA_DEPLOYER, getDaoConfig().VITE_DAO_MARKET_PREDICTING);
 		await initApp();
 		inited = true;
 	});

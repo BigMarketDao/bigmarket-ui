@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { boolCV, bufferCV, falseCV, listCV, noneCV, Pc, PostConditionMode, trueCV, uintCV } from '@stacks/transactions';
+	import { boolCV, bufferCV, Cl, falseCV, listCV, noneCV, Pc, PostConditionMode, trueCV, uintCV } from '@stacks/transactions';
 	import { showContractCall } from '@stacks/connect';
 	import { sessionStore } from '$stores/stores';
 	import { fetchResolutionVote, fullBalanceInSip10Token, type MarketData, type PollVoteEvent, type PredictionMarketCreateEvent, type ResolutionVote, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
@@ -44,11 +44,7 @@
 		votingPower = amount;
 	}
 
-	const castVote = async (vfor: boolean, amount: number) => {
-		let forCV = trueCV();
-		if (!vfor) {
-			forCV = falseCV();
-		}
+	const castVote = async (vfor: number, amount: number) => {
 		if (amount === 0) {
 			errorMessage = 'please indicate how much governance token you wish to vote with';
 			return;
@@ -74,7 +70,7 @@
 			functionArgs: [
 				uintCV(market.marketId),
 				bufferCV(hexToBytes(market.metadataHash)),
-				boolCV(vfor),
+				uintCV(vfor),
 				uintCV(microStxAmount),
 				noneCV() //reclaim gov. tokens from this vote
 			],
@@ -99,7 +95,7 @@
 			contractAddress,
 			contractName,
 			functionName,
-			functionArgs: [uintCV(market.marketId)],
+			functionArgs: [Cl.contractPrincipal(getDaoConfig().VITE_DOA_DEPLOYER, getDaoConfig().VITE_DAO_MARKET_PREDICTING), uintCV(market.marketId)],
 			onFinish: (data) => {
 				txId = data.txId;
 			},
@@ -145,7 +141,7 @@
 </script>
 
 <div>
-	{#if resolutionVote}
+	{#if resolutionVote && marketData}
 		<div class="flex flex-col gap-y-4">
 			{#if errorMessage}
 				<div class="my-4">
@@ -191,28 +187,36 @@
 						</tr>
 						{#if resolutionVote.concluded}
 							<tr class="bg-gray-50">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Passed</td>
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Winner</td>
 								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.passed}
+									{resolutionVote.winningCategory}
 								</td>
 							</tr>
 						{/if}
 						<tr class="bg-gray-50">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes For</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.votesFor}
+								{resolutionVote.votes[1]}
 							</td>
 						</tr>
 						<tr class="bg-gray-50">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes Against</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.votesAgainst}
+								{resolutionVote.votes[0]}
 							</td>
 						</tr>
 					</tbody>
 				</table>
 				{#if totalBalanceUstx === 0}
-					<DaoMintingInput {sip10Data} {totalBalanceUstx} {votingPower} {txVoting} onVotingPowerChange={handleVotingPowerChange} onVotingTypeChange={handleVotingTypeChange} />
+					<div class="my-5">
+						<Banner
+							bannerType={'info'}
+							message={'You have no governacne tokens - they may be locked on other proposals. <br/>Visit <a class="text-blue-700 font-semibold hover:text-blue-800" href="/dao/mint">bdg mint page</a> to unlock or mint some more.'}
+						/>
+					</div>
+					<div class="mt-4">
+						<BlockHeightProgressBar startBurnHeight={marketData!.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
+					</div>
 				{:else if resolutionVote.endBurnHeight >= currentBurnHeight}
 					<div>
 						<DaoVotingPowerInput {sip10Data} {totalBalanceUstx} {votingPower} {txVoting} onVotingPowerChange={handleVotingPowerChange} onVotingTypeChange={handleVotingTypeChange} />
@@ -228,24 +232,19 @@
 							<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
 						</div>
 					{/if}
-					<button
-						on:click={() => {
-							errorMessage = undefined;
-							castVote(true, votingPower);
-						}}
-						class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
-					>
-						VOTE YES
-					</button>
-					<button
-						on:click={() => {
-							errorMessage = undefined;
-							castVote(false, votingPower);
-						}}
-						class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
-					>
-						VOTE NO
-					</button>
+					<div class="my-4 flex w-full flex-wrap gap-x-2">
+						{#each marketData.categories as category, index}
+							<button
+								on:click={() => {
+									errorMessage = undefined;
+									castVote(index, votingPower);
+								}}
+								class="w-full flex-1 rounded bg-success-700 px-4 py-2 text-white transition-all duration-300 hover:bg-success-500 sm:w-auto"
+							>
+								{category}
+							</button>
+						{/each}
+					</div>
 					<div class="mt-4">
 						<BlockHeightProgressBar startBurnHeight={marketData!.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
 					</div>

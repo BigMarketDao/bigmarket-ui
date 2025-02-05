@@ -7,12 +7,12 @@
 	import InfoOnPollingMessage from './InfoOnPollingMessage.svelte';
 	import VotingPowerInput from './VotingPowerInput.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
-	import SlotModal from '$lib/components/common/SlotModal.svelte';
 	import { sessionStore } from '$stores/stores';
 	import AgentResolveMarket from '../market/resolve/AgentResolveMarket.svelte';
 	import { getConfig } from '$stores/store_helpers';
-	import { getMarketToken } from '../predictions';
-	import WinningProjections from '../graphs/WinningProjections.svelte';
+	import { calculatePayoutCategorical, getMarketToken, userStakeSum } from '../predictions';
+	import ProjectionsBinary from '../graphs/ProjectionsBinary.svelte';
+	import ProjectionsCategorical from '../graphs/ProjectionsCategorical.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	export let marketData: MarketData;
@@ -27,12 +27,15 @@
 	let successMessage: string | undefined;
 	let resolutionAgent = false;
 	let sip10Data: Sip10Data;
+	let payouts: Array<string>;
 
 	function handleTxPollVote(data: any) {
+		errorMessage = undefined;
 		onTxChange(data);
 	}
 
 	const handleResolution = async (data: any) => {
+		errorMessage = undefined;
 		if (data.error) {
 			errorMessage = data.message;
 		} else {
@@ -46,6 +49,7 @@
 			return;
 		}
 		votingPowerUstx = amount;
+		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, userStake, marketData);
 	}
 
 	function closeModal() {
@@ -56,7 +60,9 @@
 		sip10Data = getMarketToken(market.token);
 		const userStake = await fetchUserStake(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1], getStxAddress());
 		totalBalanceUstx = await fullBalanceInSip10Token(getConfig().VITE_STACKS_API, getStxAddress(), market.token);
-		if (userStake) totalBalanceUstx = totalBalanceUstx - userStake.yesAmount - userStake.noAmount;
+		const sum = userStake ? userStakeSum(userStake) : 0;
+		if (userStake) totalBalanceUstx = totalBalanceUstx - sum;
+
 		if (isLoggedIn()) resolutionAgent = getStxAddress() === $sessionStore.daoOverview.contractData.resolutionAgent;
 	});
 </script>
@@ -78,7 +84,13 @@
 					<div>
 						<VotingPowerInput sip10Data={getMarketToken(market.token)} {totalBalanceUstx} bind:votingPowerUstx {txVoting} onVotingPowerChange={handleVotingPowerChange} />
 					</div>
-					<div><WinningProjections {market} {marketData} userStake={userStake!} {votingPowerUstx} /></div>
+					{#if marketData.categories.length === 2}
+						<div><ProjectionsBinary {payouts} token={market.token} categories={marketData.categories} {votingPowerUstx} /></div>
+						<!-- <div><WinningProjectionsBinary {market} {marketData} userStake={userStake!} {votingPowerUstx} /></div> -->
+					{:else if market.marketType === 1}
+						<div><ProjectionsCategorical {payouts} token={market.token} categories={marketData.categories} {votingPowerUstx} /></div>
+						<!-- <div><WinningProjectionsCategorical {market} {marketData} userStake={userStake!} {votingPowerUstx} /></div> -->
+					{/if}
 				</div>
 
 				{#if errorMessage}
@@ -88,7 +100,7 @@
 				{/if}
 
 				<!-- Voting Options -->
-				<PredictUsingTransaction {market} {votingPowerUstx} onTxPollVote={handleTxPollVote} />
+				<PredictUsingTransaction {market} {marketData} {votingPowerUstx} onTxPollVote={handleTxPollVote} />
 			</div>
 		{/if}
 	{/if}
@@ -108,8 +120,8 @@
 	</div>
 
 	{#if resolutionAgent && market.resolutionState === ResolutionState.RESOLUTION_OPEN}
-		<div class="my-6">
-			<AgentResolveMarket {market} onResolved={handleResolution} />
+		<div class="my-4">
+			<AgentResolveMarket {market} {marketData} onResolved={handleResolution} />
 		</div>
 	{/if}
 </div>

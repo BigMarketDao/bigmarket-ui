@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { bufferCV, Cl, noneCV, PostConditionMode, someCV, tupleCV, uintCV } from '@stacks/transactions';
+	import { bufferCV, Cl, listCV, noneCV, PostConditionMode, someCV, tupleCV, uintCV } from '@stacks/transactions';
 	import { showContractCall } from '@stacks/connect';
 	import { sessionStore } from '$stores/stores';
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import type { MarketData, PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { getStacksNetwork, getTransaction } from '@mijoco/stx_helpers/dist/stacks-node';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { explorerTxUrl, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { hexToBytes } from '@stacks/common';
+	import { fetchMarketData } from '$lib/predictions/voter';
 
 	export let market: PredictionMarketCreateEvent;
+	export let marketData: MarketData;
 	export let onDispute;
 	let merkelRoot: string | undefined;
 
@@ -30,6 +32,14 @@
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = getDaoConfig().VITE_DAO_MARKET_VOTING;
 		let functionName = 'create-market-vote';
+		const functionArgs = [
+			Cl.contractPrincipal(getDaoConfig().VITE_DOA_DEPLOYER, getDaoConfig().VITE_DAO_MARKET_PREDICTING),
+			Cl.uint(market.marketId),
+			metadataHash,
+			listCV(Array(marketData.categories.length).fill(uintCV(0))),
+			uintCV(marketData.categories.length)
+		];
+
 		await showContractCall({
 			network: getStacksNetwork(getConfig().VITE_NETWORK),
 			postConditions: [],
@@ -37,7 +47,7 @@
 			contractAddress,
 			contractName,
 			functionName,
-			functionArgs: [Cl.uint(market.marketId), metadataHash],
+			functionArgs,
 			onFinish: (data) => {
 				txId = data.txId;
 				localStorage.setItem('resolve-market-' + market.marketId, JSON.stringify({ txId }));

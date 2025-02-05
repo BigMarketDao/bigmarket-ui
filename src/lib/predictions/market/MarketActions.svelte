@@ -11,7 +11,6 @@
 	import { getConfig } from '$stores/store_helpers';
 	import { getMarketToken } from '../predictions';
 	import { Icon, InformationCircle } from 'svelte-hero-icons';
-	import WinningProjections from '../graphs/WinningProjections.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	let marketData: MarketData | undefined;
@@ -51,7 +50,7 @@
 {#if marketData}
 	<div class="">
 		<div class="flex flex-col">
-			<div><ResolutionBanner {market} /></div>
+			<div><ResolutionBanner {market} {marketData} /></div>
 			<!-- Market Details Section -->
 			<div class="my-6 flex w-full flex-col rounded-lg bg-gray-100 p-6 shadow-lg">
 				<!-- Market Header -->
@@ -86,42 +85,36 @@
 						<p class="text-sm font-medium text-gray-900">Status</p>
 						<p class="text-lg">
 							{#if marketData.concluded}
-								<span class="font-medium text-success-700">Concluded - Make a claim?</span>
+								<span class="font-medium text-success-700">Concluded - Outcome {marketData.categories[market.outcome!]}</span>
 							{:else}
 								<span class="font-medium text-success-700">Live</span>
 							{/if}
 						</p>
 					</div>
-					<div>
-						<p class="text-sm font-medium text-gray-900">For Pool</p>
-						<p class="text-lg font-medium text-success-700">
-							{fmtMicroToStx(marketData.yesPool, sip10Data.decimals)}
-							{sip10Data.symbol}
-						</p>
-					</div>
-					<div>
-						<p class="text-sm font-medium text-gray-900">Against Pool</p>
-						<p class="text-lg font-medium text-primary-600">
-							{fmtMicroToStx(marketData.noPool, sip10Data.decimals)}
-							{sip10Data.symbol}
-						</p>
-					</div>
+				</div>
+				<h3 class="mb- text-xl font-semibold text-gray-800">All Stakes</h3>
+				<div class="mb-6 grid grid-cols-2 gap-4">
+					{#each marketData.categories as category, index}
+						<div>
+							<p class="text-sm font-medium text-gray-900">{category}</p>
+							<p class="text-lg font-medium text-success-700">
+								{fmtMicroToStx(marketData.stakes[index], sip10Data.decimals)}
+								{sip10Data.symbol}
+							</p>
+						</div>
+					{/each}
 				</div>
 
 				<!-- User Stake -->
-				<div class="flex-grow">
-					<h3 class="mb-4 text-xl font-semibold text-gray-800">Your Stakes</h3>
-					{#if userStake}
-						<div class="grid grid-cols-2 gap-4">
+				<h3 class="mb-4 text-xl font-semibold text-gray-800">Your Stakes</h3>
+				<div class="mb-6 grid grid-cols-2 gap-4">
+					{#if userStake && userStake.stakes && userStake.stakes.length >= marketData.categories.length}
+						{#each marketData.categories as category, index}
 							<div>
-								<p class="text-sm font-medium text-gray-900">For</p>
-								<p class="text-lg text-success-700">{fmtMicroToStx(userStake.yesAmount, sip10Data.decimals)} {sip10Data.symbol}</p>
+								<p class="text-sm font-medium text-gray-900">{category}</p>
+								<p class="text-lg text-success-700">{fmtMicroToStx(userStake?.stakes[index] || 0, sip10Data.decimals)} {sip10Data.symbol}</p>
 							</div>
-							<div>
-								<p class="text-sm font-medium text-gray-900">Against</p>
-								<p class="text-lg text-primary-600">{fmtMicroToStx(userStake.noAmount, sip10Data.decimals)} {sip10Data.symbol}</p>
-							</div>
-						</div>
+						{/each}
 					{:else}
 						<p class="text-sm text-gray-900">You have not staked anything in this market.</p>
 					{/if}
@@ -139,7 +132,7 @@
 				</div>
 			{/if}
 			<div class="my-6 flex w-full rounded-lg bg-gray-100 p-6 shadow-lg">
-				<MarketStakeGraphs {market} />
+				<MarketStakeGraphs {market} {marketData} />
 			</div>
 		</div>
 	</div>

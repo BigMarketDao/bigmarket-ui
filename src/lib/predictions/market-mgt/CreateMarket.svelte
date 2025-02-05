@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { configStore } from '$stores/stores_config';
-	import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, someCV, uintCV, type ClarityValue, type ListCV } from '@stacks/transactions';
-	import { dataHashSip18, getStacksNetwork, opinionPollToTupleCV, proofToClarityValue, type OpinionPoll, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
+	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, uintCV } from '@stacks/transactions';
+	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, opinionPollToTupleCV, type OpinionPoll, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
 	import { getClarityProofForCreateMarket, postCreatePollMessage, signNewPoll } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { hexToBytes } from '@stacks/common';
 	import Banner from '$lib/components/ui/Banner.svelte';
-	import Gating from './Gating.svelte';
 	import TokenSelection from './TokenSelection.svelte';
 	import { Cl, Pc } from '@stacks/transactions-v6';
 	import { sessionStore } from '$stores/stores';
 	import CategorySelection from './CategorySelection.svelte';
 	import MarkdownCreator from '$lib/components/ui/MarkdownCreator.svelte';
+	import MarketTypeSelection from './MarketTypeSelection.svelte';
 
 	export let examplePoll: OpinionPoll;
 	export let onPollSubmit;
@@ -51,7 +51,6 @@
 	};
 
 	const getSignature = async () => {
-		examplePoll.createdAt = new Date().getTime();
 		examplePoll.createdAt = new Date().getTime();
 		if (!token) {
 			errorMessage = 'Please select a token';
@@ -110,10 +109,26 @@
 	};
 
 	const confirmPoll = async (dataHash: string) => {
+		let categoriesCV;
+		if (examplePoll.marketType === 0) {
+			examplePoll.marketTypeDataCategorical = MARKET_BINARY_OPTION;
+			categoriesCV = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
+		} else if (examplePoll.marketType === 1) {
+			if (!examplePoll.marketTypeDataCategorical || examplePoll.marketTypeDataCategorical.length < 3) {
+				errorMessage = 'Categorical markets must have at least three options';
+				return;
+			}
+			categoriesCV = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
+		} else if (examplePoll.marketType === 2) {
+			errorMessage = 'Scalar markets are not yet supported';
+			return;
+		}
+		const marketFeeCV = examplePoll.marketFee === 0 ? noneCV() : someCV(uintCV((examplePoll.marketFee || 0) * 100));
 		const metadataHash = bufferCV(hexToBytes(dataHash)); // Assumes the hash is a string of 32 bytes in hex format
 		let proof = $sessionStore.daoOverview.contractData.creationGated ? await getClarityProofForCreateMarket() : Cl.list([]);
+		const ra = $sessionStore?.daoOverview?.contractData?.resolutionAgent || '';
 		const postConditions = [];
-		postConditions.push(Pc.principal(getStxAddress()).willSendEq($sessionStore.daoOverview.contractData.marketCreateFee).ustx());
+		if (ra !== getStxAddress()) postConditions.push(Pc.principal(getStxAddress()).willSendEq($sessionStore.daoOverview.contractData.marketCreateFee).ustx());
 		await openContractCall({
 			network: getStacksNetwork($configStore.VITE_NETWORK),
 			postConditions,
@@ -121,7 +136,7 @@
 			contractAddress: getDaoConfig().VITE_DOA_DEPLOYER,
 			contractName: getDaoConfig().VITE_DAO_MARKET_PREDICTING,
 			functionName: 'create-market',
-			functionArgs: [uintCV(0), someCV(uintCV(200)), contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof],
+			functionArgs: [categoriesCV!, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof],
 			onFinish: (data: any) => {
 				txId = data.txId;
 				console.log('finished contract call!', data);
@@ -181,7 +196,6 @@
 							<label for="poll-description" class="mb-1 block text-sm font-medium text-gray-700">Resolution Criteria</label>
 							<div class=""><MarkdownCreator bind:value={template.criteria} /></div>
 						</div>
-						<CategorySelection onSelectCategory={handleSelectCategory} />
 						<div>
 							<label for="poll-logo" class="mb-1 block text-sm font-medium text-gray-700">Market Image (URL)</label>
 							<input id="poll-logo" type="text" bind:value={template.logo} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
@@ -191,10 +205,16 @@
 								<img src={template.logo} alt="Poll Logo" class="h-20 rounded-md shadow-md" />
 							</div>
 						{/if}
+						<div>
+							<label for="poll-logo" class="mb-1 block text-sm font-medium text-gray-700">Percentage Market Fee (maximum is {$sessionStore.daoOverview.contractData.marketFeeBipsMax / 100}%)</label>
+							<input id="poll-logo" type="number" bind:value={template.marketFee} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+						</div>
 					</div>
 				</div>
 			</div>
+			<MarketTypeSelection bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
 			<TokenSelection onSelectToken={handleSelectToken} />
+			<CategorySelection onSelectCategory={handleSelectCategory} />
 
 			<!-- <div class="rounded-md border shadow-md">
 				<button class="w-full bg-gray-100 px-4 py-3 text-left font-medium text-gray-900 hover:bg-gray-200" type="button" data-accordion-target="#vote-gating"> Vote Gating </button>

@@ -59,7 +59,7 @@ export function fmtRoundToNDecimalPlaces(value: number, n: number) {
 export function fmtMicroToStx(amount: number, decimals?: number) {
 	const conv = Number(`1e${decimals}`);
 	if (!decimals) {
-		return amount / 1e6;
+		return String(amount / 1e6);
 	}
 	return (amount / conv).toFixed(decimals);
 }

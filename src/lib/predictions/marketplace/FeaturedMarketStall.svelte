@@ -1,14 +1,17 @@
 <script lang="ts">
-	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import { sessionStore } from '$stores/stores';
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 	import { fmtNumber } from '$lib/utils';
 	import MarketStallView from './MarketStallView.svelte';
 	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
+	import { fetchMarketData } from '../voter';
+	import { getConfig } from '$stores/store_helpers';
 
 	export let market: PredictionMarketCreateEvent;
 	export let admin: boolean;
+	let marketData: MarketData | undefined;
 	let currentBurnHeight = 0;
 	let startBurnHeight = 0;
 	let stopBurnHeight = 0;
@@ -20,6 +23,7 @@
 	onMount(async () => {
 		currentBurnHeight = $sessionStore.stacksInfo.burn_block_height;
 		startBurnHeight = market.unhashedData.startBurnHeight;
+		marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
 		stopBurnHeight = market.unhashedData.endBurnHeight;
 		inited = true;
 	});
@@ -38,7 +42,9 @@
 			<MarketStallView {market} {admin} />
 		</div>
 		<div class="mt-0 w-full md:ml-6 md:mt-0 md:w-full">
-			<div><MarketStakeGraphs {market} /></div>
+			{#if marketData}
+				<div><MarketStakeGraphs {market} {marketData} /></div>
+			{/if}
 		</div>
 
 		<!-- Market Timeline -->

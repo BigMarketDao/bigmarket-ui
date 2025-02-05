@@ -1,27 +1,29 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Cl, Pc, PostConditionMode, boolCV, bufferCV, falseCV, listCV, noneCV, trueCV, uintCV, type FungiblePostCondition, type PostCondition } from '@stacks/transactions';
+	import { Cl, Pc, PostConditionMode, boolCV, bufferCV, falseCV, listCV, noneCV, stringAsciiCV, trueCV, uintCV, type FungiblePostCondition, type PostCondition } from '@stacks/transactions';
 	import { isStacksWalletInstalled, showContractCall } from '@stacks/connect';
 	import { sessionStore } from '$stores/stores';
-	import type { PollCreateEvent, PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers/dist/index';
+	import type { MarketData, PollCreateEvent, PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import { getStacksNetwork, getTransaction } from '@mijoco/stx_helpers/dist/stacks-node';
 	import { getConfig } from '$stores/store_helpers';
 	import { explorerTxUrl, getAddressId, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { hexToBytes } from '@stacks/common';
 	import { getMarketToken, isSTX } from '../predictions';
+	import StakingBinary from './StakingBinary.svelte';
+	import StakingCategorical from './StakingCategorical.svelte';
 
 	export let market: PredictionMarketCreateEvent;
+	export let marketData: MarketData;
 	export let votingPowerUstx: number;
 	export let onTxPollVote;
 
 	let errorMessage: string | undefined;
 	let txId: string;
-	let canVote = true;
-	$: explorerUrl = explorerTxUrl(txId);
 	let sip10Data: Sip10Data;
 
-	const castVote = async (vfor: boolean) => {
+	const castVote = async (index: number) => {
+		errorMessage = undefined;
 		if (!isLoggedIn()) {
 			errorMessage = 'Please connect your wallet to vote';
 			return;
@@ -35,8 +37,8 @@
 		const microStxAmount = Math.round(parseFloat(String(votingPowerUstx)) * mult);
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = market.votingContract.split('.')[1];
-		let functionName = 'predict-yes-stake';
-		if (!vfor) functionName = 'predict-no-stake';
+		let functionName = 'predict-category';
+		const categorical = marketData.categories[index];
 		const address = getStxAddress();
 		const postConditions = [];
 		if (!isSTX(market.token)) {
@@ -58,7 +60,7 @@
 			contractAddress,
 			contractName,
 			functionName,
-			functionArgs: [uintCV(market.marketId), uintCV(microStxAmount), Cl.principal(market.token)],
+			functionArgs: [uintCV(market.marketId), uintCV(microStxAmount), stringAsciiCV(categorical), Cl.principal(market.token)],
 			onFinish: (data) => {
 				txId = data.txId;
 				localStorage.setItem('VOTED_FLAG' + getAddressId(), JSON.stringify(market.votingContract));
@@ -96,36 +98,23 @@
 </script>
 
 <div>
-	<div class="flex flex-col gap-y-4">
+	<div class="flex w-full flex-col gap-y-4">
+		{#if marketData.categories.length === 2}
+			<StakingBinary {castVote} />
+		{:else if market.marketType === 1}
+			<StakingCategorical {castVote} categories={marketData.categories} />
+		{:else if market.marketType === 2}
+			<div class="flex w-full justify-start gap-x-4">Scalar markets not yet supported</div>
+		{/if}
 		{#if txId}
-			<div class="mb-3 max-w-xl">
+			<div class="mb-4 flex w-full justify-start gap-x-4">
 				<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
 			</div>
 		{/if}
 		{#if errorMessage}
-			<div class="flex w-full justify-start gap-x-4">
-				{errorMessage}
+			<div class="mb-4 flex w-full justify-start gap-x-4">
+				<Banner bannerType={'warning'} message={errorMessage} />
 			</div>
 		{/if}
-		<div class="flex w-full justify-start gap-x-4">
-			<button
-				on:click={() => {
-					errorMessage = undefined;
-					castVote(true);
-				}}
-				class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
-			>
-				I AGREE
-			</button>
-			<button
-				on:click={() => {
-					errorMessage = undefined;
-					castVote(false);
-				}}
-				class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
-			>
-				I DISAGREE
-			</button>
-		</div>
 	</div>
 </div>

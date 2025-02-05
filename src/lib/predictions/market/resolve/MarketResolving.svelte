@@ -8,6 +8,9 @@
 	import ClaimWinnings from './ClaimWinnings.svelte';
 	import MarketVoting from './market-vote/MarketVoting.svelte';
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
+	import { userStakeSum } from '$lib/predictions/predictions';
+	import TransferLosingAmount from './TransferLosingAmount.svelte';
+	import Banner from '$lib/components/ui/Banner.svelte';
 
 	export let market: PredictionMarketCreateEvent = {} as PredictionMarketCreateEvent;
 	export let marketData: MarketData = {} as MarketData;
@@ -26,13 +29,16 @@
 		console.log('Dispute started!');
 	};
 
-	const canClaim = () => {
+	const hasStaked = () => {
 		if (userStake) {
-			if (market.outcome) {
-				return userStake.yesAmount > 0;
-			} else {
-				return userStake.noAmount > 0;
-			}
+			return userStakeSum(userStake) > 0;
+		}
+		return false;
+	};
+
+	const canClaim = () => {
+		if (userStake && marketData.outcome) {
+			return userStake.stakes[marketData.outcome] > 0;
 		}
 		return false;
 	};
@@ -77,20 +83,20 @@
 	<div class="mb-4 rounded bg-yellow-100 p-4 text-yellow-800">
 		{#if disputable}
 			<p>
-				Resolution is in progress. Preliminary outcome is <span class="text-red-600 font-medium">{marketData.outcome ? 'YES' : 'NO'}</span>.
+				Resolution is in progress. Preliminary outcome is <span class="text-red-600 font-medium">{marketData.categories[market.outcome!]}</span>.
 			</p>
 			<p>
 				Dispute window closes in <span class="font-bold">{resBurnHeight + resWindow - burnHeight}</span> blocks.
 			</p>
-			{#if canClaim()}
-				<DisputeResolution {market} onDispute={handleDispute} />
+			{#if hasStaked()}
+				<DisputeResolution {market} {marketData} onDispute={handleDispute} />
 			{/if}
 			<div class="mt-4">
 				<BlockHeightProgressBar startBurnHeight={resBurnHeight} stopBurnHeight={resBurnHeight + resWindow} />
 			</div>
 		{:else}
 			<p>
-				Outcome is <span class="text-red-600 font-medium">{marketData.outcome ? 'YES' : 'NO'}</span>. Market can now be concluded to start claims
+				Outcome is <span class="text-red-600 font-medium">{marketData.categories[market.outcome!]}</span>. Market can now be concluded to start claims
 			</p>
 			<ResolveMarket {market} onDispute={handleDispute} />
 		{/if}
@@ -101,12 +107,12 @@
 	</div>
 {:else if resolutionState === ResolutionState.RESOLUTION_RESOLVED}
 	<div class="mb-4 rounded bg-gray-200 p-4 text-gray-800">
+		<Banner bannerType={'info'} message={`This market is resolved - the answer is ${marketData.categories[market.outcome!]}.`} />
 		{#if userStake && canClaim()}
 			<ClaimWinnings {market} {userStake} {marketData} />
-		{:else}
-			<p>
-				This market is resolved - the answer is {market.outcome ? 'YES' : 'NO'}.
-			</p>
+		{/if}
+		{#if marketData.stakes[marketData.outcome!] === 0 && !market.transferLosingStakes}
+			<TransferLosingAmount {market} {marketData} />
 		{/if}
 	</div>
 {/if}

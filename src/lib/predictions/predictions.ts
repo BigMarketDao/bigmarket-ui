@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { openStructuredDataSignatureRequestPopup, showContractCall, type SignatureData } from '@stacks/connect';
 import { appDetails } from '$lib/config';
-import { PostConditionMode, type ClarityValue, type ListCV, type TupleCV, type TupleData } from '@stacks/transactions';
+import { PostConditionMode, principalCV, serializeCV, uintCV, type ClarityValue, type ListCV, type TupleCV, type TupleData } from '@stacks/transactions';
 import { domain, domainCV, getStxAddress, getStxNetwork } from '../stacks/stacks-connect';
 import {
 	type PollVoteMessage,
@@ -21,30 +21,123 @@ import {
 	type Sip10Data,
 	type DaoOverview,
 	type PredictionMarketClaimEvent,
-	type MarketCategory
+	type MarketCategory,
+	type UserStake,
+	type MarketData,
+	callContractReadOnly,
+	type GateKeeper
 } from '@mijoco/stx_helpers/dist/index';
 import { getConfig, getDaoConfig, getSession } from '$stores/store_helpers';
+import { fmtMicroToStx, fmtStxMicro } from '$lib/utils';
 
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
+export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export function validEmail(email: string) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export type ProofObject = {
 	position: 'left' | 'right';
 	data: Buffer;
 };
 
-export function calculatePayout(amount: number, decimals: number, existing: number, pool: number, opposingPool: number) {
+export function userStakeSum(userStake: UserStake) {
+	try {
+		return userStake && userStake.stakes ? userStake?.stakes.reduce((accumulator, currentValue) => accumulator + currentValue, 0) : 0;
+	} catch (err: any) {
+		return 0;
+	}
+}
+export function totalPoolSum(stakes: Array<number>) {
+	try {
+		return stakes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+	} catch (err: any) {
+		return 0;
+	}
+}
+export function calculatePayoutBinary(amount: number, decimals: number, userStake: UserStake | undefined, yesPool: number, noPool: number) {
 	const mult = Number(`1e${decimals}`);
 	const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
 
-	let totalStake = existing + microStxAmount;
-	return totalStake + totalStake * (opposingPool / (pool + totalStake));
+	let totalStakeYes = (userStake?.stakes[1] || 0) + microStxAmount;
+	let totalStakeNo = (userStake?.stakes[0] || 0) + microStxAmount;
+	let payoutNo = totalStakeYes + totalStakeYes * (noPool / (yesPool + totalStakeYes));
+	let payoutYes = totalStakeNo + totalStakeNo * (yesPool / (noPool + totalStakeNo));
+	return [payoutNo, payoutYes];
 }
 
+// export function calculatePayoutCategorical(amount: number, decimals: number, userStakes: Array<number>, marketData: MarketData) {
+// 	const mult = Number(`1e${decimals}`);
+// 	const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
+// 	const numCategories = marketData.categories.length;
+// 	const categories: Array<string> = marketData.categories;
+// 	const stakes: Array<number> = marketData.stakes;
+// 	let totalStakeYes = (userStake?.stakes[1] || 0) + microStxAmount;
+// 	let totalStakeNo = (userStake?.stakes[0] || 0) + microStxAmount;
+// 	let payoutNo = totalStakeYes + totalStakeYes * (noPool / (yesPool + totalStakeYes));
+// 	let payoutYes = totalStakeNo + totalStakeNo * (yesPool / (noPool + totalStakeNo));
+// 	return { payoutYes, payoutNo };
+// }
+export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData) {
+	const mult = Number(`1e${decimals}`);
+	const microStxAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const numCategories = marketData.categories.length;
+
+	// Ensure userStakes array is correctly initialized
+	const userStakes = [];
+
+	for (let i = 0; i < numCategories; i++) {
+		userStakes.push(userStake && userStake.stakes && userStake?.stakes.length > i ? userStake?.stakes[i] : 0);
+	}
+
+	// Copy the existing market stakes
+	let totalStakes = [...marketData.stakes];
+	//let newUserStakes = [...userStakes];
+
+	// Add new stake to each category
+	for (let i = 0; i < numCategories; i++) {
+		//newUserStakes[i] += microStxAmount;
+		//totalStakes[i] += microStxAmount;
+	}
+
+	// Calculate total stake in market
+	const totalMarketStake = totalStakes.reduce((sum, stake) => sum + stake, 0);
+
+	// Compute payouts for each category
+	let payouts: string[] = new Array(numCategories).fill(0);
+
+	for (let i = 0; i < numCategories; i++) {
+		const myTotalStake = userStakes[i] + microStxAmount; // User's total stake in category i
+		const categoryPool = totalStakes[i]; // Total market stake in category i
+
+		// Calculate total stake excluding the current category
+		const totalNotI = totalMarketStake - categoryPool;
+
+		if (categoryPool === 0) {
+			// If no one has staked here, the user only gets their stake back
+			payouts[i] = fmtMicroToStx(myTotalStake, decimals) as string;
+		} else {
+			// Corrected formula: Payout is proportional to all other stakes
+			payouts[i] = fmtMicroToStx(myTotalStake + (myTotalStake * totalNotI) / categoryPool, decimals) as string;
+		}
+	}
+
+	return payouts;
+}
 export async function isExecutiveTeamMember(coreExecuteContractId: string | undefined, stxAddress: string): Promise<{ executiveTeamMember: boolean }> {
 	let path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${stxAddress}`;
 	if (coreExecuteContractId) path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${coreExecuteContractId}/${stxAddress}`;
 	const response = await fetch(path);
 	const res = await response.json();
 	return res;
+}
+export async function canCreateMarket(): Promise<boolean> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/gating/create-market`;
+	const response = await fetch(path);
+	const gateKeeper: GateKeeper = await response.json();
+	const { tree, root } = generateMerkleTreeUsingStandardPrincipal(gateKeeper.merkleRootInput);
+	const { proof, valid } = generateMerkleProof(tree, getStxAddress());
+	return valid;
 }
 
 export async function getClarityProofForCreateMarket(): Promise<ListCV<ClarityValue>> {

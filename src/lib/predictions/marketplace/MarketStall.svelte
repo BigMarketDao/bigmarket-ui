@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 	import { fmtNumber } from '$lib/utils';
 	import MarketStallView from './MarketStallView.svelte';
+	import { fetchMarketData } from '../voter';
+	import { getConfig } from '$stores/store_helpers';
 
 	export let market: PredictionMarketCreateEvent;
 	export let admin: boolean;
@@ -33,7 +35,9 @@
 {#if inited}
 	<div class="flex flex-col rounded-lg bg-white p-4 shadow-lg transition hover:shadow-xl">
 		<!-- Market Logo -->
-		<div><MarketStallView {market} {admin} /></div>
+		<div class="flex h-full flex-col">
+			<MarketStallView {market} {admin} />
+		</div>
 
 		<!-- Market Timeline -->
 		{#if showTimeline}

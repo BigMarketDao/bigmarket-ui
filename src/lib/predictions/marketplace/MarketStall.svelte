@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 	import { fmtNumber } from '$lib/utils';
 	import MarketStallView from './MarketStallView.svelte';
-	import { fetchMarketData } from '../voter';
-	import { getConfig } from '$stores/store_helpers';
 
 	export let market: PredictionMarketCreateEvent;
 	export let admin: boolean;
@@ -15,9 +13,6 @@
 	let errorMessage: string | undefined;
 	let successMessage: string | undefined;
 	let showTimeline = false;
-
-	let placeholderImage = 'https://bitcoinfaces.xyz/api/get-image?name=SP1R1061ZT6KPJXQ7PAXPFB6ZAZ6ZWW28GBQA1W0F'; // Path to your standard placeholder image
-	let isPlaceholder = false;
 
 	onMount(async () => {
 		startBurnHeight = market.unhashedData.startBurnHeight;

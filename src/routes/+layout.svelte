@@ -8,11 +8,10 @@
 	import { initAddresses, initApplication } from '@mijoco/stx_helpers/dist/account';
 	import { getStxAddress, getUserData } from '$lib/stacks/stacks-connect';
 	import { page } from '$app/state';
-	import { fetchContractAssets, type ExchangeRate } from '@mijoco/stx_helpers/dist/index';
+	import { type ExchangeRate } from '@mijoco/stx_helpers/dist/index';
 	import { getAllowedTokens, getDaoOverview, isExecutiveTeamMember } from '$lib/predictions/predictions';
-	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import type { _ } from '$env/static/private';
-	import { fetchMarketData } from '$lib/predictions/voter';
+	import { fetchExchangeRates } from '$lib/stacks/rates';
 
 	const unsubscribe1 = sessionStore.subscribe(() => {});
 	const unsubscribe3 = configStore.subscribe(() => {});
@@ -28,27 +27,43 @@
 	const initApp = async () => {
 		if (!$sessionStore.keySets || !$sessionStore.keySets[$configStore.VITE_NETWORK]) await initAddresses(sessionStore);
 		const exchangeRates: Array<ExchangeRate> = []; //await fetchExchangeRates();
-		const daoOverview = await getDaoOverview();
-		const tokens = await getAllowedTokens();
+		const daoOverview = $sessionStore.daoOverview || (await getDaoOverview());
+		const tokens = $sessionStore.tokens || (await getAllowedTokens());
+		const userSettings = $sessionStore.userSettings || (await isExecutiveTeamMember(undefined, getStxAddress()));
 
 		if (!$sessionStore.balances) {
 			await initApplication($configStore.VITE_STACKS_API, $configStore.VITE_MEMPOOL_API, $configStore.VITE_NETWORK, sessionStore, exchangeRates, '$configStore.VITE_SBTC_CONTRACT_ID', getUserData());
 		} else {
 			initApplication($configStore.VITE_STACKS_API, $configStore.VITE_MEMPOOL_API, $configStore.VITE_NETWORK, sessionStore, exchangeRates, '$configStore.VITE_SBTC_CONTRACT_ID', getUserData());
 		}
-		const cb = await fetchContractAssets(getConfig().VITE_STACKS_API, getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_MARKET_PREDICTING);
-		console.log('cb: ', cb);
-		const emTeamMam = await isExecutiveTeamMember(undefined, getStxAddress());
+		// const cb = await fetchContractAssets(getConfig().VITE_STACKS_API, getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_MARKET_PREDICTING);
+		// console.log('cb: ', cb);
 		sessionStore.update((conf: BigMarketSessionStore) => {
-			conf.userSettings.executiveTeamMember = emTeamMam?.executiveTeamMember || false;
+			conf.userSettings.executiveTeamMember = userSettings?.executiveTeamMember || false;
 			conf.daoOverview = daoOverview;
 			conf.tokens = tokens;
+			return conf;
+		});
+		initAppFromServer();
+	};
+
+	const initAppFromServer = async () => {
+		const exchangeRates = await fetchExchangeRates();
+		const daoOverview = await getDaoOverview();
+		const tokens = await getAllowedTokens();
+		const userSettings = await isExecutiveTeamMember(undefined, getStxAddress());
+		// const cb = await fetchContractAssets(getConfig().VITE_STACKS_API, getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_MARKET_PREDICTING);
+		// console.log('cb: ', cb);
+		sessionStore.update((conf: BigMarketSessionStore) => {
+			conf.userSettings.executiveTeamMember = userSettings?.executiveTeamMember || false;
+			conf.daoOverview = daoOverview;
+			conf.tokens = tokens;
+			conf.exchangeRates = exchangeRates;
 			return conf;
 		});
 	};
 
 	onMount(async () => {
-		const md = await fetchMarketData(getConfig().VITE_STACKS_API, 1, getDaoConfig().VITE_DOA_DEPLOYER, getDaoConfig().VITE_DAO_MARKET_PREDICTING);
 		await initApp();
 		inited = true;
 	});

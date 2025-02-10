@@ -6,6 +6,7 @@
 	import { sessionStore } from '$stores/stores';
 	import { goto } from '$app/navigation';
 	import { ArrowRightAltOutline } from 'flowbite-svelte-icons';
+	import CurrencyDropdown from './CurrencyDropdown.svelte';
 
 	export let title = 'BigMarket';
 	let componentKey = 0;
@@ -91,6 +92,7 @@
 					>
 					{heights.bitcoinHeight}
 				</span> -->
+				<a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="mx-2 hover:text-blue-400">token sale</a>
 				<a href="/" on:click|preventDefault={() => goto('/settings')} class="mx-2 hover:text-blue-400">settings</a>
 				<a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-blue-400">{$configStore.VITE_NETWORK}</a>
 				{#if isLoggedIn()}
@@ -98,6 +100,7 @@
 				{:else}
 					<a id="connect-wallet" href="/" on:click|preventDefault={() => loginStacks()} class="mx-2 hover:text-blue-400">Connect Wallet</a>
 				{/if}
+				<CurrencyDropdown />
 			</nav>
 		{/key}
 	</div>

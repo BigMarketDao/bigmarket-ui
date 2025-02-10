@@ -22,8 +22,8 @@
 	let featuredMarkets: Array<PredictionMarketCreateEvent>;
 	let unfeaturedMarkets: Array<PredictionMarketCreateEvent>;
 	$: {
-		featuredMarkets = filteredMarkets.filter((market) => market.featured);
-		unfeaturedMarkets = filteredMarkets.filter((market) => !market.featured);
+		featuredMarkets = filteredMarkets.filter((market) => market.unhashedData.featured);
+		unfeaturedMarkets = filteredMarkets.filter((market) => !market.unhashedData.featured);
 	}
 	onMount(async () => {
 		filteredMarkets = markets;
@@ -34,8 +34,8 @@
 	<!-- Featured Markets -->
 	<CategoryFilter onSelectCategory={handleSelectCategory} />
 	<div class="w-full max-w-6xl space-y-6">
-		{#each featuredMarkets as m1}
-			<FeaturedMarketStall market={m1} admin={false} />
+		{#each featuredMarkets as market}
+			<FeaturedMarketStall {market} admin={false} />
 		{/each}
 	</div>
 

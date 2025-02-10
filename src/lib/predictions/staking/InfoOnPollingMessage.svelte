@@ -13,17 +13,9 @@
 <div class="flex flex-col gap-y-2 p-5">
 	<div class="flex flex-col gap-y-5">
 		<div class="flex flex-col gap-y-2">
-			<h1 class="text-lg font-medium">Polling</h1>
+			<h1 class="text-lg font-medium">About us</h1>
 			<p>
-				Express your opinion by signing a message - its free and simple. Votes are batched and sent
-				to a smart contract every hour.
-			</p>
-		</div>
-		<div class="flex flex-col gap-y-2">
-			<h1 class="text-lg font-medium">Gating</h1>
-			<p>
-				Some polls operate a gating policy meaning you need to own a specific meme coin or nft token
-				before you can take part. The gating policy is up to whoever set up the poll
+				Connect wallet to take part. Markets operate via a decentralised community - to participate in govenerance and growth of the project <a href="/dao/token-sale">visit our token sale</a> page.
 			</p>
 		</div>
 	</div>

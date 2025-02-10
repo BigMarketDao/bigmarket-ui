@@ -27,6 +27,7 @@
 	let errorMessage: string = '';
 	let result: string | undefined = undefined;
 	let pollMessage: any;
+	let featured = false;
 	$: explorerUrl = `${$configStore.VITE_STACKS_API}/txid/${result}?chain=${$configStore.VITE_NETWORK}`;
 
 	let template: OpinionPoll;
@@ -94,7 +95,7 @@
 				publicKey: signature.publicKey,
 				merkelRoot: merkelRoot,
 				contractIds: contractIds,
-				featured: false
+				featured
 			};
 			console.log('signature: ' + signature.signature);
 			console.log('publicKey: ' + signature.publicKey);
@@ -136,7 +137,7 @@
 			contractAddress: getDaoConfig().VITE_DOA_DEPLOYER,
 			contractName: getDaoConfig().VITE_DAO_MARKET_PREDICTING,
 			functionName: 'create-market',
-			functionArgs: [categoriesCV!, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof],
+			functionArgs: [categoriesCV!, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury)],
 			onFinish: (data: any) => {
 				txId = data.txId;
 				console.log('finished contract call!', data);
@@ -175,9 +176,9 @@
 				<button class="w-full bg-gray-100 px-4 py-3 text-left font-medium text-gray-900 hover:bg-gray-200" type="button" data-accordion-target="#markets-info"> General Information </button>
 				<div id="markets-info" class="px-4 py-4">
 					<h2 class="mb-2 text-xl font-bold">Markets</h2>
-					<p class="mb-4 text-gray-700">Markets are run on Bitcoin Layer 2 smart contract-enabled chains.</p>
-					<p class="mb-4 text-gray-700">Version 1 of BigMarket enables simple yes/no prediction markets.</p>
-					<p class="mb-4 text-gray-700">Markets are resolved, in the first instance, by the DAO core team. Anyone with a stake in the market can dispute the resolution which triggers a Community Oracle DAO vote to resolve the market.</p>
+					<p class="mb-4">Markets are run on Bitcoin Layer 2 smart contract-enabled chains.</p>
+					<p class="mb-4">Version 1 of BigMarket enables simple yes/no prediction markets.</p>
+					<p class="mb-4">Markets are resolved, in the first instance, by the DAO core team. Anyone with a stake in the market can dispute the resolution which triggers a Community Oracle DAO vote to resolve the market.</p>
 				</div>
 			</div>
 			<div class="rounded-md border shadow-md">
@@ -185,19 +186,29 @@
 				<div id="poll-info" class="px-4 py-4">
 					<div class="space-y-4">
 						<div>
-							<label for="poll-name" class="mb-1 block text-sm font-medium text-gray-700">Market Title</label>
+							<label for="poll-name" class="mb-1 block text-sm font-medium">Market Title</label>
 							<input id="poll-name" type="text" bind:value={template.name} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 						<div>
-							<label for="poll-description" class="mb-1 block text-sm font-medium text-gray-700">Market Description</label>
+							<label class="flex cursor-pointer items-center space-x-2">
+								<input id="featured" type="checkbox" bind:checked={featured} class="h-5 w-5 rounded-md border-gray-300 text-blue-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500" />
+								<span class="text-sm font-medium text-gray-200">Featured Market</span>
+							</label>
+						</div>
+						<div>
+							<label for="poll-description" class="mb-1 block text-sm font-medium">Market Description</label>
 							<div class=""><MarkdownCreator bind:value={template.description} /></div>
 						</div>
 						<div>
-							<label for="poll-description" class="mb-1 block text-sm font-medium text-gray-700">Resolution Criteria</label>
+							<label for="poll-description" class="mb-1 block text-sm font-medium">Resolution Criteria</label>
 							<div class=""><MarkdownCreator bind:value={template.criteria} /></div>
 						</div>
 						<div>
-							<label for="poll-logo" class="mb-1 block text-sm font-medium text-gray-700">Market Image (URL)</label>
+							<label for="treasury" class="mb-1 block text-sm font-medium">Treasury</label>
+							<input id="treasury" type="text" bind:value={template.treasury} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+						</div>
+						<div>
+							<label for="poll-logo" class="mb-1 block text-sm font-medium">Market Image (URL)</label>
 							<input id="poll-logo" type="text" bind:value={template.logo} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 						{#if template.logo}
@@ -206,7 +217,7 @@
 							</div>
 						{/if}
 						<div>
-							<label for="poll-logo" class="mb-1 block text-sm font-medium text-gray-700">Percentage Market Fee (maximum is {$sessionStore.daoOverview.contractData.marketFeeBipsMax / 100}%)</label>
+							<label for="poll-logo" class="mb-1 block text-sm font-medium">Percentage Market Fee (maximum is {$sessionStore.daoOverview.contractData.marketFeeBipsMax / 100}%)</label>
 							<input id="poll-logo" type="number" bind:value={template.marketFee} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 					</div>
@@ -219,7 +230,7 @@
 			<!-- <div class="rounded-md border shadow-md">
 				<button class="w-full bg-gray-100 px-4 py-3 text-left font-medium text-gray-900 hover:bg-gray-200" type="button" data-accordion-target="#vote-gating"> Vote Gating </button>
 				<div id="markets-info" class="px-4 py-4">
-					<p class="mb-0 text-gray-700">Token contracts with which to gate the resolution voting - only holders of the specified tokens will be elligible to vote</p>
+					<p class="mb-0 ">Token contracts with which to gate the resolution voting - only holders of the specified tokens will be elligible to vote</p>
 				</div>
 				<div id="vote-gating" class="py-2">
 					<Gating onGenerateRoot={handleGenerateRoot} />
@@ -231,15 +242,15 @@
 					<h2 class="mb-4 text-xl font-bold">Social Integrations</h2>
 					<div class="space-y-4">
 						<div>
-							<label for="twitter-handle" class="mb-1 block text-sm font-medium text-gray-700">Twitter Market Handle</label>
+							<label for="twitter-handle" class="mb-1 block text-sm font-medium">Twitter Market Handle</label>
 							<input id="twitter-handle" type="text" bind:value={template.social.twitter.projectHandle} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 						<div>
-							<label for="discord-id" class="mb-1 block text-sm font-medium text-gray-700">Discord Server ID</label>
+							<label for="discord-id" class="mb-1 block text-sm font-medium">Discord Server ID</label>
 							<input id="discord-id" type="text" bind:value={template.social.discord.serverId} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 						<div>
-							<label for="website-url" class="mb-1 block text-sm font-medium text-gray-700">External Market Link (Optional)</label>
+							<label for="website-url" class="mb-1 block text-sm font-medium">External Market Link (Optional)</label>
 							<input id="website-url" type="text" bind:value={template.social.website.url} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 					</div>

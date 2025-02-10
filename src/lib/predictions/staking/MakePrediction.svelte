@@ -7,12 +7,10 @@
 	import InfoOnPollingMessage from './InfoOnPollingMessage.svelte';
 	import VotingPowerInput from './VotingPowerInput.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
-	import { sessionStore } from '$stores/stores';
+	import { sessionStore, stakeAmount } from '$stores/stores';
 	import AgentResolveMarket from '../market/resolve/AgentResolveMarket.svelte';
 	import { getConfig } from '$stores/store_helpers';
 	import { calculatePayoutCategorical, getMarketToken, userStakeSum } from '../predictions';
-	import ProjectionsBinary from '../graphs/ProjectionsBinary.svelte';
-	import ProjectionsCategorical from '../graphs/ProjectionsCategorical.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	export let marketData: MarketData;
@@ -44,6 +42,7 @@
 	};
 
 	function handleVotingPowerChange(amount: number) {
+		stakeAmount.set(amount);
 		if (amount > totalBalanceUstx) {
 			errorMessage = `Maximum voting power is ${fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} ${sip10Data.symbol}`;
 			return;
@@ -58,12 +57,15 @@
 
 	onMount(async () => {
 		sip10Data = getMarketToken(market.token);
-		const userStake = await fetchUserStake(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1], getStxAddress());
-		totalBalanceUstx = await fullBalanceInSip10Token(getConfig().VITE_STACKS_API, getStxAddress(), market.token);
-		const sum = userStake ? userStakeSum(userStake) : 0;
-		if (userStake) totalBalanceUstx = totalBalanceUstx - sum;
-
-		if (isLoggedIn()) resolutionAgent = getStxAddress() === $sessionStore.daoOverview.contractData.resolutionAgent;
+		if (isLoggedIn()) {
+			const userStake = await fetchUserStake(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1], getStxAddress());
+			totalBalanceUstx = await fullBalanceInSip10Token(getConfig().VITE_STACKS_API, getStxAddress(), market.token);
+			const sum = userStake ? userStakeSum(userStake) : 0;
+			if (userStake) totalBalanceUstx = totalBalanceUstx - sum;
+			resolutionAgent = getStxAddress() === $sessionStore.daoOverview.contractData.resolutionAgent;
+		} else {
+			totalBalanceUstx = 0;
+		}
 	});
 </script>
 
@@ -84,13 +86,11 @@
 					<div>
 						<VotingPowerInput sip10Data={getMarketToken(market.token)} {totalBalanceUstx} bind:votingPowerUstx {txVoting} onVotingPowerChange={handleVotingPowerChange} />
 					</div>
-					{#if marketData.categories.length === 2}
+					<!-- {#if marketData.categories.length === 2}
 						<div><ProjectionsBinary {payouts} token={market.token} categories={marketData.categories} {votingPowerUstx} /></div>
-						<!-- <div><WinningProjectionsBinary {market} {marketData} userStake={userStake!} {votingPowerUstx} /></div> -->
 					{:else if market.marketType === 1}
 						<div><ProjectionsCategorical {payouts} token={market.token} categories={marketData.categories} {votingPowerUstx} /></div>
-						<!-- <div><WinningProjectionsCategorical {market} {marketData} userStake={userStake!} {votingPowerUstx} /></div> -->
-					{/if}
+					{/if} -->
 				</div>
 
 				{#if errorMessage}

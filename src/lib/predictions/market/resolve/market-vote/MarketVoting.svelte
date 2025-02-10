@@ -14,7 +14,6 @@
 	import DaoVotingPowerInput from './DaoVotingPowerInput.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
 	import { getVotesByVoterAndMarket } from '$lib/predictions/voter';
-	import DaoMintingInput from './DaoMintingInput.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	export let marketData: MarketData | undefined;

@@ -9,7 +9,6 @@
 	import { explorerTxUrl, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { hexToBytes } from '@stacks/common';
-	import { fetchMarketData } from '$lib/predictions/voter';
 
 	export let market: PredictionMarketCreateEvent;
 	export let marketData: MarketData;
@@ -21,7 +20,7 @@
 
 	const disputeResolution = async (outcome: boolean) => {
 		if (!isLoggedIn()) {
-			errorMessage = 'Please connect your wallet to vote';
+			errorMessage = 'Please connect your wallet';
 			return;
 		}
 		// 	(market-data-hash (buff 32))               ;; market metadata hash

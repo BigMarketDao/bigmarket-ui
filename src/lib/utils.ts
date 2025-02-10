@@ -1,10 +1,71 @@
-import { getConfig, getSession } from '$stores/store_helpers';
-import { getBalanceAtHeight } from '@mijoco/stx_helpers/dist/index';
-import { getStxAddress } from './stacks/stacks-connect';
+import { getConfig } from '$stores/store_helpers';
+import { callContractReadOnly, extractValue } from '@mijoco/stx_helpers/dist/index';
+import { Cl } from '@stacks/transactions';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.';
 export const smbp = 900;
 export const xsbp = 700;
+
+// export type TokenSalePurchases = {
+// 	amount: number;
+// };
+// export type TokenSaleStage = {
+// 	price: number;
+// 	maxSupply: number;
+// 	tokensSold: number;
+// 	cancelled: boolean;
+// };
+// export type TokenSale = {
+// 	stages: Array<TokenSaleStage>;
+// 	currentStageStart: number;
+// 	currentStage: number;
+// };
+// export async function fetchTokenSaleStages(contractAddress: string, contractName: string): Promise<TokenSale> {
+// 	const data = {
+// 		contractAddress,
+// 		contractName,
+// 		functionName: 'get-ido-stages',
+// 		functionArgs: []
+// 	};
+// 	const result = await callContractReadOnly(getConfig().VITE_STACKS_API, data);
+// 	const stages = result.value.map((stage: any) => {
+// 		if (stage.value) {
+// 			return {
+// 				cancelled: stage.value.value.cancelled.value || false,
+// 				maxSupply: Number(stage.value.value['max-supply'].value) || 0,
+// 				price: Number(stage.value.value.price.value) || 0,
+// 				tokensSold: Number(stage.value.value['tokens-sold'].value) || 0
+// 			};
+// 		}
+// 	});
+// 	let currentStageStart = await extractValue(getConfig().VITE_STACKS_API, contractAddress, contractName, 'current-stage-start');
+// 	let currentStage = await extractValue(getConfig().VITE_STACKS_API, contractAddress, contractName, 'current-stage');
+
+// 	return {
+// 		stages,
+// 		currentStage,
+// 		currentStageStart
+// 	};
+// }
+
+// export async function fetchTokenSaleUserData(contractAddress: string, contractName: string, user: string): Promise<TokenSalePurchases> {
+// 	const data = {
+// 		contractAddress,
+// 		contractName,
+// 		functionName: 'get-ido-user',
+// 		functionArgs: [Cl.principal(user)]
+// 	};
+// 	const result = await callContractReadOnly(getConfig().VITE_STACKS_API, data);
+// 	const purchases =
+// 		result?.value?.map((stage: any) => {
+// 			if (stage) {
+// 				return {
+// 					amount: stage.value || 0
+// 				};
+// 			}
+// 		}) || [];
+// 	return purchases;
+// }
 
 const formatter = new Intl.NumberFormat('en-US', {
 	style: 'currency',

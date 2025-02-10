@@ -141,7 +141,7 @@ export const coordinators = [
 	}, // mijoco production + electrum bob
 	{ stxAddress: 'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY', btcAddress: '' },
 	{ stxAddress: 'SP1R1061ZT6KPJXQ7PAXPFB6ZAZ6ZWW28GBQA1W0F', btcAddress: '' },
-	{ stxAddress: 'ST2293W5GRAYMAQTC5D3NZ0R5YR4XT56NW8P920W', btcAddress: '' }
+	{ stxAddress: 'ST11804SFNTNRKZQBWB1R3F5YHEXSTXXEWZDXTMH6', btcAddress: '' }
 ];
 
 export function isCoordinator(address: string | undefined) {

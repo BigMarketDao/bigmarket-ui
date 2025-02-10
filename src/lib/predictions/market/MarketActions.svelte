@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { fetchMarketData, fetchUserStake, ResolutionState, type MarketData, type PredictionMarketCreateEvent, type Sip10Data, type UserStake } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
-	import { sessionStore } from '$stores/stores';
-	import { getStxAddress } from '$lib/stacks/stacks-connect';
+	import { sessionStore, stakeAmount } from '$stores/stores';
+	import { getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import { fmtMicroToStx, truncate } from '$lib/utils';
 	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
 	import MakePrediction from '../staking/MakePrediction.svelte';
@@ -11,6 +11,9 @@
 	import { getConfig } from '$stores/store_helpers';
 	import { getMarketToken } from '../predictions';
 	import { Icon, InformationCircle } from 'svelte-hero-icons';
+	import MarketStakedBarChart from '../graphs/MarketStakedBarChart.svelte';
+	import MarketPotentialBarChart from '../graphs/MarketPotentialBarChart.svelte';
+	import Bulletin from '$lib/components/ui/Bulletin.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	let marketData: MarketData | undefined;
@@ -42,7 +45,7 @@
 		sip10Data = getMarketToken(market.token);
 		currentBurnHeight = $sessionStore.stacksInfo.burn_block_height;
 		marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
-		userStake = await fetchUserStake(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1], getStxAddress());
+		if (isLoggedIn()) userStake = await fetchUserStake(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1], getStxAddress());
 		inited = true;
 	});
 </script>
@@ -76,24 +79,41 @@
 				</div>
 
 				<!-- Market Metadata -->
-				<div class="mb-6 grid grid-cols-2 gap-4">
+				<div class="mb-6 flex justify-between gap-4 rounded-md bg-gray-300 p-2">
 					<div>
-						<p class="text-sm font-medium text-gray-900">Creator</p>
-						<p class="text-lg text-gray-800">{truncate(marketData.creator)}</p>
+						<Bulletin message={`Creator of this market is: ${marketData.creator}!`} trigger={'market-creator'}>
+							<span class="text-lg font-medium text-gray-800" slot="title">{truncate(marketData.creator)}</span>
+						</Bulletin>
 					</div>
 					<div>
-						<p class="text-sm font-medium text-gray-900">Status</p>
-						<p class="text-lg">
+						<span class="text-lg">
 							{#if marketData.concluded}
-								<span class="font-medium text-success-700">Concluded - Outcome {marketData.categories[market.outcome!]}</span>
+								<Bulletin message={'This market is over'} trigger={'market-status'}>
+									<span class="font-medium text-success-700" slot="title">Concluded - Outcome {marketData.categories[market.outcome!]}</span>
+								</Bulletin>
 							{:else}
-								<span class="font-medium text-success-700">Live</span>
+								<Bulletin message={'Still time to participate in this market - good luck!'} trigger={'market-status'}>
+									<span class="font-medium text-success-700" slot="title">Live</span>
+								</Bulletin>
 							{/if}
-						</p>
+						</span>
 					</div>
 				</div>
-				<h3 class="mb- text-xl font-semibold text-gray-800">All Stakes</h3>
-				<div class="mb-6 grid grid-cols-2 gap-4">
+				{#if marketData}
+					<div class="min-h-[300px]">
+						<div class="flex flex-col md:flex-row">
+							<div class="min-h-[300px] flex-1">
+								<div><MarketStakedBarChart {market} {marketData} /></div>
+							</div>
+							{#if userStake || $stakeAmount > 0}
+								<div class="min-h-[300px] flex-1">
+									<div><MarketPotentialBarChart {market} {marketData} {userStake} /></div>
+								</div>
+							{/if}
+						</div>
+					</div>
+				{/if}
+				<!-- <div class="mb-6 grid grid-cols-2 gap-4">
 					{#each marketData.categories as category, index}
 						<div>
 							<p class="text-sm font-medium text-gray-900">{category}</p>
@@ -103,22 +123,9 @@
 							</p>
 						</div>
 					{/each}
-				</div>
+				</div> -->
 
 				<!-- User Stake -->
-				<h3 class="mb-4 text-xl font-semibold text-gray-800">Your Stakes</h3>
-				<div class="mb-6 grid grid-cols-2 gap-4">
-					{#if userStake && userStake.stakes && userStake.stakes.length >= marketData.categories.length}
-						{#each marketData.categories as category, index}
-							<div>
-								<p class="text-sm font-medium text-gray-900">{category}</p>
-								<p class="text-lg text-success-700">{fmtMicroToStx(userStake?.stakes[index] || 0, sip10Data.decimals)} {sip10Data.symbol}</p>
-							</div>
-						{/each}
-					{:else}
-						<p class="text-sm text-gray-900">You have not staked anything in this market.</p>
-					{/if}
-				</div>
 			</div>
 
 			<!-- Market Stake Graph Section -->

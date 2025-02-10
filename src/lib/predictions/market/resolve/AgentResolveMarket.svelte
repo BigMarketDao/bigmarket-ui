@@ -18,7 +18,7 @@
 
 	const resolveMarket = async (outcome: string) => {
 		if (!isLoggedIn()) {
-			errorMessage = 'Please connect your wallet to vote';
+			errorMessage = 'Please connect your wallet';
 			return;
 		}
 		const contractAddress = market.votingContract.split('.')[0];

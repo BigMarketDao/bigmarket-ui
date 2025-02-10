@@ -39,6 +39,7 @@
 		description: 'Is it going to happen? ',
 		criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via Bitcoin DAO community oracle. See terms for details.',
 		token: '',
+		treasury: getStxAddress(),
 		logo: 'https://pbs.twimg.com/profile_images/1648994389799346176/_X8oyw9I_400x400.jpg',
 		social: {
 			twitter: {

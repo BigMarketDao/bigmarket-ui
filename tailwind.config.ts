@@ -3,10 +3,7 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
-	content: [
-		'./src/**/*.{html,js,svelte,ts}',
-		'./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'
-	],
+	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
 	theme: {
 		colors: {
 			// yellow: {
@@ -53,7 +50,8 @@ export default {
 			bitcoinorange: '#FD9D41',
 			// Status
 			gray: {
-				'100': '#f9f9f9',
+				'50': '##E4EDFF',
+				'100': '#E4EDFF',
 				'200': '#e9e9e9',
 				'300': '#cdcdcd',
 				'400': '#a5a5a5',
@@ -62,7 +60,7 @@ export default {
 				'700': '#616161',
 				'800': '#535353',
 				'900': '#404040',
-				'1000': '#121212'
+				'1000': '#0E121A'
 			},
 			primary: {
 				'100': '#fef9f7',
@@ -93,12 +91,12 @@ export default {
 				'200': '#ebeefd',
 				'300': '#d1dafa',
 				'400': '#adbcf6',
-				'500': '#7f97f1',
+				'500': '#71A1FF',
 				'600': '#758bde',
 				'700': '#6b7fca',
 				'800': '#5b6dae',
-				'900': '#475587',
-				'1000': '#333c60'
+				'900': '#4A00F8',
+				'1000': '#0E121A'
 			},
 			success: {
 				'100': '#f5fcfa',
@@ -159,7 +157,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Circular Std', ...defaultTheme.fontFamily.sans]
+				inter: ['Inter', 'sans-serif']
 			},
 			boxShadow: {
 				'01': '-4px -4px 12px -2px rgba(249,115,22,0.6), 4px 4px 12px -2px rgba(253,198,11,0.6)',

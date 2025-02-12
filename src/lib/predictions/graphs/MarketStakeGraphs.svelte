@@ -51,7 +51,7 @@
 			}));
 
 			const options = {
-				title: { text: 'Predictions Progress' },
+				title: { text: '% Chances' },
 				tooltip: {
 					trigger: 'axis',
 					formatter: (params: any[]) => {
@@ -60,7 +60,7 @@
 				},
 				xAxis: {
 					type: 'category',
-					name: '# of predictions',
+					name: '',
 					data: xAxisData,
 					nameLocation: 'center',
 					nameTextStyle: { fontSize: 14, padding: [10, 0, 0, 0] },
@@ -102,4 +102,4 @@
 	});
 </script>
 
-<div id="market-chart" class="h-[300px] w-full md:h-[400px]"></div>
+<div id="market-chart" class="min-h-[500px] w-full md:h-[400px]"></div>

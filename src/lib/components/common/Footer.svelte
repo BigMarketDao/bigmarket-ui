@@ -1,7 +1,7 @@
 <footer class=" p-4 text-white">
 	<div class=" flex justify-between text-xs">
 		<p class="flex w-1/5 justify-between">
-			<a href="/privacy">privacy policy</a>
+			<a href="/terms/privacy">privacy policy</a>
 			|
 			<a href="/terms">terms of service</a>
 		</p>

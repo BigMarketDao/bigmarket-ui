@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { MarketData, PredictionMarketCreateEvent, Sip10Data, UserStake } from '@mijoco/stx_helpers/dist/index';
+	import type { Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
-	import { calculatePayoutBinary, getMarketToken } from '../predictions';
-	import { fmtMicroToStx } from '$lib/utils';
+	import { getMarketToken } from '../predictions';
 
 	export let categories: Array<string>;
 	export let payouts: Array<string>;

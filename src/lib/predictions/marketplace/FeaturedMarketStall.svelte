@@ -6,9 +6,9 @@
 	import MarketStallView from './MarketStallView.svelte';
 	import { getConfig } from '$stores/store_helpers';
 	import MarketStakedBarChart from '../graphs/MarketStakedBarChart.svelte';
+	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
 
 	export let market: PredictionMarketCreateEvent;
-	export let admin: boolean;
 	let marketData: MarketData | undefined;
 	let currentBurnHeight = 0;
 	let startBurnHeight = 0;
@@ -34,39 +34,31 @@
 	</SlotModal>
 {/if} -->
 
-{#if market}
-	<div class="flex flex-col rounded-lg border-4 border-primary-500 bg-white p-6 shadow-lg md:flex-row">
-		<!-- Market Logo -->
-		{#if marketData}
-			<div class="min-h-[300px]">
-				<div class="flex flex-col md:flex-row">
-					<div class="min-h-[300px] flex-1">
-						<div class="flex w-full flex-col justify-between md:w-full">
-							<MarketStallView {market} {admin} />
-						</div>
-					</div>
-					<div class="min-h-[300px] flex-1">
-						<div><MarketStakedBarChart {market} {marketData} /></div>
-					</div>
+{#if market && marketData}
+	<div class="flex w-full flex-col items-start gap-x-10 px-10 pt-10 md:flex-row md:px-32">
+		<!-- Left Panel -->
+		<div class="flex min-h-[300px] flex-1 flex-col items-start justify-center">
+			<div class="">
+				<MarketStallView {market} {marketData} />
+			</div>
+			<div class="mt-2">
+				{#if errorMessage}
+					<p class="text-red-600 text-sm">{errorMessage}</p>
+				{/if}
+				{#if successMessage}
+					<p class="text-green-600 text-sm">{successMessage}</p>
+				{/if}
+			</div>
+			{#if showTimeline}
+				<div class="mt-4">
+					<BlockHeightProgressBar {startBurnHeight} {stopBurnHeight} />
 				</div>
-			</div>
-		{/if}
-
-		<!-- Market Timeline -->
-		{#if showTimeline}
-			<div class="mt-4">
-				<BlockHeightProgressBar {startBurnHeight} {stopBurnHeight} />
-			</div>
-		{/if}
-
-		<!-- Messages -->
-		<div class="mt-2">
-			{#if errorMessage}
-				<p class="text-red-600 text-sm">{errorMessage}</p>
 			{/if}
-			{#if successMessage}
-				<p class="text-green-600 text-sm">{successMessage}</p>
-			{/if}
+		</div>
+
+		<!-- Right Panel -->
+		<div class="flex min-h-[300px] w-full flex-col items-start md:w-1/2">
+			<div class="w-full"><MarketStakeGraphs {market} {marketData} /></div>
 		</div>
 	</div>
 {/if}

@@ -107,25 +107,25 @@ export const sui_standards = [
 	'https://docs.sui.io/standards/wallet-standard'
 ];
 export const bitcoinDao = [
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/bitcoin-dao.clar',
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/extensions/bde000-governance-token.clar',
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/extensions/bde001-proposal-voting-tokenised.clar',
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/extensions/bde002-proposal-submission.clar',
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/extensions/bde003-core-proposals-tokenised.clar',
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/extensions/bde004-core-execute.clar',
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/extensions/bde006-treasury.clar'
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/bigmarket-dao.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/extensions/bme000-0-governance-token.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/extensions/bme001-0-proposal-voting.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/extensions/bme002-proposal-submission.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/extensions/bme003-0-core-proposals.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/extensions/bme004-0-core-execute.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/extensions/bme006-0-treasury.clar'
 ];
 export const predictionsDao = [
-	'https://github.com/radicleart/bitcoin-dao/blob/clarigen-tests/contracts/bitcoin-dao.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde000-governance-token.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde001-proposal-voting-tokenised.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde002-proposal-submission.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde003-core-proposals-tokenised.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde004-core-execute.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde006-treasury.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde021-market-voting.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde022-market-gating.clar',
-	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bde023-market-predicting.clar',
+	'https://github.com/radicleart/bigmarket-dao/blob/clarigen-tests/contracts/bigmarket-dao.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme000-0-governance-token.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme001-0-proposal-voting.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme002-proposal-submission.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme003-0-core-proposals.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme004-0-core-execute.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme006-0-treasury.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme021-0-market-voting.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme022-0-market-gating.clar',
+	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/bme023-0-market-predicting.clar',
 	'https://github.com/radicleart/predictions-dao/blob/main/contracts/extensions/dbe005-dev-fund.clar'
 ];
 export const clarityFunctions = [

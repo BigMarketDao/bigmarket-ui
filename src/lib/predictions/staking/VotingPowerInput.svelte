@@ -5,6 +5,7 @@
 	import BannerSlot from '$lib/components/ui/BannerSlot.svelte';
 	import type { Sip10Data, TokenPermissionEvent } from '@mijoco/stx_helpers';
 	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
+	import { stakeAmount } from '$stores/stores';
 
 	export let onVotingPowerChange;
 	export let sip10Data: Sip10Data;
@@ -73,9 +74,7 @@
 		/>
 		<span class="text-lg font-semibold text-gray-800">{sip10Data.symbol}</span>
 	</div>
-	{#if amountStx > 0}
-		<ExchangeRate {sip10Data} />
-	{/if}
+	<ExchangeRate {sip10Data} />
 
 	<!-- Balance Hint -->
 	<p class="mt-2 text-sm text-gray-500">

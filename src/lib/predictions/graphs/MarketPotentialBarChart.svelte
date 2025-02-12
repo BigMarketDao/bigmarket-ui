@@ -11,7 +11,7 @@
 	export let userStake: UserStake | undefined;
 	let sip10Data: Sip10Data;
 	let chart: echarts.ECharts | null = null;
-	let payouts: string[] = [];
+	let payouts: number[] = [];
 
 	// Function to recalculate and redraw chart when the user updates input
 	const updateChart = () => {
@@ -21,7 +21,7 @@
 		payouts = calculatePayoutCategorical($stakeAmount, sip10Data.decimals, userStake, marketData);
 
 		const categories = marketData.categories.slice(0, 10); // Limit to 10 categories
-		const stakeValues = payouts.map((p) => parseFloat(p)); // Convert payout strings to numbers
+		const stakeValues = payouts.map((p) => fmtMicroToStx(p, sip10Data.decimals)); // Convert payout strings to numbers
 
 		if (chart) {
 			chart.setOption({

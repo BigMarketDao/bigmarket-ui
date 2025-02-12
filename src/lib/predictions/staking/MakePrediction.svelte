@@ -10,7 +10,7 @@
 	import { sessionStore, stakeAmount } from '$stores/stores';
 	import AgentResolveMarket from '../market/resolve/AgentResolveMarket.svelte';
 	import { getConfig } from '$stores/store_helpers';
-	import { calculatePayoutCategorical, getMarketToken, userStakeSum } from '../predictions';
+	import { getMarketToken, userStakeSum } from '../predictions';
 
 	export let market: PredictionMarketCreateEvent;
 	export let marketData: MarketData;
@@ -25,7 +25,6 @@
 	let successMessage: string | undefined;
 	let resolutionAgent = false;
 	let sip10Data: Sip10Data;
-	let payouts: Array<string>;
 
 	function handleTxPollVote(data: any) {
 		errorMessage = undefined;
@@ -48,7 +47,6 @@
 			return;
 		}
 		votingPowerUstx = amount;
-		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, userStake, marketData);
 	}
 
 	function closeModal() {
@@ -86,11 +84,6 @@
 					<div>
 						<VotingPowerInput sip10Data={getMarketToken(market.token)} {totalBalanceUstx} bind:votingPowerUstx {txVoting} onVotingPowerChange={handleVotingPowerChange} />
 					</div>
-					<!-- {#if marketData.categories.length === 2}
-						<div><ProjectionsBinary {payouts} token={market.token} categories={marketData.categories} {votingPowerUstx} /></div>
-					{:else if market.marketType === 1}
-						<div><ProjectionsCategorical {payouts} token={market.token} categories={marketData.categories} {votingPowerUstx} /></div>
-					{/if} -->
 				</div>
 
 				{#if errorMessage}

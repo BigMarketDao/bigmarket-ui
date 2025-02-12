@@ -11,7 +11,7 @@
 	}
 </script>
 
-<div class="w-full rounded-lg bg-black p-4 text-white shadow-lg">
+<div class="w-full rounded-lg bg-gray-1000 p-4 text-white shadow-lg">
 	<div class="mb-2 text-center text-lg font-semibold">Token Sale Progress</div>
 
 	<!-- Progress bar container -->

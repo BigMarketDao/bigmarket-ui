@@ -4,6 +4,7 @@
 	import { getGovernanceToken } from '$lib/predictions/predictions';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { getStxAddress } from '$lib/stacks/stacks-connect';
+	import { sessionStore } from '$stores/stores';
 
 	let sip10Data: Sip10Data;
 	let totalBalanceUstx: number = 0;
@@ -14,7 +15,7 @@
 	function mintToken() {}
 
 	onMount(async () => {
-		sip10Data = getGovernanceToken();
+		sip10Data = getGovernanceToken($sessionStore.tokens);
 		totalBalanceUstx = await fullBalanceInSip10Token(getConfig().VITE_STACKS_API, getStxAddress(), `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}`);
 	});
 </script>

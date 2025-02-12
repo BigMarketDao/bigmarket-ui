@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getGovernanceToken, getMarketToken } from '$lib/predictions/predictions';
+	import { getAllowedTokens, getGovernanceToken, getMarketToken, getStxToken } from '$lib/predictions/predictions';
 	import { explorerTxUrl, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import { fmtMicroToStx } from '$lib/utils';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
@@ -11,9 +11,11 @@
 	import { ArrowsPointingOut, Icon } from 'svelte-hero-icons';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import Stages from './Stages.svelte';
+	import { sessionStore, stakeAmount } from '$stores/stores';
+	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
 
-	export let daoOverview: DaoOverview;
-	export let tokenSalePurchases: Array<TokenSalePurchase>;
+	$: daoOverview = $sessionStore.daoOverview;
+	let tokenSalePurchases: Array<TokenSalePurchase>;
 	let stage: TokenSaleStage;
 	let tokens: any;
 	let govToken: Sip10Data;
@@ -24,10 +26,24 @@
 	let sip10Data: Sip10Data;
 	let stacksLeading = true;
 	let stageBalance = '0';
+	$: stage = daoOverview.tokenSale?.stages[daoOverview.tokenSale?.currentStage] || ({} as TokenSaleStage);
+	$: totalSold = daoOverview.tokenSale?.stages.reduce((sum, stage) => sum + stage.tokensSold, 0) || 0;
+	$: tokens = Object.keys(daoOverview.treasuryBalances.fungible_tokens || {}).map((token) => ({
+		contract: getDaoConfig().VITE_DAO_TREASURY,
+		token: token.split('::')[1],
+		balance: daoOverview.treasuryBalances.fungible_tokens[token].balance,
+		decimals: getMarketToken(token.split('::')[0]).decimals
+	}));
 	$: tokenAmount = stacksLeading ? (amount * stage?.price || 0).toFixed(6) : (amount / stage?.price || 0).toFixed(6);
+	$: sip10Data = getStxToken($sessionStore.tokens);
+	$: govToken = getGovernanceToken($sessionStore.tokens);
 
 	const switcheroo = () => {
 		stacksLeading = !stacksLeading;
+	};
+
+	const handleChange = () => {
+		stakeAmount.set(amount);
 	};
 
 	const buyTokens = async () => {
@@ -68,16 +84,6 @@
 	};
 
 	onMount(async () => {
-		stage = daoOverview.tokenSale?.stages[daoOverview.tokenSale?.currentStage] || ({} as TokenSaleStage);
-		totalSold = daoOverview.tokenSale?.stages.reduce((sum, stage) => sum + stage.tokensSold, 0) || 0;
-		tokens = Object.keys(daoOverview.treasuryBalances.fungible_tokens || {}).map((token) => ({
-			contract: getDaoConfig().VITE_DAO_TREASURY,
-			token: token.split('::')[1],
-			balance: daoOverview.treasuryBalances.fungible_tokens[token].balance,
-			decimals: getMarketToken(token.split('::')[0]).decimals
-		}));
-		govToken = getGovernanceToken();
-		sip10Data = getMarketToken(tokens[0].contract);
 		if (getStxAddress()) {
 			tokenSalePurchases = await fetchTokenSalePurchases(getStxAddress());
 			stageBalance = fmtMicroToStx(tokenSalePurchases[(daoOverview.tokenSale?.currentStage || 1) - 1].amount || 0, govToken.decimals);
@@ -89,7 +95,7 @@
 {#if stage && tokens}
 	<div class="flex min-h-screen flex-col items-center p-6 text-gray-800">
 		<h1 class="mb-6 self-start pb-2 text-2xl font-bold text-gray-300">Token Sale: <span class="text-warning-700 hover:text-warning-800">{daoOverview.contractData.tokenName}</span></h1>
-		<Stages currentStage={3 || 1} currentStageStart={daoOverview.tokenSale?.currentStageStart || 0} />
+		<Stages currentStage={daoOverview.tokenSale?.currentStage || 1} currentStageStart={daoOverview.tokenSale?.currentStageStart || 0} />
 
 		<div class="mb-8 flex w-full flex-col gap-y-5 overflow-x-auto">
 			<table class="min-w-full table-auto border-collapse border border-gray-300 text-white shadow-lg">
@@ -127,15 +133,18 @@
 			{/if}
 
 			<div class="mt-4">
-				{#if tokenSalePurchases}
-					<p class="text-gray-700">
+				<p class="text-gray-700">
+					{#if tokenSalePurchases}
 						<strong>Your Wallet:</strong>
 						{getStxAddress() || 'Not connected'} <br />
 						<strong>Your Balance:</strong>
 						{stageBalance}
 						{daoOverview.contractData.tokenSymbol}
-					</p>
-				{/if}
+						<br />
+					{/if}
+					<strong>Your Currency:</strong>
+					<ExchangeRate {sip10Data} />
+				</p>
 			</div>
 			<div class="mt-10">
 				{#if txId}
@@ -154,7 +163,7 @@
 				<div class="flex w-full gap-x-2">
 					<div class="w-[95%]">
 						<div class="w-full">
-							<input type="number" min="1" placeholder="Enter amount" class="w-full rounded border border-gray-300 px-3 py-2" bind:value={amount} />
+							<input type="number" min="1" placeholder="Enter amount" class="w-full rounded border border-gray-300 px-3 py-2" bind:value={amount} on:keyup={() => handleChange()} />
 							<span class="left=10 relative ms-[-70px]"
 								>{#if stacksLeading}STX{:else}{govToken.symbol}{/if}</span
 							>

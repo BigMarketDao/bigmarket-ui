@@ -8,7 +8,6 @@
 	import { initAddresses, initApplication } from '@mijoco/stx_helpers/dist/account';
 	import { getStxAddress, getUserData } from '$lib/stacks/stacks-connect';
 	import { page } from '$app/state';
-	import { type ExchangeRate } from '@mijoco/stx_helpers/dist/index';
 	import { getAllowedTokens, getDaoOverview, isExecutiveTeamMember } from '$lib/predictions/predictions';
 	import type { _ } from '$env/static/private';
 	import { fetchExchangeRates } from '$lib/stacks/rates';
@@ -22,11 +21,12 @@
 		unsubscribe3();
 	});
 
-	setConfigByUrl(page.url.searchParams, 'devnet');
+	setConfigByUrl(page.url.searchParams, 'testnet');
 
 	const initApp = async () => {
 		if (!$sessionStore.keySets || !$sessionStore.keySets[$configStore.VITE_NETWORK]) await initAddresses(sessionStore);
-		const exchangeRates: Array<ExchangeRate> = []; //await fetchExchangeRates();
+		const exchangeRates = await fetchExchangeRates();
+		console.log('initAppFromServer: exchangeRates: ', exchangeRates);
 		const daoOverview = $sessionStore.daoOverview || (await getDaoOverview());
 		const tokens = $sessionStore.tokens || (await getAllowedTokens());
 		const userSettings = $sessionStore.userSettings || (await isExecutiveTeamMember(undefined, getStxAddress()));
@@ -42,13 +42,13 @@
 			conf.userSettings.executiveTeamMember = userSettings?.executiveTeamMember || false;
 			conf.daoOverview = daoOverview;
 			conf.tokens = tokens;
+			conf.exchangeRates = exchangeRates;
 			return conf;
 		});
 		initAppFromServer();
 	};
 
 	const initAppFromServer = async () => {
-		const exchangeRates = await fetchExchangeRates();
 		const daoOverview = await getDaoOverview();
 		const tokens = await getAllowedTokens();
 		const userSettings = await isExecutiveTeamMember(undefined, getStxAddress());
@@ -58,7 +58,6 @@
 			conf.userSettings.executiveTeamMember = userSettings?.executiveTeamMember || false;
 			conf.daoOverview = daoOverview;
 			conf.tokens = tokens;
-			conf.exchangeRates = exchangeRates;
 			return conf;
 		});
 	};
@@ -69,16 +68,16 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gray-1000 bg-[url('$lib/assets/bg-lines.svg')] bg-cover font-extralight text-white">
-	<div class=" min-h-[calc(100vh-160px)] px-6">
-		<div class="relative mx-auto flex min-h-screen flex-col">
-			<div class="mx-[10%]"><Header /></div>
-			<div class="mx-[10%] grow">
+<div class="min-h-screen bg-gray-1000 bg-cover font-extralight text-white">
+	<div class=" min-h-[calc(100vh-160px)] px-0">
+		<div class=" flex min-h-screen flex-col">
+			<div class="mx-[0%]"><Header /></div>
+			<div class="mx-[0%] grow">
 				{#if inited}
 					<slot></slot>
 				{/if}
 			</div>
-			<div class="mx-[10%]"><Footer /></div>
+			<div class="mx-[0%]"><Footer /></div>
 		</div>
 	</div>
 </div>

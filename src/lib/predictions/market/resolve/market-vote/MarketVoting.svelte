@@ -56,7 +56,7 @@
 		const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
 		const postConditions = [];
 		const formattedToken = (getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN) as `${string}.${string}`;
-		const postConditionFt = Pc.principal(getStxAddress()).willSendEq(microStxAmount).ft(formattedToken, 'bdg-token');
+		const postConditionFt = Pc.principal(getStxAddress()).willSendEq(microStxAmount).ft(formattedToken, 'bmg-token');
 		postConditions.push(postConditionFt);
 
 		await showContractCall({
@@ -111,7 +111,7 @@
 	onMount(async () => {
 		resolutionVote = await fetchResolutionVote(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], getDaoConfig().VITE_DAO_MARKET_VOTING);
 		marketVotes = await fetchMarketsVotes(market.marketId);
-		sip10Data = getGovernanceToken();
+		sip10Data = getGovernanceToken($sessionStore.tokens);
 
 		if (isLoggedIn()) {
 			const voter = getStxAddress();

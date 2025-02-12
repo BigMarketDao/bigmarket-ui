@@ -1,22 +1,22 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import MarkdownRenderer from '$lib/components/ui/MarkdownRenderer.svelte';
-	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { type MarketData, type PredictionMarketCreateEvent, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
+	import { getMarketToken, totalPoolSum } from '../predictions';
+	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
+	import { fmtMicroToStx } from '$lib/utils';
+	import YesNoButtons from './YesNoButtons.svelte';
+	import LogoContainer from './LogoContainer.svelte';
 
 	export let market: PredictionMarketCreateEvent;
-	export let admin: boolean;
+	export let marketData: MarketData | undefined;
+	let amount = 0;
 	let inited = false;
-
-	let placeholderImage = 'https://bitcoinfaces.xyz/api/get-image?name=SP1R1061ZT6KPJXQ7PAXPFB6ZAZ6ZWW28GBQA1W0F'; // Path to your standard placeholder image
-	let isPlaceholder = false;
-
-	function handleError(event: any) {
-		event.target.src = placeholderImage; // Set the fallback image
-		event.target.alt = 'Default placeholder image';
-		isPlaceholder = true; // Update state
-	}
+	let sip10Data: Sip10Data;
 
 	onMount(async () => {
+		sip10Data = getMarketToken(market.token);
 		inited = true;
 	});
 </script>
@@ -29,28 +29,26 @@
 
 {#if market}
 	<!-- Market Logo -->
-	<div class="grow">
-		<div class="mb-4">
-			<img src={market.unhashedData.logo || placeholderImage} alt="Market Logo" on:error={handleError} class="mx-auto h-24 w-24 rounded-full object-cover" />
-		</div>
-
-		<!-- Market Details -->
-		<div class="mb-5 flex flex-col items-center">
-			<h2 class="text-xl font-semibold text-gray-800">
-				<a href={`/market/${market.marketId}`} class="hover:underline">{market.unhashedData.name}</a>
-			</h2>
-		</div>
-		<div class="mb-5"><MarkdownRenderer value={market.unhashedData.description} /></div>
-		<div class=""><MarkdownRenderer value={market.unhashedData.criteria} /></div>
+	<div class="mb-5 flex gap-x-5 text-black">
+		<LogoContainer logo={market.unhashedData.logo} />
+		<h2 class="font-inter text-[30px] font-bold leading-tight md:text-[40px]">
+			<a href={`/market/${market.marketId}`} class="hover:underline">{market.unhashedData.name}</a>
+		</h2>
 	</div>
 
 	<!-- Market Actions -->
-	<div class="mt-4 flex h-16 justify-between">
-		<a href={`/market/${market.marketId}`} class="bg-green-700 hover:bg-green-600 mt-4 w-full rounded px-4 py-2 text-white">
-			{#if !market.concluded}Your View?{:else}Poll Closed{/if}
-		</a>
-		<!-- {#if admin}
-			<a href="'/sip18/' + market.marketId" class="text-sm text-primary-500 hover:underline"> Manage </a>
-		{/if} -->
+	<YesNoButtons {market} {marketData} />
+	<div class="my-5">
+		<div class="font-inter font-medium text-black"><MarkdownRenderer value={market.unhashedData.description} /></div>
+		<div class="font-inter font-medium text-black"><MarkdownRenderer value={market.unhashedData.criteria} /></div>
+	</div>
+	<div class="mt-5">
+		<div class="font-inter mb-5 font-bold text-black">
+			{#if sip10Data}
+				TVL: {fmtMicroToStx(totalPoolSum(marketData?.stakes))}
+				{sip10Data.symbol}
+				(<ExchangeRate {sip10Data} />)
+			{/if}
+		</div>
 	</div>
 {/if}

@@ -29,6 +29,7 @@ import {
 } from '@mijoco/stx_helpers/dist/index';
 import { getConfig, getDaoConfig, getSession } from '$stores/store_helpers';
 import { fmtMicroToStx, fmtStxMicro } from '$lib/utils';
+import { selectedCurrency } from '$stores/stores';
 
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,81 +49,66 @@ export function userStakeSum(userStake: UserStake) {
 		return 0;
 	}
 }
-export function totalPoolSum(stakes: Array<number>) {
+export function totalPoolSum(stakes: Array<number> | undefined) {
 	try {
+		if (!stakes) return 0;
 		return stakes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 	} catch (err: any) {
 		return 0;
 	}
 }
-export function calculatePayoutBinary(amount: number, decimals: number, userStake: UserStake | undefined, yesPool: number, noPool: number) {
-	const mult = Number(`1e${decimals}`);
-	const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
 
-	let totalStakeYes = (userStake?.stakes[1] || 0) + microStxAmount;
-	let totalStakeNo = (userStake?.stakes[0] || 0) + microStxAmount;
-	let payoutNo = totalStakeYes + totalStakeYes * (noPool / (yesPool + totalStakeYes));
-	let payoutYes = totalStakeNo + totalStakeNo * (yesPool / (noPool + totalStakeNo));
-	return [payoutNo, payoutYes];
-}
-
-// export function calculatePayoutCategorical(amount: number, decimals: number, userStakes: Array<number>, marketData: MarketData) {
-// 	const mult = Number(`1e${decimals}`);
-// 	const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
-// 	const numCategories = marketData.categories.length;
-// 	const categories: Array<string> = marketData.categories;
-// 	const stakes: Array<number> = marketData.stakes;
-// 	let totalStakeYes = (userStake?.stakes[1] || 0) + microStxAmount;
-// 	let totalStakeNo = (userStake?.stakes[0] || 0) + microStxAmount;
-// 	let payoutNo = totalStakeYes + totalStakeYes * (noPool / (yesPool + totalStakeYes));
-// 	let payoutYes = totalStakeNo + totalStakeNo * (yesPool / (noPool + totalStakeNo));
-// 	return { payoutYes, payoutNo };
-// }
-export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData) {
+export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData): Array<number> {
 	const mult = Number(`1e${decimals}`);
-	const microStxAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const numCategories = marketData.categories.length;
 
-	// Ensure userStakes array is correctly initialized
 	const userStakes = [];
 
 	for (let i = 0; i < numCategories; i++) {
 		userStakes.push(userStake && userStake.stakes && userStake?.stakes.length > i ? userStake?.stakes[i] : 0);
 	}
-
-	// Copy the existing market stakes
 	let totalStakes = [...marketData.stakes];
-	//let newUserStakes = [...userStakes];
 
-	// Add new stake to each category
-	for (let i = 0; i < numCategories; i++) {
-		//newUserStakes[i] += microStxAmount;
-		//totalStakes[i] += microStxAmount;
-	}
-
-	// Calculate total stake in market
+	// total stake in market
 	const totalMarketStake = totalStakes.reduce((sum, stake) => sum + stake, 0);
-
-	// Compute payouts for each category
-	let payouts: string[] = new Array(numCategories).fill(0);
+	let payouts: number[] = new Array(numCategories).fill(0);
 
 	for (let i = 0; i < numCategories; i++) {
-		const myTotalStake = userStakes[i] + microStxAmount; // User's total stake in category i
+		const myTotalStake = userStakes[i] + microAmount; // User's total stake in category i
 		const categoryPool = totalStakes[i]; // Total market stake in category i
 
 		// Calculate total stake excluding the current category
 		const totalNotI = totalMarketStake - categoryPool;
 
 		if (categoryPool === 0) {
-			// If no one has staked here, the user only gets their stake back
-			payouts[i] = fmtMicroToStx(myTotalStake, decimals) as string;
+			payouts[i] = myTotalStake;
 		} else {
-			// Corrected formula: Payout is proportional to all other stakes
-			payouts[i] = fmtMicroToStx(myTotalStake + (myTotalStake * totalNotI) / categoryPool, decimals) as string;
+			payouts[i] = myTotalStake + (myTotalStake * totalNotI) / categoryPool;
 		}
 	}
 
 	return payouts;
+}
+export function convertFiatToNative(sip10Data: Sip10Data, amountFiat: number, currency: string): number {
+	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const sess = getSession();
+	const rate = sess.exchangeRates.find((c) => c.currency === currency);
+	if (!rate) return 0;
+	let amountNative = 0;
+	if (sip10Data.symbol === 'STX') amountNative = amountFiat / (rate.stxToBtc * rate.fifteen);
+	else amountNative = amountFiat / rate.fifteen;
+	return amountNative; //fmtStxMicro(amountNative, sip10Data.decimals);
+}
+export function convertNativeToFiat(sip10Data: Sip10Data, amountNative: number, currency: string): number {
+	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const sess = getSession();
+	const rate = sess.exchangeRates.find((c) => c.currency === currency);
+	if (!rate) return 0;
+	let amountFiat = 0;
+	if (sip10Data.symbol === 'STX') amountFiat = rate.stxToBtc * amountNative * rate.fifteen;
+	else amountFiat = amountNative * rate.fifteen;
+	return amountFiat; //fmtStxMicro(amountNative, sip10Data.decimals);
 }
 export async function isExecutiveTeamMember(coreExecuteContractId: string | undefined, stxAddress: string): Promise<{ executiveTeamMember: boolean }> {
 	let path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${stxAddress}`;
@@ -150,7 +136,7 @@ export async function getClarityProofForCreateMarket(): Promise<ListCV<ClarityVa
 	return proofToClarityValue(proof);
 }
 const defToken: Sip10Data = {
-	symbol: 'BDG',
+	symbol: 'BMG',
 	name: 'BitcoinDAO Governance Token',
 	decimals: 6,
 	balance: 0,
@@ -178,15 +164,18 @@ export function getMarketToken(marketTokenContract: string): Sip10Data {
 	return token?.sip10Data || defToken;
 }
 
-export function getGovernanceToken(): Sip10Data {
-	const sess = getSession();
-	const token = sess.tokens.find((t) => t.token === `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}`);
+export function getGovernanceToken(tokens: Array<TokenPermissionEvent>): Sip10Data {
+	const token = tokens.find((t) => t.token === `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}`);
+	return token?.sip10Data || defToken;
+}
 
+export function getStxToken(tokenEventss: Array<TokenPermissionEvent>): Sip10Data {
+	const token = tokenEventss.find((t) => t.sip10Data?.symbol === 'STX');
 	return token?.sip10Data || defToken;
 }
 
 export function isSTX(token: string) {
-	return token.indexOf('stx') > -1;
+	return token.toLowerCase().indexOf('stx') > -1;
 }
 
 export async function getDaoOverview(): Promise<DaoOverview> {

@@ -17,10 +17,10 @@
 	});
 </script>
 
-<div class="mb-6 flex flex-wrap gap-2">
-	<button on:click={() => filterByCategory('all')} class="rounded-full border border-gray-300 bg-success-300 px-3 py-1 text-sm font-medium transition hover:bg-success-400" class:selected={current === 'all'}> All </button>
+<div class="font-inter mx-3 mb-6 flex flex-wrap gap-2 text-[10px] font-bold md:mx-10 md:text-[16px]">
+	<button on:click={() => filterByCategory('all')} class="rounded-full border border-gray-300 bg-white px-4 py-1 text-black transition hover:bg-gray-100 md:px-16 md:py-3" class:selected={current === 'all'}> All </button>
 	{#each categories as category}
-		<button on:click={() => filterByCategory(category.name)} class="rounded-full border bg-success-300 px-3 py-1 text-sm font-medium transition hover:bg-success-400" class:selected={current === category.name}>
+		<button on:click={() => filterByCategory(category.name)} class=" rounded-full border bg-white px-4 py-1 text-black transition hover:bg-gray-100 md:px-16 md:py-3" class:selected={current === category.name}>
 			{category.displayName}
 		</button>
 	{/each}
@@ -28,6 +28,6 @@
 
 <style>
 	button.selected {
-		@apply border-gray-800 bg-success-600 text-white;
+		@apply bg-blue-500 text-white hover:bg-blue-600;
 	}
 </style>

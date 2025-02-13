@@ -136,7 +136,7 @@ export async function getClarityProofForCreateMarket(): Promise<ListCV<ClarityVa
 	return proofToClarityValue(proof);
 }
 const defToken: Sip10Data = {
-	symbol: 'BMG',
+	symbol: 'BIG',
 	name: 'BitcoinDAO Governance Token',
 	decimals: 6,
 	balance: 0,

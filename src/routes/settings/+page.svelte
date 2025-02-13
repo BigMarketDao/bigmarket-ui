@@ -28,7 +28,7 @@
 	<meta name="description" content="Create an opinion poll" />
 </svelte:head>
 
-<div class="mx-auto my-20 md:px-6">
+<div class=" px-20">
 	<h1 class="my-6 border-b-2 border-gray-200 pb-2 text-2xl font-bold text-gray-300">Prediction Market Settings</h1>
 	{#if !data}
 		<div class="place-content-start self-start align-top">

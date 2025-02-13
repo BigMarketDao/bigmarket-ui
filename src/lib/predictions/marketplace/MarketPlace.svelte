@@ -6,6 +6,7 @@
 	import InfoPanelContainer from './info/InfoPanelContainer.svelte';
 	import MarketCard from './info/MarketCard.svelte';
 	import FilteredMarketView from './FilteredMarketView.svelte';
+	import GetStartedPanel from './info/GetStartedPanel.svelte';
 
 	export let markets: Array<PredictionMarketCreateEvent> = [];
 	let filteredMarkets: Array<PredictionMarketCreateEvent> = [];
@@ -69,4 +70,6 @@
 	</div>
 
 	<FilteredMarketView {markets} />
+
+	<GetStartedPanel />
 </div>

@@ -3,10 +3,10 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
-import { predictionsDao } from './links';
+import { aibtcdev, predictionsDao } from './links';
 
 // List of GitBook URLs to export
-const gitBookPages = predictionsDao;
+const gitBookPages = aibtcdev;
 
 // Test suite
 test('Export GitBook pages to PDF', async () => {
@@ -20,7 +20,7 @@ test('Export GitBook pages to PDF', async () => {
 		console.log(`Created directory: ${exportDir}`);
 	}
 
-	const combinedPDFPath = path.join(exportDir, 'predictionsDao.pdf');
+	const combinedPDFPath = path.join(exportDir, 'aibtcdev.pdf');
 
 	// Create a new PDF document
 	const combinedPdfDoc = await PDFDocument.create();
@@ -39,10 +39,7 @@ test('Export GitBook pages to PDF', async () => {
 
 		// Load the buffer as a PDFDocument and copy its pages
 		const currentPdfDoc = await PDFDocument.load(pdfBuffer);
-		const copiedPages = await combinedPdfDoc.copyPages(
-			currentPdfDoc,
-			currentPdfDoc.getPageIndices()
-		);
+		const copiedPages = await combinedPdfDoc.copyPages(currentPdfDoc, currentPdfDoc.getPageIndices());
 
 		copiedPages.forEach((page) => combinedPdfDoc.addPage(page));
 		console.log(`Page ${i + 1} added to combined PDF.`);

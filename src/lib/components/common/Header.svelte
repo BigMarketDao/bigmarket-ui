@@ -21,19 +21,19 @@
 	}
 </script>
 
-<header class="flex h-[95px] w-full border-b border-white bg-gray-1000 shadow-md">
+<header class="flex h-[95px] w-full bg-gray-1000 shadow-md">
 	<nav class="container mx-auto flex items-center justify-between p-4 align-middle">
 		<!-- Logo -->
 		<a href="/" class=" text-xl font-bold text-gray-800 dark:text-white"><img src={logo} alt="BigMarket" /></a>
 
 		<!-- Desktop Nav -->
-		<div class="relative top-[-10px] hidden space-x-6 md:flex">
-			<span class="font-inter h-[48px] py-8 text-[20px] font-bold"><a href="/" on:click|preventDefault={() => goto('/terms')} class="mx-2 hover:text-gray-200">HOW IT WORKS</a></span>
-			<span class="font-inter h-[48px] py-8 text-[20px] font-bold"><a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="mx-2 hover:text-gray-200">IDO</a></span>
-			<span class="font-inter h-[48px] py-8 text-[20px] font-bold"><a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="mx-2 hover:text-gray-200">(real time) DAO</a></span>
-			<!-- <span><a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-gray-200">{$configStore.VITE_NETWORK}</a></span> -->
-			<span class="font-inter h-[48px] py-8 text-[20px] font-bold"><ConnectMenuDropdown /></span>
-			<span class="font-inter h-[48px] py-8 text-[20px] font-bold"><CurrencyDropdown /></span>
+		<div class="relative top-[-0px] hidden space-x-2 md:flex">
+			<span class="py-2 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/terms')} class="mx-2 hover:text-blue-400">HOW IT WORKS</a></span>
+			<span class="py-2 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="mx-2 hover:text-blue-400">IDO</a></span>
+			<span class="py-2 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="mx-2 hover:text-blue-400">DAO</a></span>
+			<!-- <span><a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-blue-400">{$configStore.VITE_NETWORK}</a></span> -->
+			<span class="py-2 font-inter text-[16px] font-bold"><ConnectMenuDropdown /></span>
+			<span class="py-2 font-inter text-[16px] font-bold"><CurrencyDropdown /></span>
 		</div>
 
 		<!-- Mobile Menu Button -->
@@ -54,11 +54,11 @@
 	{#if isOpen}
 		<div class="fixed left-1/2 top-16 z-50 w-1/2 -translate-x-1/2 rounded-lg bg-gray-800 text-white shadow-lg md:hidden">
 			<div class="flex flex-col items-center space-y-4 py-6">
-				<a href="/" on:click|preventDefault={() => goto('/terms')} class="font-inter block w-full py-2 text-center text-lg font-semibold hover:text-gray-200"> HOW IT WORKS </a>
+				<a href="/" on:click|preventDefault={() => goto('/terms')} class="block w-full py-2 text-center font-inter text-lg font-semibold hover:text-blue-400"> HOW IT WORKS </a>
 
-				<a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="font-inter block w-full py-2 text-center text-lg font-semibold hover:text-gray-200"> IDO </a>
+				<a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="block w-full py-2 text-center font-inter text-lg font-semibold hover:text-blue-400"> IDO </a>
 
-				<a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="font-inter block w-full py-2 text-center text-lg font-semibold hover:text-gray-200"> (real time) DAO </a>
+				<a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="block w-full py-2 text-center font-inter text-lg font-semibold hover:text-blue-400"> DAO </a>
 
 				<div class="flex w-full justify-center">
 					<ConnectMenuDropdown />

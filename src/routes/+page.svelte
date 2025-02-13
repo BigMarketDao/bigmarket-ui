@@ -20,8 +20,6 @@
 	<div class=" flex w-full flex-col">
 		{#if markets && markets.length > 0}
 			<MarketPlace {markets} />
-		{:else}
-			No markets available
 		{/if}
 	</div>
 </div>

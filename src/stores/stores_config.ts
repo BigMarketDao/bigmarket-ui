@@ -15,6 +15,9 @@ export function switchConfig(env: string) {
 export function setConfigByUrl(search: URLSearchParams, override?: string) {
 	if (override) {
 		switchConfig(override);
+		const currentUrl = new URL(window.location.href);
+		currentUrl.searchParams.set('chain', override);
+		window.history.replaceState({}, '', currentUrl.toString());
 		return;
 	}
 	const newNetwork = search.get('chain');

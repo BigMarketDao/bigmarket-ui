@@ -64,20 +64,21 @@
 
 	onMount(async () => {
 		await initApp();
+
 		inited = true;
 	});
 </script>
 
 <div class="min-h-screen bg-gray-1000 bg-cover font-extralight text-white">
 	<div class=" min-h-[calc(100vh-160px)] px-0">
-		<div class=" flex min-h-screen flex-col">
-			<div class="mx-[0%]"><Header /></div>
-			<div class="mx-[0%] grow">
+		<div class="flex min-h-screen flex-col">
+			<div class="border-b border-white px-20"><Header /></div>
+			<div class="mb-10 grow">
 				{#if inited}
 					<slot></slot>
 				{/if}
 			</div>
-			<div class="mx-[0%]"><Footer /></div>
+			<div class="border-t border-white px-20"><Footer /></div>
 		</div>
 	</div>
 </div>

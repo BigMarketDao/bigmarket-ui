@@ -31,17 +31,17 @@
 	}
 </script>
 
-<div class="relative inline-block text-left">
+<div class="relative ms-5 text-left">
 	<!-- Selected Currency Button -->
-	<button class="font-inter font-bold text-white hover:text-gray-400" on:click={() => (isOpen = !isOpen)}>
-		<span class="font-inter text-[20px] font-bold">{$selectedCurrency.flag}</span>
-		<span class="relative top-[-3px] mb-2 text-[20px] font-bold">{$selectedCurrency.code}</span>
-		<span class="ml-2">▼</span>
+	<button class="inline-block font-inter font-bold text-white hover:text-gray-400" on:click={() => (isOpen = !isOpen)}>
+		<span class="relative top-[-5px] inline font-inter text-[26px] font-bold">{$selectedCurrency.flag}</span>
+		<!-- <span class="relative top-[-3px] mb-2 text-[20px] font-bold">{$selectedCurrency.code}</span> -->
+		<span class="relative top-[-5px] ml-0 text-[10px]">▼</span>
 	</button>
 
 	<!-- Dropdown Menu -->
 	{#if isOpen}
-		<div class="absolute left-0 z-50 mt-2 w-48 rounded-md border border-gray-300 bg-white shadow-lg">
+		<div class="absolute right-0 z-50 mt-2 w-48 rounded-md border border-gray-300 bg-white shadow-lg">
 			{#each currencies as currency}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->

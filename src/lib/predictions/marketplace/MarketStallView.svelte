@@ -11,12 +11,13 @@
 
 	export let market: PredictionMarketCreateEvent;
 	export let marketData: MarketData | undefined;
-	let amount = 0;
+	let totalPoolMicro = 0;
 	let inited = false;
 	let sip10Data: Sip10Data;
 
 	onMount(async () => {
 		sip10Data = getMarketToken(market.token);
+		totalPoolMicro = totalPoolSum(marketData?.stakes);
 		inited = true;
 	});
 </script>
@@ -29,25 +30,24 @@
 
 {#if market}
 	<!-- Market Logo -->
-	<div class="mb-5 flex gap-x-5 text-black">
+	<div class="mb-10 flex items-start gap-x-5 text-black">
 		<LogoContainer logo={market.unhashedData.logo} />
-		<h2 class="font-inter text-[30px] font-bold leading-tight md:text-[40px]">
-			<a href={`/market/${market.marketId}`} class="hover:underline">{market.unhashedData.name}</a>
+		<h2 class="font-inter text-[30px] font-bold leading-[1.1] tracking-tight md:text-[40px]">
+			<a href={`/market/${market.marketId}`} class="hover:text-blue-1000">{market.unhashedData.name}</a>
 		</h2>
 	</div>
 
 	<!-- Market Actions -->
 	<YesNoButtons {market} {marketData} />
-	<div class="my-5">
+	<div class="my-10">
 		<div class="font-inter font-medium text-black"><MarkdownRenderer value={market.unhashedData.description} /></div>
 		<div class="font-inter font-medium text-black"><MarkdownRenderer value={market.unhashedData.criteria} /></div>
 	</div>
 	<div class="mt-5">
-		<div class="font-inter mb-5 font-bold text-black">
+		<div class="mb-5 font-inter font-bold text-black">
 			{#if sip10Data}
-				TVL: {fmtMicroToStx(totalPoolSum(marketData?.stakes))}
-				{sip10Data.symbol}
-				(<ExchangeRate {sip10Data} />)
+				<!-- TVL: {fmtMicroToStx(totalPoolSum(marketData?.stakes))} -->
+				TVL: <ExchangeRate {sip10Data} {totalPoolMicro} />
 			{/if}
 		</div>
 	</div>

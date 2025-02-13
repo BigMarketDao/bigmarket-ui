@@ -1,5 +1,5 @@
-import { getConfig } from '$stores/store_helpers';
-import { callContractReadOnly, extractValue } from '@mijoco/stx_helpers/dist/index';
+import { getConfig, getSession } from '$stores/store_helpers';
+import { callContractReadOnly, extractValue, type ExchangeRate, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
 import { Cl } from '@stacks/transactions';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.';
@@ -117,12 +117,42 @@ export function fmtRoundToNDecimalPlaces(value: number, n: number) {
 	return Number(value.toFixed(n));
 }
 
-export function fmtMicroToStx(amount: number, decimals?: number) {
+export function fmtMicroToStx(amount: number, decimals?: number): string {
 	const conv = Number(`1e${decimals}`);
 	if (!decimals) {
 		return String(amount / 1e6);
 	}
 	return (amount / conv).toFixed(decimals);
+}
+
+export function fmtMicroToStxNumber(amount: number, decimals?: number): number {
+	const conv = Number(`1e${decimals}`);
+	if (!decimals) {
+		return amount / 1e6;
+	}
+	return amount / conv;
+}
+
+export function getRate(currencyCode: string): ExchangeRate {
+	const rates = getSession().exchangeRates;
+	const rate = rates.find((o) => o.currency === currencyCode);
+	if (!rate)
+		return {
+			symbol: '$',
+			name: 'US Dollar',
+			currency: 'USD'
+		} as ExchangeRate;
+	return rate;
+}
+
+export function toFiat(currencyCode: string, amountMicro: number, sip10Data: Sip10Data): string {
+	const rate = getRate(currencyCode);
+	const amount = fmtMicroToStxNumber(amountMicro);
+	if (sip10Data.symbol === 'STX') {
+		return (amount * (rate?.fifteen || 0) * (rate?.stxToBtc || 0)).toFixed(2);
+	} else {
+		return (amount * (rate?.fifteen || 0)).toFixed(2);
+	}
 }
 
 export function fmtStxMicro(amountStx: number, decimals?: number) {

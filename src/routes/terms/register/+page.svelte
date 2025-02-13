@@ -71,7 +71,7 @@
 
 {#if showPollResult}{/if}
 
-<div class="mx-auto max-w-4xl py-4 md:px-6">
+<div class="px-20">
 	<div class="my-2 flex w-full flex-col">
 		<EmailRegistration />
 	</div>

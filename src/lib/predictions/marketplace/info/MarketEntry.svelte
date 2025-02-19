@@ -15,8 +15,8 @@
 
 <div class="mx-16 my-3 md:mx-32">
 	<!-- Market Logo -->
-	<div class="flex w-full justify-start gap-y-5 border-b border-white py-3 text-white">
-		<div class="w-[150px]"><LogoContainer logo={market.unhashedData.logo} /></div>
+	<div class="flex w-full justify-start gap-5 border-b border-white py-3 text-white">
+		<div class="w-[100px]"><LogoContainer logo={market.unhashedData.logo} /></div>
 		<div class="flex w-full grow flex-col">
 			<div class="font-inter text-[10px] font-medium md:text-[16px]">
 				{market.unhashedData.category}

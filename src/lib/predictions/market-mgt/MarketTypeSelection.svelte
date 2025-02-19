@@ -2,11 +2,14 @@
 	import { MARKET_BINARY_OPTION, type MarketCategoricalOption, type ScalarMarketDataItem } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 
+	export let priceFeedId: string;
 	export let marketType = 0;
 	export let marketTypeDataCategorical: Array<MarketCategoricalOption> = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }];
 	export let marketTypeDataScalar: Array<ScalarMarketDataItem> = [
-		{ min: 0, max: 1 },
-		{ min: 1, max: 2 }
+		{ min: 0.4, max: 0.6 },
+		{ min: 0.6, max: 0.8 },
+		{ min: 0.8, max: 1.0 },
+		{ min: 1.0, max: 1.2 }
 	];
 
 	let marketTypeDataCategoricalSaved = marketTypeDataCategorical;
@@ -94,6 +97,22 @@
 				</div>
 			{/each}
 			<button class="mt-2 rounded-md bg-warning-500 px-3 py-2 text-white hover:bg-warning-600" on:click={addRange}> + Add Range </button>
+			<div class="">
+				<h3 class="text-lg font-semibold text-white">Trading Pair</h3>
+				<p class="text-sm text-gray-600">See <a href="https://docs.diadata.org/use-nexus-product/how-to-dia-nexus-oracles/access-the-oracle/stacks-price-oracles">supported by dia-oracle</a>.</p>
+				<p class="text-sm text-gray-600">Choose one of below for now.</p>
+				<div class="mx-auto px-4 text-white shadow-md">
+					<div class="mb-2">
+						<select id="market-type" bind:value={priceFeedId} class="h-10 w-full rounded-md border-gray-300 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
+							<option value="" disabled selected>-- Select a Trading Pair --</option>
+							<option value="STX/USD/0">STX/USD/0</option>
+							<option value="STX/USD/1">STX/USD/1</option>
+							<option value="STX/USD/2">STX/USD/2</option>
+							<option value="STX/USD/3">STX/USD/3</option>
+						</select>
+					</div>
+				</div>
+			</div>
 		</div>
 	{/if}
 </div>

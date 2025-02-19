@@ -23,6 +23,7 @@
 	let contractIds: Array<string> | undefined;
 	let token: string;
 	let category: string;
+	let priceFeedId: string = 'STX/USD/3';
 
 	let errorMessage: string = '';
 	let result: string | undefined = undefined;
@@ -64,9 +65,9 @@
 		const marketFeeCV = examplePoll.marketFee === 0 ? noneCV() : someCV(uintCV((examplePoll.marketFee || 0) * 100));
 		const metadataHash = bufferCV(hexToBytes(dataHash)); // Assumes the hash is a string of 32 bytes in hex format
 		let proof = $sessionStore.daoOverview.contractData.creationGated ? await getClarityProofForCreateMarket() : Cl.list([]);
-		if (examplePoll.marketTypeDataScalar) {
-			const cats = listCV(examplePoll.marketTypeDataScalar.map((o) => tupleCV({ min: uintCV(o.min), max: uintCV(o.max) })));
-			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV('STX/USD')];
+		if (examplePoll.marketType === 2) {
+			const cats = listCV(examplePoll.marketTypeDataScalar!.map((o) => tupleCV({ min: uintCV(o.min), max: uintCV(o.max) })));
+			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV(examplePoll.priceFeedId!)];
 		} else {
 			const cats = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
 			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury)];
@@ -85,6 +86,7 @@
 			return;
 		}
 		examplePoll.category = category;
+		examplePoll.priceFeedId = priceFeedId;
 		if (!examplePoll.description) {
 			errorMessage = 'Please enter a description';
 			return;
@@ -142,6 +144,7 @@
 				return;
 			}
 		} else if (examplePoll.marketTypeDataScalar && examplePoll.marketType === 2) {
+			examplePoll.priceFeedId = priceFeedId;
 			if (!isContiguous(examplePoll.marketTypeDataScalar)) {
 				errorMessage = 'Contiguous values only - the min must be the max of the previous ';
 				return;
@@ -244,7 +247,7 @@
 					</div>
 				</div>
 			</div>
-			<MarketTypeSelection bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
+			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
 			<TokenSelection onSelectToken={handleSelectToken} />
 			<CategorySelection onSelectCategory={handleSelectCategory} />
 

@@ -3,7 +3,7 @@
 	import { fmtMicroToStx, fmtMicroToStxFormatted } from '$lib/utils';
 	import { Icon, PencilSquare } from 'svelte-hero-icons';
 	import BannerSlot from '$lib/components/ui/BannerSlot.svelte';
-	import type { Sip10Data, TokenPermissionEvent } from '@mijoco/stx_helpers';
+	import type { Sip10Data, TokenPermissionEvent } from '@mijoco/stx_helpers/dist/index';
 
 	export let onVotingPowerChange;
 	export let onVotingTypeChange;
@@ -55,7 +55,7 @@
 	});
 </script>
 
-<div class="bg-gray-50 my-5 max-w-xl rounded-lg p-4 shadow-md">
+<div class="my-5 max-w-xl rounded-lg bg-gray-50 p-4 shadow-md">
 	<!-- Staking Info -->
 	<div class="mb-3 flex flex-col">
 		<span class="text-lg font-medium text-gray-800"> Market Resolution </span>

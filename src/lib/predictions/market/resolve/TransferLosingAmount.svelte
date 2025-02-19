@@ -7,11 +7,10 @@
 	import { getConfig } from '$stores/store_helpers';
 	import { explorerTxUrl } from '$lib/stacks/stacks-connect';
 	import Banner from '$lib/components/ui/Banner.svelte';
-	import { isSTX, totalPoolSum } from '$lib/predictions/predictions';
+	import { getMarketToken, isSTX, totalPoolSum } from '$lib/predictions/predictions';
 
 	export let market: PredictionMarketCreateEvent;
-	export let marketData: MarketData;
-	let sip10Data: Sip10Data;
+	let sip10Data = getMarketToken(market.marketData.token);
 
 	let errorMessage: string | undefined;
 	let txId: string;
@@ -22,9 +21,9 @@
 		const contractName = market.votingContract.split('.')[1];
 		let functionName = 'transfer-losing-stakes';
 		const postConditions = [];
-		const amount = totalPoolSum(marketData.stakes);
-		if (!isSTX(market.token)) {
-			const formattedToken = (market.token.split('.')[0] + '.' + market.token.split('.')[1]) as `${string}.${string}`;
+		const amount = totalPoolSum(market.marketData.stakes);
+		if (!isSTX(market.marketData.token)) {
+			const formattedToken = (market.marketData.token.split('.')[0] + '.' + market.marketData.token.split('.')[1]) as `${string}.${string}`;
 			const postConditionFt = Pc.principal(`${contractAddress}.${contractName}`).willSendLte(amount).ft(formattedToken, sip10Data.symbol);
 			postConditions.push(postConditionFt);
 		} else {
@@ -37,7 +36,7 @@
 			contractAddress,
 			contractName,
 			functionName,
-			functionArgs: [uintCV(market.marketId), Cl.principal(market.token)],
+			functionArgs: [uintCV(market.marketId), Cl.principal(market.marketData.token)],
 			onFinish: (data) => {
 				txId = data.txId;
 				localStorage.setItem('resolve-market-' + market.marketId, JSON.stringify({ txId }));
@@ -49,7 +48,7 @@
 	};
 
 	onMount(async () => {
-		winningPool = marketData.stakes[marketData.outcome!];
+		winningPool = market.marketData.stakes[market.marketData.outcome!];
 	});
 </script>
 
@@ -73,7 +72,7 @@
 						errorMessage = undefined;
 						transferBalance();
 					}}
-					class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
+					class="mt-4 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-600"
 				>
 					TRANSFER BALANCE
 				</button>

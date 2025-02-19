@@ -2,7 +2,7 @@
 	import DaoMintingInput from '$lib/predictions/market/resolve/market-vote/DaoMintingInput.svelte';
 	import MarketPlace from '$lib/predictions/marketplace/MarketPlace.svelte';
 	import { fetchMarkets } from '$lib/predictions/predictions';
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers';
+	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 
 	let markets: Array<PredictionMarketCreateEvent>;

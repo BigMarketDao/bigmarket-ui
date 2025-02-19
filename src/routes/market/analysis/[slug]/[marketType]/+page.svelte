@@ -11,8 +11,9 @@
 
 	onMount(async () => {
 		const marketId = Number(page.params.slug);
+		const marketType = Number(page.params.marketType);
 		if (marketId >= 0) {
-			market = await getPredictionMarket(marketId);
+			market = await getPredictionMarket(marketId, marketType);
 			stakes = await fetchMarketStakes(marketId);
 			claims = await fetchMarketClaims(marketId);
 			console.log('getPredictionMarket: ', market);

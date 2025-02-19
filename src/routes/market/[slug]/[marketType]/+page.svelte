@@ -10,8 +10,9 @@
 
 	onMount(async () => {
 		const marketId = Number(page.params.slug);
+		const marketType = Number(page.params.marketType);
 		if (marketId >= 0) {
-			market = await getPredictionMarket(marketId, 1);
+			market = await getPredictionMarket(marketId, marketType);
 			console.log('getPredictionMarket: ', market);
 		} else {
 			goto('/market-mgt');

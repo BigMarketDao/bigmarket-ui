@@ -3,10 +3,10 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
-import { aibtcdev, predictionsDao } from './links';
+import { pythdev } from './links';
 
 // List of GitBook URLs to export
-const gitBookPages = aibtcdev;
+const gitBookPages = pythdev;
 
 // Test suite
 test('Export GitBook pages to PDF', async () => {
@@ -20,7 +20,7 @@ test('Export GitBook pages to PDF', async () => {
 		console.log(`Created directory: ${exportDir}`);
 	}
 
-	const combinedPDFPath = path.join(exportDir, 'aibtcdev.pdf');
+	const combinedPDFPath = path.join(exportDir, 'pythdev.pdf');
 
 	// Create a new PDF document
 	const combinedPdfDoc = await PDFDocument.create();

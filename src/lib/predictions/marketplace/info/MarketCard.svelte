@@ -6,28 +6,29 @@
 	import { getConfig } from '$stores/store_helpers';
 
 	export let market: PredictionMarketCreateEvent;
-	let marketData: MarketData | undefined;
 
 	onMount(async () => {
-		marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
+		// marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
 	});
 </script>
 
 <div class="h-auto flex-col rounded-lg bg-gray-100 p-4 shadow-lg transition hover:shadow-xl">
 	<!-- Market Logo -->
-	<div class="flex w-full flex-col justify-center gap-y-2 text-center text-black">
-		<div class="mt-5 w-full text-center"><LogoContainer logo={market.unhashedData.logo} /></div>
+	<div class="flex h-full w-full flex-col justify-between gap-y-2 text-center text-black">
+		<div class="flex flex-col">
+			<div class="mt-5 w-full text-center"><LogoContainer logo={market.unhashedData.logo} /></div>
 
-		<h2 class="font-inter text-[10px] font-medium md:text-sm">
-			<a href={`/market/${market.marketId}`} class="hover:underline">{market.unhashedData.category}</a>
-		</h2>
-
-		<h2 class="font-inter h-[60px] text-[30px] font-bold md:text-[20px]">
-			<a href={`/market/${market.marketId}`} class="hover:underline">{market.unhashedData.name}</a>
-		</h2>
-
-		{#if market && marketData}
-			<YesNoButtons {market} {marketData} />
-		{/if}
+			<h2 class="font-inter text-[10px] font-medium md:text-sm">
+				<a href={`/market/${market.marketId}/${market.marketType}`} class="hover:underline">{market.unhashedData.category}</a>
+			</h2>
+		</div>
+		<div class="flex flex-col">
+			<h2 class="h-[60px] font-inter text-[30px] font-bold md:text-[20px]">
+				<a href={`/market/${market.marketId}/${market.marketType}`} class="hover:underline">{market.unhashedData.name}</a>
+			</h2>
+			{#if market}
+				<YesNoButtons {market} />
+			{/if}
+		</div>
 	</div>
 </div>

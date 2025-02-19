@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { configStore } from '$stores/stores_config';
-	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, uintCV } from '@stacks/transactions';
-	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, opinionPollToTupleCV, type OpinionPoll, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
+	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
+	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, opinionPollToTupleCV, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
 	import { getClarityProofForCreateMarket, postCreatePollMessage, signNewPoll } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
@@ -49,6 +49,28 @@
 
 	const login = async () => {
 		loginStacksFromHeader(document);
+	};
+
+	const isContiguous = (data: Array<ScalarMarketDataItem>): boolean => {
+		for (let i = 1; i < data.length; i++) {
+			if (data[i].min !== data[i - 1].max) {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	const getArgsCV = async (dataHash: string) => {
+		const marketFeeCV = examplePoll.marketFee === 0 ? noneCV() : someCV(uintCV((examplePoll.marketFee || 0) * 100));
+		const metadataHash = bufferCV(hexToBytes(dataHash)); // Assumes the hash is a string of 32 bytes in hex format
+		let proof = $sessionStore.daoOverview.contractData.creationGated ? await getClarityProofForCreateMarket() : Cl.list([]);
+		if (examplePoll.marketTypeDataScalar) {
+			const cats = listCV(examplePoll.marketTypeDataScalar.map((o) => tupleCV({ min: uintCV(o.min), max: uintCV(o.max) })));
+			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV('STX/USD')];
+		} else {
+			const cats = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
+			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury)];
+		}
 	};
 
 	const getSignature = async () => {
@@ -110,23 +132,22 @@
 	};
 
 	const confirmPoll = async (dataHash: string) => {
-		let categoriesCV;
+		let contractName = getDaoConfig().VITE_DAO_MARKET_PREDICTING;
+
 		if (examplePoll.marketType === 0) {
 			examplePoll.marketTypeDataCategorical = MARKET_BINARY_OPTION;
-			categoriesCV = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
 		} else if (examplePoll.marketType === 1) {
 			if (!examplePoll.marketTypeDataCategorical || examplePoll.marketTypeDataCategorical.length < 3) {
 				errorMessage = 'Categorical markets must have at least three options';
 				return;
 			}
-			categoriesCV = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
-		} else if (examplePoll.marketType === 2) {
-			errorMessage = 'Scalar markets are not yet supported';
-			return;
+		} else if (examplePoll.marketTypeDataScalar && examplePoll.marketType === 2) {
+			if (!isContiguous(examplePoll.marketTypeDataScalar)) {
+				errorMessage = 'Contiguous values only - the min must be the max of the previous ';
+				return;
+			}
+			contractName = getDaoConfig().VITE_DAO_MARKET_SCALAR;
 		}
-		const marketFeeCV = examplePoll.marketFee === 0 ? noneCV() : someCV(uintCV((examplePoll.marketFee || 0) * 100));
-		const metadataHash = bufferCV(hexToBytes(dataHash)); // Assumes the hash is a string of 32 bytes in hex format
-		let proof = $sessionStore.daoOverview.contractData.creationGated ? await getClarityProofForCreateMarket() : Cl.list([]);
 		const ra = $sessionStore?.daoOverview?.contractData?.resolutionAgent || '';
 		const postConditions = [];
 		if (ra !== getStxAddress()) postConditions.push(Pc.principal(getStxAddress()).willSendEq($sessionStore.daoOverview.contractData.marketCreateFee).ustx());
@@ -135,9 +156,9 @@
 			postConditions,
 			postConditionMode: PostConditionMode.Deny,
 			contractAddress: getDaoConfig().VITE_DOA_DEPLOYER,
-			contractName: getDaoConfig().VITE_DAO_MARKET_PREDICTING,
+			contractName,
 			functionName: 'create-market',
-			functionArgs: [categoriesCV!, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury)],
+			functionArgs: await getArgsCV(dataHash),
 			onFinish: (data: any) => {
 				txId = data.txId;
 				console.log('finished contract call!', data);
@@ -271,7 +292,7 @@
 			<div class="flex justify-end space-x-4">
 				{#if isLoggedIn()}
 					<button
-						class="bg-green-500 hover:bg-green-600 rounded-md px-4 py-2 font-medium text-white shadow-sm"
+						class="bg-green-500 rounded-md px-4 py-2 font-medium text-white shadow-sm hover:bg-green-600"
 						on:click={() => {
 							errorMessage = '';
 							getSignature();

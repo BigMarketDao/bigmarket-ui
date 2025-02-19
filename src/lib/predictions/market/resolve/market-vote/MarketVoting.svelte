@@ -16,7 +16,6 @@
 	import { getVotesByVoterAndMarket } from '$lib/predictions/voter';
 
 	export let market: PredictionMarketCreateEvent;
-	export let marketData: MarketData | undefined;
 	let resolutionVote: ResolutionVote;
 	let marketVotes: Array<PollVoteEvent>;
 	let myVotes: Array<PollVoteEvent>;
@@ -52,7 +51,7 @@
 		const contractName = getDaoConfig().VITE_DAO_MARKET_VOTING;
 		let functionName = 'vote';
 
-		const mult = isSTX(market.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
+		const mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
 		const microStxAmount = Math.round(parseFloat(String(amount)) * mult);
 		const postConditions = [];
 		const formattedToken = (getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN) as `${string}.${string}`;
@@ -68,7 +67,7 @@
 			functionName,
 			functionArgs: [
 				uintCV(market.marketId),
-				bufferCV(hexToBytes(market.metadataHash)),
+				bufferCV(hexToBytes(market.marketData.metadataHash)),
 				uintCV(vfor),
 				uintCV(microStxAmount),
 				noneCV() //reclaim gov. tokens from this vote
@@ -140,7 +139,7 @@
 </script>
 
 <div>
-	{#if resolutionVote && marketData}
+	{#if resolutionVote && market.marketData}
 		<div class="flex flex-col gap-y-4">
 			{#if errorMessage}
 				<div class="my-4">
@@ -153,7 +152,7 @@
 					<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
 				{:else if resolutionVote.concluded}
 					<h2>Voting Concluded</h2>
-					<p class="mb-4 font-semibold text-gray-800">Market resolved {market.outcome}.</p>
+					<p class="mb-4 font-semibold text-gray-800">Market resolved {market.marketData.outcome}.</p>
 				{:else}
 					<h2>Voting in Progress</h2>
 					<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
@@ -214,7 +213,7 @@
 						/>
 					</div>
 					<div class="mt-4">
-						<BlockHeightProgressBar startBurnHeight={marketData!.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
+						<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
 					</div>
 				{:else if resolutionVote.endBurnHeight >= currentBurnHeight}
 					<div>
@@ -232,7 +231,7 @@
 						</div>
 					{/if}
 					<div class="my-4 flex w-full flex-wrap gap-x-2">
-						{#each marketData.categories as category, index}
+						{#each market.marketData.categories as category, index}
 							<button
 								on:click={() => {
 									errorMessage = undefined;
@@ -245,7 +244,7 @@
 						{/each}
 					</div>
 					<div class="mt-4">
-						<BlockHeightProgressBar startBurnHeight={marketData!.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
+						<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
 					</div>
 					{#if myVotes && myVotes.length > 0}
 						<div>Voted {myVotes.length} times with {fmtMicroToStx(myVotesAmount, sip10Data.decimals)} governance tokens</div>
@@ -261,7 +260,7 @@
 							errorMessage = undefined;
 							concludeVote();
 						}}
-						class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
+						class="mt-4 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-600"
 					>
 						CONCLUDE VOTE
 					</button>

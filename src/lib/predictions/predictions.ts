@@ -185,8 +185,8 @@ export async function getDaoOverview(): Promise<DaoOverview> {
 	return res;
 }
 
-export async function getPredictionMarket(marketId: number) {
-	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/${marketId}`;
+export async function getPredictionMarket(marketId: number, marketType: number) {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/${marketId}/${marketType}`;
 	const response = await fetch(path);
 	if (response.status === 404) return [];
 	const res = await response.json();
@@ -213,7 +213,7 @@ export function canResolveMarket() {
 	return devFundAddress === getStxAddress();
 }
 export function myMarket(market: PredictionMarketCreateEvent) {
-	return market.creator === getStxAddress();
+	return market.marketData.creator === getStxAddress();
 }
 
 export async function fetchMarketStakes(marketId: number): Promise<Array<PredictionMarketStakeEvent>> {
@@ -288,7 +288,7 @@ export async function submitSip18PollVotes(pollContract: string, votes: Array<St
 }
 
 export function isAdministrator(market: PredictionMarketCreateEvent) {
-	return market.creator === getStxAddress();
+	return market.marketData.creator === getStxAddress();
 }
 
 // export async function postCreatePollMessage(newPoll: StoredOpinionPoll) {

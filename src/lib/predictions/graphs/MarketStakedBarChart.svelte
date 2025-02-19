@@ -1,20 +1,20 @@
 <script lang="ts">
-	import type { MarketData, PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers';
+	import type { MarketData, PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import * as echarts from 'echarts';
 	import { onDestroy, onMount } from 'svelte';
 	import { getMarketToken } from '../predictions';
-	import { fmtMicroToStx } from '$lib/utils';
+	import { fmtMicroToStx, mapToMinMaxStrings } from '$lib/utils';
 
 	export let market: PredictionMarketCreateEvent;
-	export let marketData: MarketData;
 	let sip10Data: Sip10Data;
 	let chart: echarts.ECharts | null = null;
 
 	const initializeChart = () => {
-		if (!marketData || !marketData.stakes || marketData.stakes.length === 0) return;
+		if (!market.marketData.stakes || market.marketData.stakes.length === 0) return;
+		let categories = mapToMinMaxStrings(market.marketData.categories);
 
-		const categories = marketData.categories.slice(0, 10); // Limit to 10 categories
-		const stakeValues = marketData.stakes.map((stake) => fmtMicroToStx(stake, sip10Data.decimals));
+		// const categories = market.marketData.categories.slice(0, 10); // Limit to 10 categories
+		const stakeValues = market.marketData.stakes.map((stake) => fmtMicroToStx(stake, sip10Data.decimals));
 
 		const chartDom = document.getElementById('market-bar-chart');
 		if (!chartDom) return;
@@ -72,13 +72,13 @@
 
 		chart.setOption(options);
 	};
-
+	//29_7000_0000;
 	const resizeChart = () => {
 		if (chart) chart.resize();
 	};
 
 	onMount(async () => {
-		sip10Data = getMarketToken(market.token);
+		sip10Data = getMarketToken(market.marketData.token);
 		initializeChart();
 		window.addEventListener('resize', resizeChart);
 	});

@@ -1,73 +1,26 @@
 import { getConfig, getSession } from '$stores/store_helpers';
-import { callContractReadOnly, extractValue, type ExchangeRate, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
+import { callContractReadOnly, extractValue, type ExchangeRate, type ScalarMarketDataItem, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
 import { Cl } from '@stacks/transactions';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.';
 export const smbp = 900;
 export const xsbp = 700;
 
-// export type TokenSalePurchases = {
-// 	amount: number;
-// };
-// export type TokenSaleStage = {
-// 	price: number;
-// 	maxSupply: number;
-// 	tokensSold: number;
-// 	cancelled: boolean;
-// };
-// export type TokenSale = {
-// 	stages: Array<TokenSaleStage>;
-// 	currentStageStart: number;
-// 	currentStage: number;
-// };
-// export async function fetchTokenSaleStages(contractAddress: string, contractName: string): Promise<TokenSale> {
-// 	const data = {
-// 		contractAddress,
-// 		contractName,
-// 		functionName: 'get-ido-stages',
-// 		functionArgs: []
-// 	};
-// 	const result = await callContractReadOnly(getConfig().VITE_STACKS_API, data);
-// 	const stages = result.value.map((stage: any) => {
-// 		if (stage.value) {
-// 			return {
-// 				cancelled: stage.value.value.cancelled.value || false,
-// 				maxSupply: Number(stage.value.value['max-supply'].value) || 0,
-// 				price: Number(stage.value.value.price.value) || 0,
-// 				tokensSold: Number(stage.value.value['tokens-sold'].value) || 0
-// 			};
-// 		}
-// 	});
-// 	let currentStageStart = await extractValue(getConfig().VITE_STACKS_API, contractAddress, contractName, 'current-stage-start');
-// 	let currentStage = await extractValue(getConfig().VITE_STACKS_API, contractAddress, contractName, 'current-stage');
+export function mapToMinMaxStrings(data: Array<string | ScalarMarketDataItem>): string[] {
+	if (typeof data[0] === 'string') {
+		return data as string[]; // Directly return if already an array of strings
+	}
+	return (data as { min: number; max: number }[]).map((item) => `${item.min},${item.max}`);
+}
 
-// 	return {
-// 		stages,
-// 		currentStage,
-// 		currentStageStart
-// 	};
-// }
+export function mapToMinMaxStringsReversed(data: Array<string | ScalarMarketDataItem>): ScalarMarketDataItem[] {
+	if (typeof data[0] === 'object') {
+		return data as ScalarMarketDataItem[]; // Directly return if already an array of strings
+	}
+	throw new Error('Call with type 2 categories allowed.');
+}
 
-// export async function fetchTokenSaleUserData(contractAddress: string, contractName: string, user: string): Promise<TokenSalePurchases> {
-// 	const data = {
-// 		contractAddress,
-// 		contractName,
-// 		functionName: 'get-ido-user',
-// 		functionArgs: [Cl.principal(user)]
-// 	};
-// 	const result = await callContractReadOnly(getConfig().VITE_STACKS_API, data);
-// 	const purchases =
-// 		result?.value?.map((stage: any) => {
-// 			if (stage) {
-// 				return {
-// 					amount: stage.value || 0
-// 				};
-// 			}
-// 		}) || [];
-// 	return purchases;
-// }
-
-const formatter = new Intl.NumberFormat('en-US', {
+export const formatter = new Intl.NumberFormat('en-US', {
 	style: 'currency',
 	currency: 'USD'
 	// These options are needed to round to whole numbers if that's what you want.
@@ -147,7 +100,7 @@ export function getRate(currencyCode: string): ExchangeRate {
 
 export function toFiat(currencyCode: string, amountMicro: number, sip10Data: Sip10Data): string {
 	const rate = getRate(currencyCode);
-	const amount = fmtMicroToStxNumber(amountMicro);
+	const amount = fmtMicroToStxNumber(amountMicro, sip10Data.decimals);
 	if (sip10Data.symbol === 'STX') {
 		return (amount * (rate?.fifteen || 0) * (rate?.stxToBtc || 0)).toFixed(2);
 	} else {
@@ -160,7 +113,7 @@ export function fmtStxMicro(amountStx: number, decimals?: number) {
 		return (Math.round(amountStx) * stxPrecision * stxPrecision) / stxPrecision;
 	}
 	const conversion = Number(`1e${decimals}`);
-	return Math.round(amountStx) * conversion;
+	return amountStx * conversion;
 }
 
 export function fmtStxMicroGeneral(amountStx: number, decimals: number) {

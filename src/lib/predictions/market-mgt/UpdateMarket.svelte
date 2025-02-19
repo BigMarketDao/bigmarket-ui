@@ -28,7 +28,7 @@
 
 	const getSignature = async () => {
 		market.unhashedData.createdAt = new Date().getTime();
-		pollMessage = opinionPollToTupleCV(market.unhashedData.name, market.unhashedData.category, market.unhashedData.createdAt, market.unhashedData.proposer, market.token);
+		pollMessage = opinionPollToTupleCV(market.unhashedData.name, market.unhashedData.category, market.unhashedData.createdAt, market.unhashedData.proposer, market.marketData.token);
 		const dataHash = dataHashSip18(getConfig().VITE_NETWORK, getConfig().VITE_PUBLIC_APP_NAME, getConfig().VITE_PUBLIC_APP_VERSION, pollMessage);
 		await signAdminMessage(async function (auth: Auth) {
 			const poll: StoredOpinionPoll = {

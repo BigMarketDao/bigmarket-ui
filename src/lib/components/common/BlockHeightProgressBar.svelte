@@ -33,7 +33,7 @@
 <div class="h-2.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
 	<div class={`h-2.5 rounded-full ${state}`} style="width: {progress}%"></div>
 </div>
-<div class="flex justify-between text-xs text-gray-500">
+<div class="relative top-[-10px] flex w-full justify-between text-xs text-gray-500">
 	<span>Start: {fmtNumber(startBurnHeight)}</span>
 	<span>End: {fmtNumber(stopBurnHeight)}</span>
 </div>

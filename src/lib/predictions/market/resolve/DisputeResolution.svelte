@@ -11,7 +11,6 @@
 	import { hexToBytes } from '@stacks/common';
 
 	export let market: PredictionMarketCreateEvent;
-	export let marketData: MarketData;
 	export let onDispute;
 	let merkelRoot: string | undefined;
 
@@ -26,7 +25,7 @@
 		// 	(market-data-hash (buff 32))               ;; market metadata hash
 		// (data {market-id: uint, start-burn-height: uint, end-burn-height: uint})
 		// (merkle-root (optional (buff 32)))      ;; Optional Merkle root for gating
-		const metadataHash = bufferCV(hexToBytes(market.metadataHash)); // Assumes the hash is a string of 32 bytes in hex format
+		const metadataHash = bufferCV(hexToBytes(market.marketData.metadataHash)); // Assumes the hash is a string of 32 bytes in hex format
 		const merkle = merkelRoot ? someCV(bufferCV(hexToBytes(merkelRoot))) : noneCV();
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = getDaoConfig().VITE_DAO_MARKET_VOTING;
@@ -35,8 +34,8 @@
 			Cl.contractPrincipal(getDaoConfig().VITE_DOA_DEPLOYER, getDaoConfig().VITE_DAO_MARKET_PREDICTING),
 			Cl.uint(market.marketId),
 			metadataHash,
-			listCV(Array(marketData.categories.length).fill(uintCV(0))),
-			uintCV(marketData.categories.length)
+			listCV(Array(market.marketData.categories.length).fill(uintCV(0))),
+			uintCV(market.marketData.categories.length)
 		];
 
 		await showContractCall({
@@ -99,7 +98,7 @@
 					errorMessage = undefined;
 					disputeResolution(true);
 				}}
-				class="bg-red-600 hover:bg-red-700 mt-4 rounded px-4 py-2 text-white"
+				class="mt-4 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
 			>
 				DISPUTE OUTCOME
 			</button>

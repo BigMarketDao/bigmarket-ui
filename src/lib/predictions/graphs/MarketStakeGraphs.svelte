@@ -1,12 +1,11 @@
 <script lang="ts">
-	import type { MarketData, PredictionMarketCreateEvent, PredictionMarketStakeEvent, Sip10Data } from '@mijoco/stx_helpers';
+	import type { MarketData, PredictionMarketCreateEvent, PredictionMarketStakeEvent, ScalarMarketDataItem, Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import * as echarts from 'echarts';
 	import { onDestroy, onMount } from 'svelte';
 	import { fetchMarketStakes, getMarketToken } from '../predictions';
-	import { fmtMicroToStx } from '$lib/utils';
+	import { fmtMicroToStx, mapToMinMaxStrings } from '$lib/utils';
 
 	export let market: PredictionMarketCreateEvent;
-	export let marketData: MarketData;
 	let sip10Data: Sip10Data;
 	let stakeData: Array<PredictionMarketStakeEvent> | undefined;
 	let chart: echarts.ECharts | null = null;
@@ -24,7 +23,8 @@
 			categories.forEach((category) => {
 				const previousValue = index > 0 ? categoryData[category][index - 1] : 0;
 				const stakeAmount = fmtMicroToStx(event.amount, sip10Data.decimals);
-				categoryData[category][index] = previousValue + (event.category === category ? Number(stakeAmount) : 0);
+				const cate = categories[event.index];
+				categoryData[category][index] = previousValue + (cate === category ? Number(stakeAmount) : 0);
 			});
 		});
 
@@ -33,7 +33,7 @@
 
 	const initializeChart = () => {
 		if (stakeData) {
-			const categories = marketData.categories.slice(0, 10); // Ensure max 10 categories
+			let categories = mapToMinMaxStrings(market.marketData.categories);
 			const { xAxisData, categoryData } = processStakeData(stakeData, categories);
 
 			const chartDom = document.getElementById('market-chart');
@@ -46,7 +46,7 @@
 				data: categoryData[category],
 				type: 'line',
 				smooth: true,
-				color: `hsl(${(index * 360) / categories.length}, 70%, 50%)`, // Dynamic color generation
+				color: `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
 				areaStyle: { color: `hsla(${(index * 360) / categories.length}, 70%, 50%, 0.2)` }
 			}));
 
@@ -88,7 +88,7 @@
 
 	onMount(async () => {
 		stakeData = await fetchMarketStakes(market.marketId);
-		sip10Data = getMarketToken(market.token);
+		sip10Data = getMarketToken(market.marketData.token);
 
 		if (stakeData) {
 			initializeChart();

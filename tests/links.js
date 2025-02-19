@@ -1,3 +1,21 @@
+export const pythdev = [
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/tree/clarity-v3',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/pyth-traits-v1.clar',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/pyth-storage-v3.clar',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/pyth-pnau-decoder-v2.clar',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/pyth-oracle-v3.clar',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/pyth-governance-v2.clar',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/tree/clarity-v3/contracts/wormhole',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/wormhole/wormhole-traits-v1.clar',
+	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/wormhole/wormhole-core-v3.clar',
+	'https://www.pyth.network/price-feeds/crypto-stx-usd',
+	'https://docs.pyth.network/price-feeds/fetch-price-updates',
+	'https://docs.pyth.network/price-feeds/use-real-time-data',
+	'https://docs.pyth.network/price-feeds/schedule-price-updates',
+	'https://explorer.hiro.so/txid/0x1f5e9abc51653b6a23ab7e454b0f3cf4d63c35bf35d08b97f0e745260a2dca73?chain=testnet',
+	'https://explorer.hiro.so/txid/SP3R4F6C1J3JQWWCVZ3S7FRRYPMYG6ZW6RZK31FXY.pyth-oracle-v3?chain=mainnet',
+	'https://explorer.hiro.so/txid/SP3R4F6C1J3JQWWCVZ3S7FRRYPMYG6ZW6RZK31FXY.pyth-storage-v3?chain=mainnet'
+];
 export const aibtcdev = [
 	'https://github.com/aibtcdev/aibtcdev-docs',
 	'https://github.com/aibtcdev/aibtcdev-docs/blob/main/structure/dao-extensions.md',

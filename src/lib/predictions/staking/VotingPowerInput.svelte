@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fmtMicroToStx, fmtMicroToStxFormatted } from '$lib/utils';
-	import { Icon, PencilSquare } from 'svelte-hero-icons';
-	import BannerSlot from '$lib/components/ui/BannerSlot.svelte';
-	import type { Sip10Data, TokenPermissionEvent } from '@mijoco/stx_helpers';
+	import { fmtMicroToStx, fmtMicroToStxFormatted, fmtStxMicro } from '$lib/utils';
+	import type { Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
 	import { stakeAmount } from '$stores/stores';
 
@@ -30,6 +28,8 @@
 		if (regex.test(value)) {
 			stxAmount = value;
 		}
+		const amountMicro = fmtStxMicro(Number(value), sip10Data.decimals);
+		stakeAmount.set(amountMicro);
 	}
 	function handleSubmit() {
 		if (!stxAmount) {
@@ -48,16 +48,22 @@
 	onMount(async () => {
 		if (votingPowerUstx === 0) votingPowerUstx = totalBalanceUstx;
 		console.log('sip10Data: ', sip10Data);
-		//amountStx = fmtMicroToStx(totalBalanceUstx);
+		stakeAmount.set(0);
 	});
 </script>
 
-<div class="bg-gray-50 max-w-xl rounded-lg p-4 shadow-md">
+<div class="max-w-xl rounded-lg bg-gray-50 p-4 shadow-md">
 	<!-- Staking Info -->
 	<div class="mb-3 flex items-center justify-between">
-		<span class="text-lg font-medium text-gray-800">
-			Staking: <span class="text-primary-500">{votingPowerUstx} {sip10Data?.symbol || 'STX'}</span>
-		</span>
+		<div class="text-lg font-medium text-gray-800">
+			Staking: <span class="text-primary-500"
+				>{votingPowerUstx}
+				{sip10Data?.symbol || 'STX'}
+			</span>
+		</div>
+		<div>
+			<ExchangeRate {sip10Data} />
+		</div>
 	</div>
 
 	<!-- Input Field -->
@@ -74,7 +80,6 @@
 		/>
 		<span class="text-lg font-semibold text-gray-800">{sip10Data.symbol}</span>
 	</div>
-	<ExchangeRate {sip10Data} />
 
 	<!-- Balance Hint -->
 	<p class="mt-2 text-sm text-gray-500">

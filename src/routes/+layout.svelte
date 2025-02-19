@@ -11,6 +11,8 @@
 	import { getAllowedTokens, getDaoOverview, isExecutiveTeamMember } from '$lib/predictions/predictions';
 	import type { _ } from '$env/static/private';
 	import { fetchExchangeRates } from '$lib/stacks/rates';
+	import { fetchStacksInfo, type StacksInfo } from '@mijoco/stx_helpers/dist/index';
+	import { getConfig } from '$stores/store_helpers';
 
 	const unsubscribe1 = sessionStore.subscribe(() => {});
 	const unsubscribe3 = configStore.subscribe(() => {});
@@ -45,6 +47,13 @@
 			conf.exchangeRates = exchangeRates;
 			return conf;
 		});
+		const ticker = setInterval(async function () {
+			const stacksInfo = (await fetchStacksInfo(getConfig().VITE_STACKS_API)) || ({} as StacksInfo);
+			sessionStore.update((conf: BigMarketSessionStore) => {
+				conf.stacksInfo = stacksInfo;
+				return conf;
+			});
+		}, 60000);
 		initAppFromServer();
 	};
 

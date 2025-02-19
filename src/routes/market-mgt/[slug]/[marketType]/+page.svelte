@@ -3,15 +3,16 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { getPredictionMarket } from '$lib/predictions/predictions';
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers';
+	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import UpdateMarket from '$lib/predictions/market-mgt/UpdateMarket.svelte';
 
 	let market: PredictionMarketCreateEvent;
 
 	onMount(async () => {
 		const marketId = Number(page.params.slug);
+		const marketType = Number(page.params.marketType);
 		if (marketId >= 0) {
-			market = await getPredictionMarket(marketId);
+			market = await getPredictionMarket(marketId, marketType);
 		} else {
 			goto('/market-mgt');
 		}

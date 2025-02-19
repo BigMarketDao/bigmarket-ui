@@ -9,7 +9,6 @@
 	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
 
 	export let market: PredictionMarketCreateEvent;
-	let marketData: MarketData | undefined;
 	let currentBurnHeight = 0;
 	let startBurnHeight = 0;
 	let stopBurnHeight = 0;
@@ -22,7 +21,7 @@
 		currentBurnHeight = $sessionStore.stacksInfo.burn_block_height;
 		startBurnHeight = market.unhashedData.startBurnHeight;
 		console.log('FeaturedMarketStall: ', market);
-		marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
+		// marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
 		stopBurnHeight = market.unhashedData.endBurnHeight;
 		inited = true;
 	});
@@ -34,19 +33,19 @@
 	</SlotModal>
 {/if} -->
 
-{#if market && marketData}
+{#if market}
 	<div class="flex w-full flex-col items-start gap-x-10 px-10 pt-10 md:flex-row md:px-32">
 		<!-- Left Panel -->
 		<div class="flex min-h-[300px] flex-1 flex-col items-start justify-center">
 			<div class="">
-				<MarketStallView {market} {marketData} />
+				<MarketStallView {market} />
 			</div>
 			<div class="mt-2">
 				{#if errorMessage}
-					<p class="text-red-600 text-sm">{errorMessage}</p>
+					<p class="text-sm text-red-600">{errorMessage}</p>
 				{/if}
 				{#if successMessage}
-					<p class="text-green-600 text-sm">{successMessage}</p>
+					<p class="text-sm text-green-600">{successMessage}</p>
 				{/if}
 			</div>
 			{#if showTimeline}
@@ -58,7 +57,7 @@
 
 		<!-- Right Panel -->
 		<div class="flex min-h-[300px] w-full flex-col items-start md:w-1/2">
-			<div class="w-full"><MarketStakeGraphs {market} {marketData} /></div>
+			<div class="w-full"><MarketStakeGraphs {market} /></div>
 		</div>
 	</div>
 {/if}

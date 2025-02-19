@@ -10,10 +10,10 @@
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
 	import { getMarketToken, isSTX, totalPoolSum, userStakeSum } from '$lib/predictions/predictions';
+	import { canUserClaim } from '$lib/predictions/market-states';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake;
-	export let marketData: MarketData;
 	let sip10Data: Sip10Data;
 
 	let errorMessage: string | undefined;
@@ -24,13 +24,6 @@
 	let devFee: number;
 	let totalPool: number;
 	let winningPool: number;
-
-	const canClaim = () => {
-		if (userStake && marketData.outcome) {
-			return userStake.stakes[marketData.outcome] > 0;
-		}
-		return false;
-	};
 
 	const claimWinnings = async () => {
 		const contractAddress = market.votingContract.split('.')[0];
@@ -43,8 +36,8 @@
 		if (!daoFee || !userShareNet) {
 			postConditionMode = PostConditionMode.Allow;
 		} else {
-			if (!isSTX(market.token)) {
-				const formattedToken = (market.token.split('.')[0] + '.' + market.token.split('.')[1]) as `${string}.${string}`;
+			if (!isSTX(market.marketData.token)) {
+				const formattedToken = (market.marketData.token.split('.')[0] + '.' + market.marketData.token.split('.')[1]) as `${string}.${string}`;
 				const postConditionFt = Pc.principal(`${contractAddress}.${contractName}`).willSendLte(amount).ft(formattedToken, sip10Data.symbol);
 				postConditions.push(postConditionFt);
 			} else {
@@ -58,7 +51,7 @@
 			contractAddress,
 			contractName,
 			functionName,
-			functionArgs: [uintCV(market.marketId), Cl.principal(market.token)],
+			functionArgs: [uintCV(market.marketId), Cl.principal(market.marketData.token)],
 			onFinish: (data) => {
 				txId = data.txId;
 				localStorage.setItem('resolve-market-' + market.marketId, JSON.stringify({ txId }));
@@ -74,15 +67,15 @@
 	};
 
 	onMount(async () => {
-		sip10Data = getMarketToken(market.token);
-		console.log('CW: marketData.outcome: ' + marketData.outcome);
+		sip10Data = getMarketToken(market.marketData.token);
+		console.log('CW: marketData.outcome: ' + market.marketData.outcome);
 		console.log('CW: userStake: ', userStake.stakes);
-		console.log('CW: marketData: ', marketData);
-		staked = userStake.stakes[marketData.outcome!];
+		console.log('CW: marketData: ', market.marketData);
+		staked = userStake.stakes[market.marketData.outcome!];
 		const princ = Math.floor((10000 * staked) / 9800);
 		devFee = princ - staked;
-		totalPool = totalPoolSum(marketData.stakes);
-		winningPool = marketData.stakes[marketData.outcome!];
+		totalPool = totalPoolSum(market.marketData.stakes);
+		winningPool = market.marketData.stakes[market.marketData.outcome!];
 		const userShare = Math.floor((staked * totalPool) / winningPool);
 		daoFee = Math.floor((userShare * 200) / 10000);
 		userShareNet = userShare - daoFee;
@@ -173,13 +166,13 @@
 					</tbody>
 				</table>
 			{/if}
-			{#if canClaim()}
+			{#if canUserClaim(market, userStake)}
 				<button
 					on:click={() => {
 						errorMessage = undefined;
 						claimWinnings();
 					}}
-					class="bg-green-700 hover:bg-green-600 mt-4 rounded px-4 py-2 text-white"
+					class="mt-4 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-600"
 				>
 					CLAIM WINNINGS
 				</button>

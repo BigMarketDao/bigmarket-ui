@@ -27,4 +27,5 @@ export type BigMarketSessionStore = {
 
 // Track user input amount
 export const stakeAmount = writable(0);
+export const stakeAmountHome = writable(0);
 export const selectedCurrency = writable({ code: 'USD', name: 'US Dollar', flag: '🇺🇸', symbol: '$' });

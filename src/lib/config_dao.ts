@@ -6,6 +6,7 @@ export interface DaoConfig {
 	VITE_DAO_MARKET_VOTING: string;
 	VITE_DAO_MARKET_GATING: string;
 	VITE_DAO_MARKET_PREDICTING: string;
+	VITE_DAO_MARKET_SCALAR: string;
 	VITE_DAO_TREASURY: string;
 	VITE_DAO_GOVERNANCE_TOKEN: string;
 	VITE_DAO_TOKEN_SALE: string;
@@ -26,21 +27,23 @@ export const config_dao: { [key: string]: DaoConfig } = {
 		VITE_DAO_MARKET_VOTING: 'bme021-0-market-voting',
 		VITE_DAO_MARKET_GATING: 'bme022-0-market-gating',
 		VITE_DAO_MARKET_PREDICTING: 'bme023-0-market-predicting',
+		VITE_DAO_MARKET_SCALAR: 'bme023-0-market-scalar',
 		VITE_DAO_GOVERNANCE_TOKEN: 'bme000-0-governance-token',
 		VITE_DAO_TOKEN_SALE: 'bme010-0-token-sale',
 		VITE_DAO_TREASURY: 'bme006-0-treasury'
 	},
 	testnet: {
-		VITE_DOA_DEPLOYER: 'ST2CS5XAA3FNHEQZRDVF6YY0NTAK7JFV7PKF1CPVM', //'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY',
+		VITE_DOA_DEPLOYER: 'STTXG1F9BN6FP0Z2BNM1MSZTKE3D445F9KDSZWZT', //'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY',
 		VITE_DAO_BASE_CONTRACTS: 'ecosystem-dao,bigmarket-dao',
 		VITE_DOA: 'bigmarket-dao',
-		VITE_DOA_PROPOSAL: 'ST2CS5XAA3FNHEQZRDVF6YY0NTAK7JFV7PKF1CPVM.bdp001-sip-021-nakamoto', // 'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY.bdp001-sip-021-nakamoto',
+		VITE_DOA_PROPOSAL: 'STTXG1F9BN6FP0Z2BNM1MSZTKE3D445F9KDSZWZT.bdp001-sip-021-nakamoto', // 'ST167Z6WFHMV0FZKFCRNWZ33WTB0DFBCW9M1FW3AY.bdp001-sip-021-nakamoto',
 		VITE_DOA_PROPOSAL_VOTING_EXTENSION: 'bme007-snapshot-proposal-voting',
 		VITE_DOA_FUNDED_SUBMISSION_EXTENSION: 'bme008-flexible-funded-submission',
 		VITE_DOA_EMERGENCY_EXECUTE_EXTENSION: 'bme004-emergency-execute',
 		VITE_DAO_MARKET_VOTING: 'bme021-0-market-voting',
 		VITE_DAO_MARKET_GATING: 'bme022-0-market-gating',
 		VITE_DAO_MARKET_PREDICTING: 'bme023-0-market-predicting',
+		VITE_DAO_MARKET_SCALAR: 'bme023-0-market-scalar',
 		VITE_DAO_GOVERNANCE_TOKEN: 'bme000-0-governance-token',
 		VITE_DAO_TOKEN_SALE: 'bme010-0-token-sale',
 		VITE_DAO_TREASURY: 'bme006-0-treasury'
@@ -56,6 +59,7 @@ export const config_dao: { [key: string]: DaoConfig } = {
 		VITE_DAO_MARKET_VOTING: 'bme021-0-market-voting',
 		VITE_DAO_MARKET_GATING: 'bme022-0-market-gating',
 		VITE_DAO_MARKET_PREDICTING: 'bme023-0-market-predicting',
+		VITE_DAO_MARKET_SCALAR: 'bme023-0-market-scalar',
 		VITE_DAO_GOVERNANCE_TOKEN: 'bme000-0-governance-token',
 		VITE_DAO_TOKEN_SALE: 'bme010-0-token-sale',
 		VITE_DAO_TREASURY: 'bme006-0-treasury'

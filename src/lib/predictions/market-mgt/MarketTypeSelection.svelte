@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { MARKET_BINARY_OPTION, type MarketCategoricalOption, type MarketScalarData } from '@mijoco/stx_helpers/dist/index';
+	import { MARKET_BINARY_OPTION, type MarketCategoricalOption, type ScalarMarketDataItem } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 
 	export let marketType = 0;
 	export let marketTypeDataCategorical: Array<MarketCategoricalOption> = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }];
-	export let marketTypeDataScalar: MarketScalarData = {
-		lowerBound: 0,
-		lowerBoundLabel: 'lower',
-		upperBound: 100,
-		upperBoundLabel: 'upper'
-	};
+	export let marketTypeDataScalar: Array<ScalarMarketDataItem> = [
+		{ min: 0, max: 1 },
+		{ min: 1, max: 2 }
+	];
+
 	let marketTypeDataCategoricalSaved = marketTypeDataCategorical;
+	let rangeValuesSaved = marketTypeDataScalar;
 
 	let marketTypes = [
 		{ name: 'Binary Market - simple yes/no or for/against', value: 0 },
@@ -19,6 +19,10 @@
 	];
 
 	// Categorical Market Options
+	function addRange() {
+		marketTypeDataScalar = [...marketTypeDataScalar, { min: marketTypeDataScalar[marketTypeDataScalar.length - 1].max, max: marketTypeDataScalar[marketTypeDataScalar.length - 1].max + 1 }];
+		rangeValuesSaved = marketTypeDataScalar;
+	}
 	function addOption() {
 		marketTypeDataCategorical = [...marketTypeDataCategorical, { label: `Option ${marketTypeDataCategorical.length + 1}` }];
 		marketTypeDataCategoricalSaved = marketTypeDataCategorical;
@@ -34,13 +38,7 @@
 	}
 
 	onMount(() => {
-		marketTypeDataCategorical = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }];
-		marketTypeDataScalar = {
-			lowerBound: 5,
-			lowerBoundLabel: 'lower',
-			upperBound: 100,
-			upperBoundLabel: 'upper'
-		};
+		// marketTypeDataCategorical = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }];
 	});
 </script>
 
@@ -82,24 +80,20 @@
 	{/if}
 
 	<!-- Scalar Market Input -->
-	{#if marketType === 2 && marketTypeDataScalar}
+	{#if marketType === 2}
 		<div class="px-4">
 			<h3 class="text-lg font-semibold text-white">Set Range</h3>
-			<p class="text-sm text-gray-600">Define the minimum and maximum values for the market.</p>
-			<div class="mt-2 flex flex-col">
-				<label for="lower">Label / value for lower bound</label>
-				<div class="flex gap-4">
-					<input id="lower" type="text" class="w-3/4 rounded-md border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" placeholder="Label for max value" bind:value={marketTypeDataScalar.lowerBoundLabel} />
-					<input type="number" class="w-1/4 rounded-md border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" placeholder="Max Value" bind:value={marketTypeDataScalar.lowerBound} />
+			<p class="text-sm text-gray-600">Define the min/max steps values for the market - the steps have to be contiguous.</p>
+			{#each marketTypeDataScalar as range, index}
+				<div class="mt-2 flex flex-col">
+					<label for="lower">Enter range</label>
+					<div class="flex gap-4">
+						<input type="number" class="w-1/4 rounded-md border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" placeholder="Min Value" bind:value={range.min} />
+						<input type="number" class="w-1/4 rounded-md border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" placeholder="Max Value" bind:value={range.max} />
+					</div>
 				</div>
-			</div>
-			<div class="mt-2 flex flex-col">
-				<label for="upper">Label / value for upper bound</label>
-				<div class="flex gap-4">
-					<input id="upper" type="text" class="w-3/4 rounded-md border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" placeholder="Label for min value" bind:value={marketTypeDataScalar.upperBoundLabel} />
-					<input type="number" class="w-1/4 rounded-md border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" placeholder="Min Value" bind:value={marketTypeDataScalar.upperBound} />
-				</div>
-			</div>
+			{/each}
+			<button class="mt-2 rounded-md bg-warning-500 px-3 py-2 text-white hover:bg-warning-600" on:click={addRange}> + Add Range </button>
 		</div>
 	{/if}
 </div>

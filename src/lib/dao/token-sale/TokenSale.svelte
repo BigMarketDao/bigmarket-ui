@@ -86,7 +86,9 @@
 	onMount(async () => {
 		if (getStxAddress()) {
 			tokenSalePurchases = await fetchTokenSalePurchases(getStxAddress());
-			stageBalance = fmtMicroToStx(tokenSalePurchases[(daoOverview.tokenSale?.currentStage || 1) - 1].amount || 0, govToken.decimals);
+			const stageMicro = (tokenSalePurchases[(daoOverview.tokenSale?.currentStage || 1) - 1].amount || 0, govToken.decimals);
+			stakeAmount.set(stageMicro);
+			stageBalance = fmtMicroToStx(stageMicro);
 			console.log(tokenSalePurchases);
 		}
 	});

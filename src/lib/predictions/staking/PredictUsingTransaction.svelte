@@ -3,7 +3,7 @@
 	import { Cl, Pc, PostConditionMode, boolCV, bufferCV, falseCV, listCV, noneCV, stringAsciiCV, trueCV, uintCV, type FungiblePostCondition, type PostCondition } from '@stacks/transactions';
 	import { isStacksWalletInstalled, showContractCall } from '@stacks/connect';
 	import { sessionStore } from '$stores/stores';
-	import type { MarketData, PollCreateEvent, PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers/dist/index';
+	import type { MarketData, PollCreateEvent, PredictionMarketCreateEvent, ScalarMarketDataItem, Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import { getStacksNetwork, getTransaction } from '@mijoco/stx_helpers/dist/stacks-node';
 	import { getConfig } from '$stores/store_helpers';
 	import { explorerTxUrl, getAddressId, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
@@ -12,11 +12,17 @@
 	import { getMarketToken, isSTX } from '../predictions';
 	import StakingBinary from './StakingBinary.svelte';
 	import StakingCategorical from './StakingCategorical.svelte';
+	import { mapToMinMaxStrings, mapToMinMaxStringsReversed } from '$lib/utils';
+	import StakingScalar from './StakingScalar.svelte';
 
 	export let market: PredictionMarketCreateEvent;
-	export let marketData: MarketData;
 	export let votingPowerUstx: number;
 	export let onTxPollVote;
+
+	const scalarWindowOpen = () => {
+		const current = $sessionStore.stacksInfo.burn_block_height;
+		return current - (market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0) < 0;
+	};
 
 	let errorMessage: string | undefined;
 	let txId: string;
@@ -29,20 +35,20 @@
 			return;
 		}
 		console.log(votingPowerUstx);
-		if (votingPowerUstx <= 0.0005) {
-			errorMessage = `Amount must be greater than 0.0005 ${sip10Data.symbol}`;
+		if (votingPowerUstx <= 0.00005) {
+			errorMessage = `Amount must be greater than 0.00005 ${sip10Data.symbol}`;
 			return;
 		}
-		const mult = isSTX(market.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
+		const mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
 		const microStxAmount = Math.round(parseFloat(String(votingPowerUstx)) * mult);
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = market.votingContract.split('.')[1];
 		let functionName = 'predict-category';
-		const categorical = marketData.categories[index];
+		const categorical = mapToMinMaxStrings(market.marketData.categories)[index];
 		const address = getStxAddress();
 		const postConditions = [];
-		if (!isSTX(market.token)) {
-			const formattedToken = (market.token.split('.')[0] + '.' + market.token.split('.')[1]) as `${string}.${string}`;
+		if (!isSTX(market.marketData.token)) {
+			const formattedToken = (market.marketData.token.split('.')[0] + '.' + market.marketData.token.split('.')[1]) as `${string}.${string}`;
 			const postConditionFt = Pc.principal(address).willSendEq(microStxAmount).ft(formattedToken, sip10Data.symbol);
 			postConditions.push(postConditionFt);
 		} else {
@@ -53,6 +59,10 @@
 		// const postConditionCode = FungibleConditionCode.GreaterEqual;
 		// const postConditionAmount = 12345n;
 
+		let functionArgs = [uintCV(market.marketId), uintCV(microStxAmount), stringAsciiCV(categorical), Cl.principal(market.marketData.token)];
+		if (market.marketType === 2) {
+			functionArgs = [uintCV(market.marketId), uintCV(microStxAmount), uintCV(index), Cl.principal(market.marketData.token)];
+		}
 		await showContractCall({
 			network: getStacksNetwork(getConfig().VITE_NETWORK),
 			postConditions,
@@ -60,7 +70,7 @@
 			contractAddress,
 			contractName,
 			functionName,
-			functionArgs: [uintCV(market.marketId), uintCV(microStxAmount), stringAsciiCV(categorical), Cl.principal(market.token)],
+			functionArgs,
 			onFinish: (data) => {
 				txId = data.txId;
 				localStorage.setItem('VOTED_FLAG' + getAddressId(), JSON.stringify(market.votingContract));
@@ -79,7 +89,8 @@
 	};
 
 	onMount(async () => {
-		sip10Data = getMarketToken(market.token);
+		sip10Data = getMarketToken(market.marketData.token);
+		console.log('categories:', market.marketData.categories);
 		if (localStorage.getItem('VOTED_TXID_3' + getAddressId())) {
 			const txIdObj = localStorage.getItem('VOTED_TXID_3' + getAddressId());
 			if (txIdObj) {
@@ -99,12 +110,12 @@
 
 <div>
 	<div class="flex w-full flex-col gap-y-4">
-		{#if marketData.categories.length === 2}
+		{#if market.marketData.categories.length === 2}
 			<StakingBinary {castVote} />
 		{:else if market.marketType === 1}
-			<StakingCategorical {castVote} categories={marketData.categories} />
-		{:else if market.marketType === 2}
-			<div class="flex w-full justify-start gap-x-4">Scalar markets not yet supported</div>
+			<StakingCategorical {castVote} categories={mapToMinMaxStrings(market.marketData.categories)} />
+		{:else if market.marketType === 2 && scalarWindowOpen()}
+			<StakingScalar {castVote} categories={market.marketData.categories as ScalarMarketDataItem[]} />
 		{/if}
 		{#if txId}
 			<div class="mb-4 flex w-full justify-start gap-x-4">

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import CreateMarket from '$lib/predictions/market-mgt/CreateMarket.svelte';
 	import { explorerTxUrl, getStxAddress } from '$lib/stacks/stacks-connect';
-	import type { OpinionPoll } from '@mijoco/stx_helpers';
+	import type { OpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { sessionStore } from '$stores/stores';
 	import { canCreateMarket } from '$lib/predictions/predictions';
 	import EmailRegistration from '$lib/components/EmailRegistration.svelte';
@@ -13,7 +13,6 @@
 	let startDelay = 5;
 	let endDelay = 500;
 	let canCreate = false;
-	let email: string;
 
 	const handlePollSubmission = (data: any) => {
 		txId = data;

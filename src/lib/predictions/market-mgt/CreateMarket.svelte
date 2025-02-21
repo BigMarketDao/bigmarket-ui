@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import { configStore } from '$stores/stores_config';
 	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
-	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, opinionPollToTupleCV, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
+	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, marketDataToTupleCV, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
-	import { getClarityProofForCreateMarket, postCreatePollMessage, signNewPoll } from '$lib/predictions/predictions';
+	import { getClarityProofForCreateMarket, postCreatePollMessage, signCreateMarketRequest } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { hexToBytes } from '@stacks/common';
@@ -107,10 +107,10 @@
 			errorMessage = 'Please enter a discord serverId';
 			return;
 		}
-		pollMessage = opinionPollToTupleCV(examplePoll.name, examplePoll.category, examplePoll.createdAt, examplePoll.proposer, examplePoll.token);
+		pollMessage = marketDataToTupleCV(examplePoll.name, examplePoll.category, examplePoll.createdAt, examplePoll.proposer, examplePoll.token);
 		const dataHash = dataHashSip18(getConfig().VITE_NETWORK, getConfig().VITE_PUBLIC_APP_NAME, getConfig().VITE_PUBLIC_APP_VERSION, pollMessage);
 		console.log('dataHash: ' + dataHash);
-		await signNewPoll(pollMessage, async function (signature: SignatureData) {
+		await signCreateMarketRequest(pollMessage, async function (signature: SignatureData) {
 			const poll: StoredOpinionPoll = {
 				...examplePoll,
 				objectHash: dataHash,

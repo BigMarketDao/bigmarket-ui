@@ -1,6 +1,13 @@
 <script lang="ts">
-	import { isLoggedIn } from '$lib/stacks/stacks-connect';
+	import { getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import { authenticate, logUserOut } from '$lib/stacks/stacks-connect';
+	import { truncate } from '$lib/utils';
+	import { ProfileCardOutline, UserCircleOutline } from 'flowbite-svelte-icons';
+	import { onDestroy, onMount } from 'svelte';
+	import { Icon, User } from 'svelte-hero-icons';
+
+	let isOpen = false;
+	let dropdownRef: HTMLElement | null = null;
 
 	const loginStacks = async () => {
 		authenticate(function () {
@@ -12,31 +19,46 @@
 	};
 
 	// Dropdown open state
-	let isOpen = false;
 	function selectItem(currencyCode: string) {
 		isOpen = false;
 	}
+	// Click outside to close dropdown
+	function handleClickOutside(event: MouseEvent) {
+		console.log('handleClickOutside: ', event);
+		console.log('handleClickOutside: dropdownRef: ', dropdownRef);
+		if (dropdownRef && !dropdownRef.contains(event.target as Node)) {
+			isOpen = false;
+		}
+	}
+
+	onMount(() => {
+		window.addEventListener('click', handleClickOutside);
+	});
+
+	onDestroy(() => {
+		window.removeEventListener('click', handleClickOutside);
+	});
 </script>
 
-<div class="relative inline-block text-left">
+<div class="relative inline-block text-left" bind:this={dropdownRef}>
 	<!-- Selected Currency Button -->
 	{#if isLoggedIn()}
-		<button class="inline-block font-inter font-bold text-white hover:text-blue-400" on:click={() => (isOpen = !isOpen)}>
-			<span class="ml-2">MORE</span>
+		<button class="relative inline-block px-4 py-3 font-inter text-sm font-bold text-white hover:rounded-md hover:bg-blue-800 hover:text-white" on:click={() => (isOpen = !isOpen)}>
+			<span class="ml-2"><Icon src={User} height={'20px'} width={'20px'} class="me-2 inline-block text-white" /> {truncate(getStxAddress())}</span>
 			<!-- <span class="ml-2">▼</span> -->
 		</button>
 	{:else}
-		<span class="inline-block font-inter font-bold text-white hover:text-blue-400"><a id="connect-wallet" href="/" on:click|preventDefault={() => loginStacks()} class="mx-2 hover:text-blue-400">CONNECT WALLET</a></span>
+		<button class="rounded-md bg-blue-900 py-3 font-inter text-sm font-normal text-white hover:text-blue-400"><a id="connect-wallet" href="/" on:click|preventDefault={() => loginStacks()} class="mx-2">CONNECT WALLET</a></button>
 	{/if}
 
 	<!-- Dropdown Menu -->
 	{#if isOpen}
-		<div class="absolute right-0 top-[40px] z-50 mt-2 w-48 rounded-md border border-gray-300 bg-white shadow-lg">
-			<div class="flex cursor-pointer px-4 py-2 text-black transition hover:bg-gray-900 hover:text-gray-100">
-				<span class="font-inter font-bold hover:text-gray-200"><a href="/settings" class="">settings</a></span>
+		<div class="absolute right-0 top-[50px] z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black text-white shadow-lg">
+			<div class="flex cursor-pointer px-4 py-2 transition hover:bg-gray-900 hover:text-gray-100">
+				<span class="font-inter font-bold hover:text-gray-200"><a href="/settings" class=""><span class="me-3 text-lg">⚙️</span> settings</a></span>
 			</div>
-			<div class="flex cursor-pointer px-4 py-2 text-black transition hover:bg-gray-900 hover:text-gray-100">
-				<span class="font-inter font-bold hover:text-gray-200"><a href="/" on:click|preventDefault={() => logoutStacks()} class="">disconnect</a></span>
+			<div class="flex cursor-pointer px-4 py-2 transition hover:bg-gray-900 hover:text-gray-100">
+				<span class="font-inter font-bold hover:text-gray-200"><a href="/" on:click|preventDefault={() => logoutStacks()} class=""><span class="me-3 text-lg">🔌</span> disconnect</a></span>
 			</div>
 		</div>
 	{/if}

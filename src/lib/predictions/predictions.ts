@@ -338,7 +338,7 @@ export async function postCreatePollMessage(newPoll: StoredOpinionPoll) {
 	}
 }
 
-export async function signNewPoll(market: TupleCV<TupleData<ClarityValue>>, callback: any) {
+export async function signCreateMarketRequest(market: TupleCV<TupleData<ClarityValue>>, callback: any) {
 	openStructuredDataSignatureRequestPopup({
 		message: market,
 		domain: domainCV(domain),

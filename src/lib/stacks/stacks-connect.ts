@@ -152,11 +152,11 @@ export function isCoordinator(address: string | undefined) {
 
 export function explorerAddressUrl(addr: string) {
 	if (getConfig().VITE_NETWORK === 'devnet') {
-		return `${getConfig().VITE_STACKS_EXPLORER}/txid/${addr}?chain=testnet&api=http://localhost:3999`;
+		return `${getConfig().VITE_STACKS_EXPLORER}/address/${addr}?chain=testnet&api=http://localhost:3999`;
 	} else if (getConfig().VITE_NETWORK === 'testnet') {
-		return `${getConfig().VITE_STACKS_EXPLORER}/txid/${addr}?chain=testnet`;
+		return `${getConfig().VITE_STACKS_EXPLORER}/address/${addr}?chain=testnet`;
 	} else {
-		return `${getConfig().VITE_STACKS_EXPLORER}/txid/${addr}?chain=mainnet`;
+		return `${getConfig().VITE_STACKS_EXPLORER}/address/${addr}?chain=mainnet`;
 	}
 }
 export function explorerBtcTxUrl(txid: string | undefined) {

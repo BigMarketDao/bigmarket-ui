@@ -56,7 +56,8 @@
 		endBurnHeight: ($sessionStore?.poxInfo?.current_burnchain_block_height || 0) + endDelay,
 		proposer: getStxAddress(),
 		marketType: 1,
-		marketFee: 2
+		marketFee: 2,
+		treasury: ''
 	};
 
 	onMount(async () => {

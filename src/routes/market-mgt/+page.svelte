@@ -78,7 +78,7 @@
 	</SlotModal> -->
 {/if}
 
-<div class="mx-auto max-w-4xl py-4 md:px-6">
+<div class="mx-auto max-w-4xl px-6 py-4">
 	<div class="my-2 flex w-full flex-col">
 		{#if canCreate}
 			<CreateMarket {examplePoll} onPollSubmit={handlePollSubmission} />

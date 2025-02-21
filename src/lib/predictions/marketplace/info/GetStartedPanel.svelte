@@ -10,7 +10,7 @@
 	<div class="mt-10 flex w-full flex-col justify-between gap-5 border border-blue-1000 md:flex-row">
 		<button
 			on:click={() => {
-				goto(`/terms/register`);
+				goto(`/docs/register`);
 			}}
 			class="flex w-full justify-between bg-blue-500 px-5 py-2 font-inter text-sm font-bold text-white"
 			><span>FAQs</span>
@@ -18,7 +18,7 @@
 		</button>
 		<button
 			on:click={() => {
-				goto(`/terms/register`);
+				goto(`/docs/register`);
 			}}
 			class="flex w-full justify-between bg-white px-5 py-2 font-inter text-sm font-bold text-black"
 			><span>Contact Us</span>

@@ -22,7 +22,8 @@
 				contract,
 				token: token.split('::')[1],
 				balance: balances.fungible_tokens[token].balance,
-				decimals: getMarketToken(token.split('::')[0]).decimals
+				decimals: getMarketToken(token.split('::')[0]).decimals,
+				symbol: getMarketToken(token.split('::')[0]).symbol
 			}));
 
 			// Add STX as a separate entry
@@ -48,10 +49,10 @@
 		</tr>
 	</thead>
 	<tbody>
-		{#each balances as { contract, token, balance, decimals }}
+		{#each balances as { contract, token, symbol, balance, decimals }}
 			<tr class="border-b transition hover:bg-gray-700">
 				<td class="border border-gray-300 px-4 py-2">{contract}</td>
-				<td class="border border-gray-300 px-4 py-2">{token}</td>
+				<td class="border border-gray-300 px-4 py-2">{symbol || token}</td>
 				<td class="border border-gray-300 px-4 py-2">{@html formatCryptoValue(fmtMicroToStx(balance, decimals))} </td>
 			</tr>
 		{/each}

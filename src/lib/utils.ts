@@ -98,13 +98,15 @@ export function getRate(currencyCode: string): ExchangeRate {
 	return rate;
 }
 
-export function toFiat(currencyCode: string, amountMicro: number, sip10Data: Sip10Data): string {
+export function toFiat(currencyCode: string, amountMicro: number, sip10Data: Sip10Data, tokenPrice?: number, fixed?: number): string {
 	const rate = getRate(currencyCode);
 	const amount = fmtMicroToStxNumber(amountMicro, sip10Data.decimals);
 	if (sip10Data.symbol === 'STX') {
-		return (amount * (rate?.fifteen || 0) * (rate?.stxToBtc || 0)).toFixed(2);
+		return (amount * (rate?.fifteen || 0) * (rate?.stxToBtc || 0)).toFixed(fixed || 2);
+	} else if (sip10Data.symbol === 'BIG') {
+		return (amount * (rate?.fifteen || 0) * (rate?.stxToBtc || 0) * (tokenPrice || 1)).toFixed(fixed || 2);
 	} else {
-		return (amount * (rate?.fifteen || 0)).toFixed(2);
+		return (amount * (rate?.fifteen || 0)).toFixed(fixed || 2);
 	}
 }
 

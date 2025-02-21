@@ -1,20 +1,17 @@
 <script lang="ts">
-	import { getAllowedTokens, getGovernanceToken, getMarketToken, getStxToken } from '$lib/predictions/predictions';
+	import { getGovernanceToken, getMarketToken, getStxToken } from '$lib/predictions/predictions';
 	import { explorerTxUrl, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
-	import { fmtMicroToStx, truncate } from '$lib/utils';
+	import { fmtAmount, fmtMicroToStx, fmtMicroToStxNumber, fmtStxMicro, toFiat, truncate } from '$lib/utils';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
-	import { getStacksNetwork, type DaoOverview, type Sip10Data, type TokenSalePurchase, type TokenSaleStage } from '@mijoco/stx_helpers/dist/index';
+	import { fetchUserBalances, getStacksNetwork, type DaoOverview, type Sip10Data, type TokenSalePurchase, type TokenSaleStage } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import { fetchTokenSalePurchases } from '../token-sale';
 	import { showContractCall } from '@stacks/connect';
 	import { Pc, PostConditionMode, uintCV } from '@stacks/transactions';
-	import { ArrowsPointingOut, Icon } from 'svelte-hero-icons';
 	import Banner from '$lib/components/ui/Banner.svelte';
-	import Stages from './Stages.svelte';
-	import { sessionStore, stakeAmount } from '$stores/stores';
-	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
+	import { selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
 
-	$: daoOverview = $sessionStore.daoOverview;
+	let daoOverview = $sessionStore.daoOverview;
 	let tokenSalePurchases: Array<TokenSalePurchase>;
 	let stage: TokenSaleStage;
 	let tokens: any;
@@ -29,9 +26,11 @@
 	let currentStage = (daoOverview?.tokenSale?.currentStage || 1) - 1;
 	let walletConnected = isLoggedIn();
 	let saleCurrency = 'STX';
+	$: stxBalance = 0;
+	$: bigBalance = 0;
 
-	$: stage = daoOverview.tokenSale?.stages[daoOverview.tokenSale?.currentStage] || ({} as TokenSaleStage);
-	$: totalSold = daoOverview.tokenSale?.stages.reduce((sum, stage) => sum + stage.tokensSold, 0) || 0;
+	$: stage = daoOverview?.tokenSale?.stages[currentStage] || ({} as TokenSaleStage);
+	$: totalSold = daoOverview.tokenSale?.stages.reduce((sum: any, stage: { tokensSold: any }) => sum + stage.tokensSold, 0) || 0;
 	$: tokens = Object.keys(daoOverview.treasuryBalances.fungible_tokens || {}).map((token) => ({
 		contract: getDaoConfig().VITE_DAO_TREASURY,
 		token: token.split('::')[1],
@@ -102,7 +101,12 @@
 			const stageMicro = (tokenSalePurchases[(daoOverview.tokenSale?.currentStage || 1) - 1].amount || 0, govToken.decimals);
 			stakeAmount.set(stageMicro);
 			stageBalance = fmtMicroToStx(stageMicro);
-			console.log(tokenSalePurchases);
+			const bals = await fetchUserBalances(getConfig().VITE_STACKS_API, getConfig().VITE_MEMPOOL_API, getStxAddress(), '', '');
+			console.log('$sessionStore.balances?: ', bals);
+			const bigContract = `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}::bmg-token`;
+			console.log('$sessionStore.balances?: ' + bigContract);
+			bigBalance = Number(bals?.tokenBalances?.fungible_tokens[bigContract]?.balance || 0);
+			stxBalance = Number(bals?.tokenBalances?.stx.balance || 0);
 		}
 	});
 </script>
@@ -175,11 +179,11 @@
 							<!-- Stage Progress -->
 							<div>
 								<div class="mb-2 flex justify-between">
-									<span class="text-gray-400">Current Stage Progress {stage.tokensSold}</span>
+									<span class="text-gray-400">Current Stage Progress</span>
 									<span class="text-pink-400">{stageProgress.toFixed(2)}%</span>
 								</div>
 								<div class="h-4 w-full rounded-full bg-gray-700">
-									<div class="bg-gradient-to-r from-pink-500 to-purple-500 h-full transition-all duration-500" style="width: {stageProgress}%"></div>
+									<div class="bg-progress-gradient mb-12 h-full rounded-full transition-all duration-500" style="width: {stageProgress}%"></div>
 								</div>
 							</div>
 
@@ -188,13 +192,15 @@
 								<div class="rounded-lg border border-gray-600 bg-gray-700/50 p-4">
 									<div class="text-sm text-gray-400">Current Price</div>
 									<div class="text-pink-400 text-2xl font-bold">
-										${stage ? stage.price.toFixed(2) : '0.00'}
+										<!-- ${stage ? 1 / stage.price : 0} -->
+										{$selectedCurrency.code}
+										{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
 									</div>
 								</div>
 								<div class="rounded-lg border border-gray-600 bg-gray-700/50 p-4">
 									<div class="text-sm text-gray-400">Tokens Available</div>
 									<div class="text-pink-400 text-2xl font-bold">
-										{stage ? stage.maxSupply.toLocaleString() : '0'}
+										{stage ? fmtAmount(fmtMicroToStxNumber(stage.maxSupply), $selectedCurrency.code) : '0'}
 									</div>
 								</div>
 							</div>
@@ -207,10 +213,14 @@
 										<div class="font-mono text-sm">{truncate(getStxAddress())}</div>
 									</div>
 									<div class="text-right">
-										<div class="text-sm text-gray-400">Your BIG Balance</div>
+										<div class="text-sm text-gray-400">Your Balance</div>
 										<div>
-											{stageBalance}
+											{fmtMicroToStx(bigBalance, 6)}
 											{daoOverview.contractData.tokenSymbol}
+										</div>
+										<div>
+											{fmtMicroToStx(stxBalance)}
+											{'STX'}
 										</div>
 									</div>
 								</div>
@@ -268,10 +278,27 @@
 											<div class="flex-1">
 												<div class="flex justify-between">
 													<span>{stage.maxSupply.toLocaleString()} BIG</span>
-													<span class="text-gray-400">${stage.price}</span>
+													<span class="text-gray-400">
+														{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+													</span>
 												</div>
 												<div class="text-sm text-gray-400">
-													Raise: ${stage.tokensSold.toLocaleString()}
+													<div>Raise:</div>
+
+													<div class="flex justify-between">
+														<div>
+															{fmtMicroToStx(stage.tokensSold, daoOverview.contractData.tokenDecimals)}
+															{daoOverview.contractData.tokenSymbol}
+														</div>
+														<div>
+															{fmtMicroToStx(stage.tokensSold * (1 / stage.price), daoOverview.contractData.tokenDecimals)}
+															{'STX'}
+														</div>
+														<div>
+															{$selectedCurrency.symbol}
+															{toFiat($selectedCurrency.code, stage.tokensSold, { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+														</div>
+													</div>
 												</div>
 											</div>
 										</div>

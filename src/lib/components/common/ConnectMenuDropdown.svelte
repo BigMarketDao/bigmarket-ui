@@ -24,8 +24,6 @@
 	}
 	// Click outside to close dropdown
 	function handleClickOutside(event: MouseEvent) {
-		console.log('handleClickOutside: ', event);
-		console.log('handleClickOutside: dropdownRef: ', dropdownRef);
 		if (dropdownRef && !dropdownRef.contains(event.target as Node)) {
 			isOpen = false;
 		}

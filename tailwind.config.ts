@@ -163,6 +163,7 @@ export default {
 		},
 		backgroundImage: {
 			'hero-gradient': 'linear-gradient(to right, #3b82f6, #9333ea)',
+			'progress-gradient': 'linear-gradient(to right, #F3E8FF, #6B21A8)',
 			'primary-01': 'linear-gradient(306.12deg, #ED693C 21.1%, #FDC60B 84.08%)',
 			'primary-02': 'linear-gradient(126.12deg, #ED693C 11.8%, #FEDB63 72.43%)',
 			'primary-03': 'linear-gradient(126.12deg, #D1DAFA 11.8%, #7F97F1 72.43%)',

@@ -6,6 +6,20 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
 	theme: {
 		colors: {
+			purple: {
+				50: '#FAF5FF', // Lightest lavender
+				100: '#F3E8FF', // Soft lilac
+				200: '#E9D5FF', // Pale violet
+				300: '#D8B4FE', // Light orchid
+				400: '#C084FC', // Vibrant purple 💜 (Use for gradients)
+				500: '#A855F7', // Standard purple
+				600: '#9333EA', // Deep amethyst
+				700: '#7E22CE', // Royal purple
+				800: '#6B21A8', // Dark violet
+				900: '#581C87', // Rich purple
+				950: '#3B0764' // Deepest indigo
+			},
+
 			// yellow: {
 			// 	100: '#FEF9C3', // Light background for alerts
 			// 	200: '#FDE68A', // Slightly stronger yellow for notices

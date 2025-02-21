@@ -51,7 +51,7 @@
 		<div class="hidden space-x-2 md:flex">
 			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/docs')} class="mx-2 hover:text-blue-400">HOW IT WORKS</a></span>
 			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="mx-2 hover:text-blue-400">IDO</a></span>
-			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="mx-2 hover:text-blue-400">DAO</a></span>
+			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="mx-2 hover:text-blue-400">CREATE</a></span>
 			<!-- <span><a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-blue-400">{$configStore.VITE_NETWORK}</a></span> -->
 			<span class=""><ConnectMenuDropdown /></span>
 			<span class=""><CurrencyDropdown /></span>
@@ -79,7 +79,7 @@
 
 				<a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="block w-full font-inter text-lg font-semibold hover:text-blue-400"> IDO </a>
 
-				<a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="block w-full font-inter text-lg font-semibold hover:text-blue-400"> DAO </a>
+				<a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="block w-full font-inter text-lg font-semibold hover:text-blue-400"> CREATE </a>
 
 				<div class="flex w-full justify-start">
 					<ConnectMenuDropdown />

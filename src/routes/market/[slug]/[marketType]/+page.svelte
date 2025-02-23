@@ -59,11 +59,3 @@
 		{/if}
 	</div>
 </div>
-
-<!-- <div class="mx-auto max-w-4xl md:px-6">
-	<div class="flex w-full flex-col">
-		{#if market}
-			<MarketActions {market} />
-		{/if}
-	</div>
-</div> -->

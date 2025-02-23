@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { fetchMarketData, type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import { sessionStore } from '$stores/stores';
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 	import MarketStallView from './MarketStallView.svelte';
-	import { getConfig } from '$stores/store_helpers';
-	import MarketStakedBarChart from '../graphs/MarketStakedBarChart.svelte';
-	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
 	import StakeChart from '../market/version2/do-charts/StakeChart.svelte';
 
 	export let market: PredictionMarketCreateEvent;
@@ -62,9 +59,5 @@
 				<StakeChart {market} title={'Stake History'} />
 			</div>
 		</div>
-
-		<!-- <div class="flex min-h-[300px] w-full flex-col items-start md:w-1/2">
-			<div class="w-full"><MarketStakeGraphs {market} /></div>
-		</div> -->
 	</div>
 {/if}

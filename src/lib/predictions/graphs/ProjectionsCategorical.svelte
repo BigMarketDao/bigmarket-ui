@@ -29,7 +29,7 @@
 {#if payouts}
 	<h3 class="text-lg font-semibold">Potential Winnings <span class="text-[10px]">(excluding fees)</span></h3>
 	{#each categories as category, index}
-		<div class="bg-gray-50 max-w-xl rounded-lg p-4 shadow-md">
+		<div class="max-w-xl rounded-lg bg-gray-50 p-4 shadow-md">
 			<p class="mt-2">Payout if staking <span class="font-bold">{votingPowerUstx}</span> on "{category}": <span class="font-bold">{payouts[index]}</span></p>
 		</div>
 	{/each}

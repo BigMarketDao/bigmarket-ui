@@ -24,12 +24,10 @@ import {
 	type MarketCategory,
 	type UserStake,
 	type MarketData,
-	callContractReadOnly,
 	type GateKeeper
 } from '@mijoco/stx_helpers/dist/index';
-import { getConfig, getDaoConfig, getSession } from '$stores/store_helpers';
-import { fmtMicroToStx, fmtStxMicro } from '$lib/utils';
-import { selectedCurrency } from '$stores/stores';
+import { getConfig, getDaoConfig, getSelectedCurrency, getSession } from '$stores/store_helpers';
+import { fmtAmount, fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
 
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,7 +56,12 @@ export function totalPoolSum(stakes: Array<number> | undefined) {
 	}
 }
 
-export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData): Array<number> {
+export type Payout = {
+	fiat: string;
+	cryptoMicro: number;
+	crypto: string;
+};
+export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData): Array<Payout> {
 	const mult = Number(`1e${decimals}`);
 	const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const numCategories = marketData.categories.length;
@@ -72,24 +75,36 @@ export function calculatePayoutCategorical(amount: number, decimals: number, use
 
 	// total stake in market
 	const totalMarketStake = totalStakes.reduce((sum, stake) => sum + stake, 0);
-	let payouts: number[] = new Array(numCategories).fill(0);
+	let payouts: Payout[] = [];
 
 	for (let i = 0; i < numCategories; i++) {
-		const myTotalStake = userStakes[i] + microAmount; // User's total stake in category i
+		const myTotalStake = microAmount; //userStakes[i] + microAmount; // User's total stake in category i
 		const categoryPool = totalStakes[i]; // Total market stake in category i
 
 		// Calculate total stake excluding the current category
 		const totalNotI = totalMarketStake - categoryPool;
 
+		let stakeInMicro = 0;
 		if (categoryPool === 0) {
-			payouts[i] = myTotalStake;
+			stakeInMicro = myTotalStake;
 		} else {
-			payouts[i] = myTotalStake + (myTotalStake * totalNotI) / categoryPool;
+			//payouts.push((myTotalStake * totalNotI) / categoryPool);
+			stakeInMicro = myTotalStake + (myTotalStake * totalNotI) / categoryPool;
 		}
+		const crypto = parseFloat(fmtMicroToStxNumber(stakeInMicro, decimals).toFixed(decimals));
+		const cryptoCurr = decimals === 8 ? ' BTC' : ' STX';
+		const amounts = {
+			fiat: convertCryptoToFiat(decimals === 6, crypto),
+			cryptoMicro: stakeInMicro,
+			crypto: crypto.toString() + cryptoCurr
+		};
+		payouts.push(amounts);
 	}
 
 	return payouts;
 }
+//5_0963_0144.72421664
+// my tot = 3_9200_0000
 export function convertFiatToNative(sip10Data: Sip10Data, amountFiat: number, currency: string): number {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const sess = getSession();
@@ -100,15 +115,16 @@ export function convertFiatToNative(sip10Data: Sip10Data, amountFiat: number, cu
 	else amountNative = amountFiat / rate.fifteen;
 	return amountNative; //fmtStxMicro(amountNative, sip10Data.decimals);
 }
-export function convertNativeToFiat(sip10Data: Sip10Data, amountNative: number, currency: string): number {
+export function convertCryptoToFiat(stacks: boolean, amountNative: number): string {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const sess = getSession();
-	const rate = sess.exchangeRates.find((c) => c.currency === currency);
-	if (!rate) return 0;
+	const selectedCurrency = getSelectedCurrency();
+	const rate = sess.exchangeRates.find((c) => c.currency === selectedCurrency.code);
+	if (!rate) return '0.00';
 	let amountFiat = 0;
-	if (sip10Data.symbol === 'STX') amountFiat = rate.stxToBtc * amountNative * rate.fifteen;
+	if (stacks) amountFiat = rate.stxToBtc * amountNative * rate.fifteen;
 	else amountFiat = amountNative * rate.fifteen;
-	return amountFiat; //fmtStxMicro(amountNative, sip10Data.decimals);
+	return selectedCurrency.symbol + parseFloat(amountFiat.toFixed(2)).toLocaleString() + ' ' + selectedCurrency.code; //fmtStxMicro(amountNative, sip10Data.decimals);
 }
 export async function isExecutiveTeamMember(coreExecuteContractId: string | undefined, stxAddress: string): Promise<{ executiveTeamMember: boolean }> {
 	let path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${stxAddress}`;
@@ -216,16 +232,16 @@ export function myMarket(market: PredictionMarketCreateEvent) {
 	return market.marketData.creator === getStxAddress();
 }
 
-export async function fetchMarketStakes(marketId: number): Promise<Array<PredictionMarketStakeEvent>> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/pm/stakes/${marketId}`;
+export async function fetchMarketStakes(marketId: number, marketType: number): Promise<Array<PredictionMarketStakeEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/stakes/${marketId}/${marketType}`;
 	const response = await fetch(path);
-	if (response.status === 404) return [];
+	if (response.status === 404) return [] as PredictionMarketStakeEvent[];
 	const res = await response.json();
 	return res;
 }
 
-export async function fetchMarketClaims(marketId: number): Promise<Array<PredictionMarketClaimEvent>> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/pm/claims/${marketId}`;
+export async function fetchMarketClaims(marketId: number, marketType: number): Promise<Array<PredictionMarketClaimEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/claims/${marketId}/${marketType}`;
 	const response = await fetch(path);
 	if (response.status === 404) return [];
 	const res = await response.json();
@@ -316,11 +332,13 @@ export async function postCreatePollMessage(newPoll: StoredOpinionPoll) {
 				headers: { 'Content-Type': 'application/json' }
 			}
 		);
-
+		console.log('postCreatePollMessage: response: ', response);
 		// Handle success response
 		return response.data;
 	} catch (error) {
 		// Handle different error statuses
+		console.log('postCreatePollMessage: error: ', error);
+
 		if (axios.isAxiosError(error)) {
 			const status = error.response?.status;
 

@@ -29,7 +29,7 @@
 			stxAmount = value;
 		}
 		const amountMicro = fmtStxMicro(Number(value), sip10Data.decimals);
-		stakeAmount.set(amountMicro);
+		//stakeAmount.set(amountMicro);
 	}
 	function handleSubmit() {
 		if (!stxAmount) {

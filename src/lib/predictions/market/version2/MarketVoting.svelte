@@ -11,7 +11,7 @@
 	import { hexToBytes } from '@stacks/common';
 	import { fetchMarketsVotes, getGovernanceToken, getMarketToken, isSTX } from '$lib/predictions/predictions';
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
-	import DaoVotingPowerInput from './DaoVotingPowerInput.svelte';
+	import DaoVotingPowerInput from './do-vote/DaoVotingPowerInput.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
 	import { getVotesByVoterAndMarket } from '$lib/predictions/voter';
 
@@ -138,134 +138,136 @@
 	});
 </script>
 
-<div>
-	{#if resolutionVote && market.marketData}
-		<div class="flex flex-col gap-y-4">
-			{#if errorMessage}
-				<div class="my-4">
-					{errorMessage}
-				</div>
-			{/if}
-			<div class="">
-				{#if !resolutionVote.concluded && resolutionVote.endBurnHeight < currentBurnHeight}
-					<h2 class="mb-4 text-lg font-semibold text-gray-800">Voting window closed</h2>
-					<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
-				{:else if resolutionVote.concluded}
-					<h2>Voting Concluded</h2>
-					<p class="mb-4 font-semibold text-gray-800">Market resolved {market.marketData.outcome}.</p>
-				{:else}
-					<h2>Voting in Progress</h2>
-					<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
+<div class="card bg-neutral shadow-xl">
+	<div class="card-body">
+		{#if resolutionVote && market.marketData}
+			<div class="flex flex-col gap-y-4">
+				{#if errorMessage}
+					<div class="my-4">
+						{errorMessage}
+					</div>
 				{/if}
-				<table class="w-full table-auto border-collapse border border-gray-300">
-					<thead>
-						<tr class="bg-gray-200">
-							<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Label</th>
-							<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Value</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="bg-white">
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">proposer</td>
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.proposer}
-							</td>
-						</tr>
-						<tr class="bg-gray-50">
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">End Height</td>
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.endBurnHeight}
-							</td>
-						</tr>
-						<tr class="bg-gray-50">
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Concluded</td>
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.concluded}
-							</td>
-						</tr>
-						{#if resolutionVote.concluded}
-							<tr class="bg-gray-50">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Winner</td>
+				<div class="">
+					{#if !resolutionVote.concluded && resolutionVote.endBurnHeight < currentBurnHeight}
+						<h2 class="mb-4 text-lg font-semibold text-gray-800">Voting window closed</h2>
+						<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
+					{:else if resolutionVote.concluded}
+						<h2>Voting Concluded</h2>
+						<p class="mb-4 font-semibold text-gray-800">Market resolved {market.marketData.outcome}.</p>
+					{:else}
+						<h2>Voting in Progress</h2>
+						<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
+					{/if}
+					<table class="w-full table-auto border-collapse border border-gray-300">
+						<thead>
+							<tr class="bg-gray-200">
+								<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Label</th>
+								<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Value</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="bg-white">
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">proposer</td>
 								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.winningCategory}
+									{resolutionVote.proposer}
 								</td>
 							</tr>
+							<tr class="bg-gray-50">
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">End Height</td>
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+									{resolutionVote.endBurnHeight}
+								</td>
+							</tr>
+							<tr class="bg-gray-50">
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Concluded</td>
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+									{resolutionVote.concluded}
+								</td>
+							</tr>
+							{#if resolutionVote.concluded}
+								<tr class="bg-gray-50">
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Winner</td>
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+										{resolutionVote.winningCategory}
+									</td>
+								</tr>
+							{/if}
+							<tr class="bg-gray-50">
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes For</td>
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+									{resolutionVote.votes[1]}
+								</td>
+							</tr>
+							<tr class="bg-gray-50">
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes Against</td>
+								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+									{resolutionVote.votes[0]}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					{#if totalBalanceUstx === 0}
+						<div class="my-5">
+							<Banner
+								bannerType={'info'}
+								message={'You have no governacne tokens - they may be locked on other proposals. <br/>Visit <a class="text-blue-700 font-semibold hover:text-blue-800" href="/dao/mint">bdg mint page</a> to unlock or mint some more.'}
+							/>
+						</div>
+						<div class="mt-4">
+							<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
+						</div>
+					{:else if resolutionVote.endBurnHeight >= currentBurnHeight}
+						<div>
+							<DaoVotingPowerInput {sip10Data} {totalBalanceUstx} {votingPower} {txVoting} onVotingPowerChange={handleVotingPowerChange} onVotingTypeChange={handleVotingTypeChange} />
+						</div>
+
+						{#if errorMessage}
+							<div class="my-4">
+								<Banner bannerType={'danger'} message={errorMessage} />
+							</div>
 						{/if}
-						<tr class="bg-gray-50">
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes For</td>
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.votes[1]}
-							</td>
-						</tr>
-						<tr class="bg-gray-50">
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes Against</td>
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{resolutionVote.votes[0]}
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				{#if totalBalanceUstx === 0}
-					<div class="my-5">
-						<Banner
-							bannerType={'info'}
-							message={'You have no governacne tokens - they may be locked on other proposals. <br/>Visit <a class="text-blue-700 font-semibold hover:text-blue-800" href="/dao/mint">bdg mint page</a> to unlock or mint some more.'}
-						/>
-					</div>
-					<div class="mt-4">
-						<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
-					</div>
-				{:else if resolutionVote.endBurnHeight >= currentBurnHeight}
-					<div>
-						<DaoVotingPowerInput {sip10Data} {totalBalanceUstx} {votingPower} {txVoting} onVotingPowerChange={handleVotingPowerChange} onVotingTypeChange={handleVotingTypeChange} />
-					</div>
-
-					{#if errorMessage}
-						<div class="my-4">
-							<Banner bannerType={'danger'} message={errorMessage} />
+						{#if txId}
+							<div class="mt-5">
+								<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
+							</div>
+						{/if}
+						<div class="my-4 flex w-full flex-wrap gap-x-2">
+							{#each market.marketData.categories as category, index}
+								<button
+									on:click={() => {
+										errorMessage = undefined;
+										castVote(index, votingPower);
+									}}
+									class="bg-success-700 hover:bg-success-500 w-full flex-1 rounded px-4 py-2 text-white transition-all duration-300 sm:w-auto"
+								>
+									{category}
+								</button>
+							{/each}
 						</div>
-					{/if}
-					{#if txId}
-						<div class="mt-5">
-							<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
+						<div class="mt-4">
+							<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
 						</div>
+						{#if myVotes && myVotes.length > 0}
+							<div>Voted {myVotes.length} times with {fmtMicroToStx(myVotesAmount, sip10Data.decimals)} governance tokens</div>
+						{/if}
+					{:else}
+						<p class="my-5">Thank you for your vote.</p>
 					{/if}
-					<div class="my-4 flex w-full flex-wrap gap-x-2">
-						{#each market.marketData.categories as category, index}
-							<button
-								on:click={() => {
-									errorMessage = undefined;
-									castVote(index, votingPower);
-								}}
-								class="w-full flex-1 rounded bg-success-700 px-4 py-2 text-white transition-all duration-300 hover:bg-success-500 sm:w-auto"
-							>
-								{category}
-							</button>
-						{/each}
-					</div>
-					<div class="mt-4">
-						<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
-					</div>
-					{#if myVotes && myVotes.length > 0}
-						<div>Voted {myVotes.length} times with {fmtMicroToStx(myVotesAmount, sip10Data.decimals)} governance tokens</div>
-					{/if}
-				{:else}
-					<p class="my-5">Thank you for your vote.</p>
-				{/if}
 
-				{#if !resolutionVote.concluded && resolutionVote.endBurnHeight < currentBurnHeight}
-					<p class="my-5">The vote needs to be concluded before claims can be made.</p>
-					<button
-						on:click={() => {
-							errorMessage = undefined;
-							concludeVote();
-						}}
-						class="mt-4 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-600"
-					>
-						CONCLUDE VOTE
-					</button>
-				{/if}
+					{#if !resolutionVote.concluded && resolutionVote.endBurnHeight < currentBurnHeight}
+						<p class="my-5">The vote needs to be concluded before claims can be made.</p>
+						<button
+							on:click={() => {
+								errorMessage = undefined;
+								concludeVote();
+							}}
+							class="mt-4 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-600"
+						>
+							CONCLUDE VOTE
+						</button>
+					{/if}
+				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>

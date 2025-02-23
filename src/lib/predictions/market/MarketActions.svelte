@@ -5,8 +5,8 @@
 	import { getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import { fmtMicroToStx, truncate } from '$lib/utils';
 	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
-	import MarketResolving from './resolve/MarketResolving.svelte';
-	import ResolutionBanner from './resolve/ResolutionBanner.svelte';
+	import MarketResolving from './version2/MarketResolving.svelte';
+	import ResolutionBanner from './version2/do-resolve/ResolutionBanner.svelte';
 	import { getConfig } from '$stores/store_helpers';
 	import { getMarketToken } from '../predictions';
 	import { Icon, InformationCircle } from 'svelte-hero-icons';
@@ -69,7 +69,7 @@
 								<Icon
 									src={InformationCircle}
 									mini
-									class="ml-2 inline h-5 w-5 shrink-0  text-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500/50"
+									class="text-primary-600 focus-visible:outline-primary-500/50 ml-2 inline h-5  w-5 shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
 									aria-hidden="true"
 									id={'trigger'}
 								/>
@@ -90,11 +90,11 @@
 						<span class="text-lg">
 							{#if market.marketData.concluded}
 								<Bulletin message={'This market is over'} trigger={'market-status'}>
-									<span class="font-medium text-success-700" slot="title">Concluded - {@html getOutcomeMessage(market)}</span>
+									<span class="text-success-700 font-medium" slot="title">Concluded - {@html getOutcomeMessage(market)}</span>
 								</Bulletin>
 							{:else}
 								<Bulletin message={'Still time to participate in this market - good luck!'} trigger={'market-status'}>
-									<span class="font-medium text-success-700" slot="title">Live</span>
+									<span class="text-success-700 font-medium" slot="title">Live</span>
 								</Bulletin>
 							{/if}
 						</span>
@@ -130,9 +130,10 @@
 					<MarketResolving {market} {userStake} />
 				</div>
 			{/if}
-			<div class="my-6 flex w-full rounded-lg bg-gray-100 p-6 shadow-lg">
+
+			<!-- <div class="my-6 flex w-full rounded-lg bg-gray-100 p-6 shadow-lg">
 				<MarketStakeGraphs {market} />
-			</div>
+			</div> -->
 		</div>
 	</div>
 {:else}

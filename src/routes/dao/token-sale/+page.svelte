@@ -23,7 +23,4 @@
 	<div class="">
 		<TokenSaleV3 />
 	</div>
-	<div class="px-6 py-10 md:px-20">
-		<TokenSale />
-	</div>
 </div>

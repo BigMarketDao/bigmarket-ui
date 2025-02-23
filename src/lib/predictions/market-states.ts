@@ -3,6 +3,19 @@ import { ResolutionState, type PredictionMarketCreateEvent, type ScalarMarketDat
 import { userStakeSum } from './predictions';
 import type { BigMarketSessionStore } from '$stores/stores';
 
+export const getMarketStatus = (resolutionState: number) => {
+	if (resolutionState === ResolutionState.RESOLUTION_OPEN) {
+		return 'open';
+	} else if (resolutionState === ResolutionState.RESOLUTION_RESOLVING) {
+		return 'resolving';
+	} else if (resolutionState === ResolutionState.RESOLUTION_RESOLVED) {
+		return 'resolved';
+	} else if (resolutionState === ResolutionState.RESOLUTION_DISPUTED) {
+		return 'challenged';
+	}
+	return false;
+};
+
 export const hasUserStaked = (userStake: UserStake | undefined) => {
 	if (userStake) {
 		return userStakeSum(userStake) > 0;

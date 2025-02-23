@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DaoMintingInput from '$lib/predictions/market/resolve/market-vote/DaoMintingInput.svelte';
+	import DaoMintingInput from '$lib/predictions/market/version2/do-vote/DaoMintingInput.svelte';
 	import MarketPlace from '$lib/predictions/marketplace/MarketPlace.svelte';
 	import { fetchMarkets } from '$lib/predictions/predictions';
 	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';

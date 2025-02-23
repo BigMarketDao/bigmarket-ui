@@ -87,7 +87,7 @@
 	};
 
 	onMount(async () => {
-		stakeData = await fetchMarketStakes(market.marketId);
+		stakeData = await fetchMarketStakes(market.marketId, market.marketType);
 		sip10Data = getMarketToken(market.marketData.token);
 
 		if (stakeData) {

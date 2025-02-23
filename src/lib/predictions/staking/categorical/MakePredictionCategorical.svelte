@@ -10,7 +10,7 @@
 	import VotingPowerInput from '../VotingPowerInput.svelte';
 	import PredictUsingTransaction from '../PredictUsingTransaction.svelte';
 	import InfoOnPollingMessage from '../InfoOnPollingMessage.svelte';
-	import AgentResolveMarket from '$lib/predictions/market/resolve/AgentResolveMarket.svelte';
+	import AgentResolveMarket from '$lib/predictions/market/version2/do-resolve/AgentResolveMarket.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake;

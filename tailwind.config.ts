@@ -4,6 +4,24 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
+	plugins: [require('daisyui')],
+	daisyui: {
+		themes: [
+			{
+				mytheme: {
+					primary: '#a855f7',
+					secondary: '#7c3aed',
+					accent: '#6366f1',
+					neutral: '#1f2937',
+					'base-100': '#0f172a',
+					info: '#3abff8',
+					success: '#36d399',
+					warning: '#fbbd23',
+					error: '#f87272'
+				}
+			}
+		]
+	},
 	theme: {
 		colors: {
 			purple: {

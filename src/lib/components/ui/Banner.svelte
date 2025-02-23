@@ -19,6 +19,8 @@
 			bannerClassList = clazz + ' bg-success-700 text-white';
 		} else if (bannerType === 'waiting' || bannerType === 'checking') {
 			bannerClassList = clazz + ' bg-lightpurple/60';
+		} else if (bannerType === 'info') {
+			bannerClassList = clazz + ' border border-primary bg-lightpurple/60';
 		} else {
 			bannerClassList = clazz + ' bg-sand-500/60';
 		}

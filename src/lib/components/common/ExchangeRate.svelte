@@ -12,6 +12,6 @@
 
 <span class="my-4">
 	{#if fiatValue}
-		<span class="w-auto">{$selectedCurrency.code} {formatter.format(parseFloat(fiatValue))}</span>
+		<span class="w-auto">{formatter.format(parseFloat(fiatValue))} {$selectedCurrency.code} </span>
 	{/if}
 </span>

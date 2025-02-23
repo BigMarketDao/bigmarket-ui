@@ -2,7 +2,7 @@
 	import type { MarketData, PredictionMarketCreateEvent, Sip10Data, UserStake } from '@mijoco/stx_helpers/dist/index';
 	import * as echarts from 'echarts';
 	import { onDestroy, onMount } from 'svelte';
-	import { calculatePayoutCategorical, getMarketToken } from '../predictions';
+	import { calculatePayoutCategorical, getMarketToken, type Payout } from '../predictions';
 	import { fmtMicroToStx } from '$lib/utils';
 	import { stakeAmount } from '$stores/stores';
 
@@ -10,7 +10,7 @@
 	export let userStake: UserStake | undefined;
 	let sip10Data: Sip10Data;
 	let chart: echarts.ECharts | null = null;
-	let payouts: number[] = [];
+	let payouts: Payout[] = [];
 
 	// Function to recalculate and redraw chart when the user updates input
 	const updateChart = () => {
@@ -20,7 +20,7 @@
 		payouts = calculatePayoutCategorical($stakeAmount, sip10Data.decimals, userStake, market.marketData);
 
 		const categories = market.marketData.categories.slice(0, 10); // Limit to 10 categories
-		const stakeValues = payouts.map((p) => fmtMicroToStx(p, sip10Data.decimals)); // Convert payout strings to numbers
+		const stakeValues = payouts.map((p) => fmtMicroToStx(p.cryptoMicro, sip10Data.decimals)); // Convert payout strings to numbers
 
 		if (chart) {
 			chart.setOption({

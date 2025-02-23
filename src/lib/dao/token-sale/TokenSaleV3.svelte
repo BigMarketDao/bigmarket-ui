@@ -116,9 +116,9 @@
 		<!-- Header -->
 
 		<!-- Main Content -->
-		<section class="relative grid grid-cols-1 gap-8 px-6 py-16 lg:grid-cols-2">
+		<section class="relative grid grid-cols-1 gap-5 px-6 pt-5 lg:grid-cols-2">
 			<!-- Left Column: Token Info -->
-			<div class="space-y-8">
+			<div class="space-y-5">
 				<!-- Token Overview Card -->
 				<div class="card border border-gray-700 bg-gray-1000/50 p-5">
 					<div class="card-body">
@@ -258,61 +258,62 @@
 									<p>Tokens are available to use in voting straight away but transfers are locked until the token sale ends - this is to protect early participants and ensures fair distribution.</p>
 								</div>
 							</div>
-
-							<!-- IDO Stages Timeline -->
-							<div class="space-y-4">
-								<h4 class="font-semibold">IDO Stages</h4>
-								<div class="space-y-2">
-									{#each stages as stage, index}
-										<!-- svelte-ignore a11y_click_events_have_key_events -->
-										<!-- svelte-ignore a11y_no_static_element_interactions -->
-										<div on:click={() => (currentStage = index)} class={`flex cursor-pointer items-center gap-4 rounded p-2 transition-all ${index === currentStage ? 'border-purple-500/50 border bg-gray-700/50' : ''}`}>
-											<div
-												class="flex h-6 w-6 items-center justify-center rounded-full"
-												class:bg-green-500={index < currentStage}
-												class:bg-purple-500={index === currentStage && index >= currentStage}
-												class:bg-gray-600={index >= currentStage && index !== currentStage}
-											>
-												{index + 1}
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="relative flex w-full gap-5 px-6 py-5">
+			<!-- IDO Stages Timeline -->
+			<div class="w-full border border-gray-700 bg-gray-1000/50 p-5">
+				<div class="space-y-4">
+					<h4 class="font-semibold">IDO Stages</h4>
+					<div class="space-y-2">
+						{#each stages as stage, index}
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div on:click={() => (currentStage = index)} class={`flex cursor-pointer items-center gap-4 rounded p-2 transition-all ${index === currentStage ? 'border-purple-500/50 border bg-gray-700/50' : ''}`}>
+								<div
+									class="flex h-6 w-6 items-center justify-center rounded-full"
+									class:bg-green-500={index < currentStage}
+									class:bg-purple-500={index === currentStage && index >= currentStage}
+									class:bg-gray-600={index >= currentStage && index !== currentStage}
+								>
+									{index + 1}
+								</div>
+								<div class="flex-1">
+									<div class="flex justify-between">
+										<span>{stage.maxSupply.toLocaleString()} BIG</span>
+										<span class="text-gray-400">
+											{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+										</span>
+									</div>
+									<div class="text-sm text-gray-400">
+										<div class="flex justify-between">
+											<div>
+												Raise: {fmtMicroToStx(stage.tokensSold, daoOverview.contractData.tokenDecimals)}
+												{daoOverview.contractData.tokenSymbol}
 											</div>
-											<div class="flex-1">
-												<div class="flex justify-between">
-													<span>{stage.maxSupply.toLocaleString()} BIG</span>
-													<span class="text-gray-400">
-														{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
-													</span>
-												</div>
-												<div class="text-sm text-gray-400">
-													<div>Raise:</div>
-
-													<div class="flex justify-between">
-														<div>
-															{fmtMicroToStx(stage.tokensSold, daoOverview.contractData.tokenDecimals)}
-															{daoOverview.contractData.tokenSymbol}
-														</div>
-														<div>
-															{fmtMicroToStx(stage.tokensSold * (1 / stage.price), daoOverview.contractData.tokenDecimals)}
-															{'STX'}
-														</div>
-														<div>
-															{$selectedCurrency.symbol}
-															{toFiat($selectedCurrency.code, stage.tokensSold, { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
-														</div>
-													</div>
-												</div>
+											<div>
+												{fmtMicroToStx(stage.tokensSold * (1 / stage.price), daoOverview.contractData.tokenDecimals)}
+												{'STX'}
+											</div>
+											<div>
+												{$selectedCurrency.symbol}
+												{toFiat($selectedCurrency.code, stage.tokensSold, { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
 											</div>
 										</div>
-									{/each}
+									</div>
 								</div>
 							</div>
-						</div>
+						{/each}
 					</div>
 				</div>
 			</div>
 		</section>
 
 		<!-- Features Section -->
-		<section class="bg-black/50 px-6 py-16">
+		<section class="bg-black/50 px-6 py-10">
 			<div class="mx-auto max-w-7xl">
 				<h2 class="bg-gradient-to-r to-purple-400 mb-12 from-blue-400 bg-clip-text text-center text-3xl font-bold text-transparent">Why Choose BigMarket?</h2>
 				<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">

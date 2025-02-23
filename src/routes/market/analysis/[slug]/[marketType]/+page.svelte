@@ -14,8 +14,8 @@
 		const marketType = Number(page.params.marketType);
 		if (marketId >= 0) {
 			market = await getPredictionMarket(marketId, marketType);
-			stakes = await fetchMarketStakes(marketId);
-			claims = await fetchMarketClaims(marketId);
+			stakes = await fetchMarketStakes(marketId, market.marketType);
+			claims = await fetchMarketClaims(marketId, market.marketType);
 			console.log('getPredictionMarket: ', market);
 		} else {
 			goto('/market-mgt');

@@ -7,6 +7,7 @@
 	import { getConfig } from '$stores/store_helpers';
 	import MarketStakedBarChart from '../graphs/MarketStakedBarChart.svelte';
 	import MarketStakeGraphs from '../graphs/MarketStakeGraphs.svelte';
+	import StakeChart from '../market/version2/do-charts/StakeChart.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	let currentBurnHeight = 0;
@@ -36,7 +37,7 @@
 {#if market}
 	<div class="flex w-full flex-col items-start gap-x-10 px-10 pt-10 md:flex-row md:px-32">
 		<!-- Left Panel -->
-		<div class="flex min-h-[300px] flex-1 flex-col items-start justify-center">
+		<div class="flex min-h-[300px] w-full flex-1 flex-col items-start justify-center md:w-1/2">
 			<div class="">
 				<MarketStallView {market} />
 			</div>
@@ -56,8 +57,14 @@
 		</div>
 
 		<!-- Right Panel -->
-		<div class="flex min-h-[300px] w-full flex-col items-start md:w-1/2">
-			<div class="w-full"><MarketStakeGraphs {market} /></div>
+		<div class="w-full md:w-1/2">
+			<div class="min-h-[300px h-auto text-black">
+				<StakeChart {market} title={'Stake History'} />
+			</div>
 		</div>
+
+		<!-- <div class="flex min-h-[300px] w-full flex-col items-start md:w-1/2">
+			<div class="w-full"><MarketStakeGraphs {market} /></div>
+		</div> -->
 	</div>
 {/if}

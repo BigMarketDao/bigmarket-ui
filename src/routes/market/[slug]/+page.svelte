@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { getPredictionMarket } from '$lib/predictions/predictions';
 	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import MarketActions from '$lib/predictions/market/MarketActions.svelte';
+	import { page } from '$app/state';
 
 	let market: PredictionMarketCreateEvent;
 

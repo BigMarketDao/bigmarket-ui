@@ -10,7 +10,7 @@
 	import VotingPowerInput from '../VotingPowerInput.svelte';
 	import { getMarketToken, userStakeSum } from '$lib/predictions/predictions';
 	import PredictUsingTransaction from '../PredictUsingTransaction.svelte';
-	import AgentResolveMarket from '$lib/predictions/market/resolve/AgentResolveMarket.svelte';
+	import AgentResolveMarket from '$lib/predictions/market/version2/do-resolve/AgentResolveMarket.svelte';
 	import InfoOnPollingMessage from '../InfoOnPollingMessage.svelte';
 	import { isCooling, isDisputable, isDisputeRunning, isPostCooling, isStaking } from '$lib/predictions/market-states';
 

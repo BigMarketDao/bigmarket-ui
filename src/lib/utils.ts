@@ -1,10 +1,12 @@
-import { getConfig, getSession } from '$stores/store_helpers';
-import { callContractReadOnly, extractValue, type ExchangeRate, type ScalarMarketDataItem, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
-import { Cl } from '@stacks/transactions';
+import { getSession } from '$stores/store_helpers';
+import { type ExchangeRate, type ScalarMarketDataItem, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
+import { DateTime } from 'luxon';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.';
 export const smbp = 900;
 export const xsbp = 700;
+
+export const urlRegex = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/[^\s]*)?$/i;
 
 export function mapToMinMaxStrings(data: Array<string | ScalarMarketDataItem>): string[] {
 	if (typeof data[0] === 'string') {
@@ -86,6 +88,10 @@ export function fmtMicroToStxNumber(amount: number, decimals?: number): number {
 	return amount / conv;
 }
 
+export function trimTrailingZeros(value: number | string): string {
+	return parseFloat(value.toString()).toString();
+}
+
 export function getRate(currencyCode: string): ExchangeRate {
 	const rates = getSession().exchangeRates;
 	const rate = rates.find((o) => o.currency === currencyCode);
@@ -96,6 +102,15 @@ export function getRate(currencyCode: string): ExchangeRate {
 			currency: 'USD'
 		} as ExchangeRate;
 	return rate;
+}
+
+export function estimateBitcoinBlockTime(targetBlock: number, currentBlock: number, currentTimeUtc: string = DateTime.utc().toISO()): string {
+	const BLOCK_INTERVAL_SEC = 600; // 10 minutes per block
+	const blockDifference = targetBlock - currentBlock;
+	const timeShiftSeconds = blockDifference * BLOCK_INTERVAL_SEC;
+	const currentTime = DateTime.fromISO(currentTimeUtc, { zone: 'utc' });
+	const estimatedTime = currentTime.plus({ seconds: timeShiftSeconds });
+	return estimatedTime.toFormat('yyyy-MM-dd HH:mm');
 }
 
 export function toFiat(currencyCode: string, amountMicro: number, sip10Data: Sip10Data, tokenPrice?: number, fixed?: number): string {

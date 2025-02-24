@@ -147,7 +147,7 @@
 				<!-- Token Distribution Card -->
 				<div class="card border border-gray-700 bg-gray-1000/50 p-5">
 					<div class="card-body">
-						<h3 class="card-title text-purple-400 text-xl font-semibold">Token Distribution</h3>
+						<h3 class="card-title text-xl font-semibold text-purple-400">Token Distribution</h3>
 						<div class="mt-4 space-y-4">
 							{#each distribution as item}
 								<div class="space-y-2">
@@ -156,7 +156,7 @@
 										<span class="text-purple-400">{item.percentage}%</span>
 									</div>
 									<div class="h-2 w-full rounded-full bg-gray-700">
-										<div class="bg-hero-gradient from-pink-500 to-purple-500 h-full transition-all duration-500" style="width: {item.percentage}%"></div>
+										<div class="from-pink-500 h-full bg-hero-gradient to-purple-500 transition-all duration-500" style="width: {item.percentage}%"></div>
 									</div>
 									<div class="text-right text-sm text-gray-400">
 										{item.amount.toLocaleString()} BIG
@@ -172,7 +172,7 @@
 			<div class="lg:sticky lg:top-6">
 				<div class="card border border-gray-700 bg-gray-1000/50 p-5">
 					<div class="card-body">
-						<h3 class="card-title text-pink-400 text-xl font-semibold">
+						<h3 class="text-pink-400 card-title text-xl font-semibold">
 							Token Sale - Stage {currentStage + 1}
 						</h3>
 						<div class="mt-4 space-y-6">
@@ -183,7 +183,7 @@
 									<span class="text-pink-400">{stageProgress.toFixed(2)}%</span>
 								</div>
 								<div class="h-4 w-full rounded-full bg-gray-700">
-									<div class="bg-progress-gradient mb-12 h-full rounded-full transition-all duration-500" style="width: {stageProgress}%"></div>
+									<div class="mb-12 h-full rounded-full bg-progress-gradient transition-all duration-500" style="width: {stageProgress}%"></div>
 								</div>
 							</div>
 
@@ -233,11 +233,7 @@
 									</select>
 								</div>
 
-								<button
-									on:click={() => buyTokens()}
-									class="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 w-full rounded-lg py-3 font-semibold shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all duration-300"
-									disabled={!walletConnected}
-								>
+								<button on:click={() => buyTokens()} class="btn btn-primary btn-active w-full rounded-lg py-3 font-semibold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all duration-300" disabled={!walletConnected}>
 									{walletConnected ? 'Buy BIG Tokens' : 'Connect Wallet First'}
 								</button>
 
@@ -272,7 +268,7 @@
 						{#each stages as stage, index}
 							<!-- svelte-ignore a11y_click_events_have_key_events -->
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div on:click={() => (currentStage = index)} class={`flex cursor-pointer items-center gap-4 rounded p-2 transition-all ${index === currentStage ? 'border-purple-500/50 border bg-gray-700/50' : ''}`}>
+							<div on:click={() => (currentStage = index)} class={`flex cursor-pointer items-center gap-4 rounded p-2 transition-all ${index === currentStage ? 'border border-purple-500/50 bg-gray-700/50' : ''}`}>
 								<div
 									class="flex h-6 w-6 items-center justify-center rounded-full"
 									class:bg-green-500={index < currentStage}
@@ -315,7 +311,7 @@
 		<!-- Features Section -->
 		<section class="bg-black/50 px-6 py-10">
 			<div class="mx-auto max-w-7xl">
-				<h2 class="bg-gradient-to-r to-purple-400 mb-12 from-blue-400 bg-clip-text text-center text-3xl font-bold text-transparent">Why Choose BigMarket?</h2>
+				<h2 class="bg-gradient-to-r mb-12 from-blue-400 to-purple-400 bg-clip-text text-center text-3xl font-bold text-transparent">Why Choose BigMarket?</h2>
 				<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
 					<!-- Feature Card 1 -->
 					<div class="card rounded-lg border border-gray-700 bg-gray-800/50 p-6 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-transform duration-300 hover:scale-105">

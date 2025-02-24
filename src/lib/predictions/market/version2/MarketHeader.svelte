@@ -23,13 +23,11 @@
 
 			<!-- Market Info Container -->
 			<div class="flex-1">
-				<!-- Name + Badge -->
 				<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between">
 					<div>
 						<h1 class="card-title mb-2 text-3xl">{market.unhashedData.name}</h1>
 						<p class="mb-4 text-lg text-base-content/70">{market.unhashedData.description}</p>
 					</div>
-					<!-- Badge moves to new line on small screens -->
 					<div class="badge badge-success gap-2 p-4 sm:ml-4 sm:self-start">
 						{getMarketStatus(market.marketData.resolutionState)}
 					</div>

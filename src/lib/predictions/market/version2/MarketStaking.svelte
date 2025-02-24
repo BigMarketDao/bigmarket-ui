@@ -10,11 +10,12 @@
 	import StakingCategorical from './do-stake/StakingCategorical.svelte';
 	import StakingScalar from './do-stake/StakingScalar.svelte';
 	import Banner from '$lib/components/ui/Banner.svelte';
-	import { isPostCooling, isStaking } from '$lib/predictions/market-states';
+	import { isCooling, isPostCooling, isStaking } from '$lib/predictions/market-states';
 	import { showContractCall } from '@stacks/connect';
 	import { Cl, Pc, PostConditionMode, stringAsciiCV, uintCV } from '@stacks/transactions';
 	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
 	import AgentResolveMarket from './do-resolve/AgentResolveMarket.svelte';
+	import StakingCoolDown from './do-stake/StakingCoolDown.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake | undefined;
@@ -123,38 +124,38 @@
 <!-- Staking Interface -->
 <div class="card bg-neutral shadow-xl">
 	<div class="card-body">
-		<h2 class="card-title mb-6 text-2xl">Place Your Stake</h2>
+		{#if market.marketType === 2 && isCooling(market)}
+			<StakingCoolDown {payouts} {market} />
+		{:else}
+			<h2 class="card-title mb-6 text-2xl">Place Your Stake</h2>
 
-		<div class="form-control">
-			<label for="stake-input" class="label">
-				<span class="label-text">Stake Amount: <ExchangeRate {sip10Data} /> </span>
-				<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} {sip10Data.symbol}</span>
-			</label>
-			<div class="join">
-				<input id="stake-input" type="number" placeholder="Enter amount (e.g., 0.04)" bind:value={amountToStake} on:keyup={() => handleInput()} class={' input join-item input-bordered flex-1 '} />
-				<span class={'btn join-item no-animation border border-none'}>{sip10Data.symbol}</span>
+			<div class="form-control">
+				<label for="stake-input" class="label">
+					<span class="label-text">Stake Amount: <ExchangeRate {sip10Data} /> </span>
+					<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} {sip10Data.symbol}</span>
+				</label>
+				<div class="join">
+					<input id="stake-input" type="number" placeholder="Enter amount (e.g., 0.04)" bind:value={amountToStake} on:keyup={() => handleInput()} class={' input join-item input-bordered flex-1 '} />
+					<span class={'btn join-item no-animation border border-none'}>{sip10Data.symbol}</span>
+				</div>
 			</div>
-		</div>
-		{#if txId}
-			<div class="mb-4 flex w-full justify-start gap-x-4">
-				<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
-			</div>
-		{/if}
-		{#if errorMessage}
-			<div class="mb-4 flex w-full justify-start gap-x-4">
-				<Banner bannerType={'info'} message={errorMessage} />
-			</div>
-		{/if}
-		{#if market.marketType === 2}
-			{#if isStaking(market)}
-				<StakingScalar {doPrediction} {payouts} {market} />
-			{:else}
-				Staking period is over.
+			{#if txId}
+				<div class="mb-4 flex w-full justify-start gap-x-4">
+					<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
+				</div>
 			{/if}
-		{:else if market.marketData.categories.length === 2}
-			<StakingBinary {doPrediction} {payouts} />
-		{:else if market.marketType === 1}
-			<StakingCategorical {doPrediction} {payouts} categories={mapToMinMaxStrings(market.marketData.categories)} />
+			{#if errorMessage}
+				<div class="mb-4 flex w-full justify-start gap-x-4">
+					<Banner bannerType={'info'} message={errorMessage} />
+				</div>
+			{/if}
+			{#if market.marketType === 2}
+				<StakingScalar {doPrediction} {payouts} {market} />
+			{:else if market.marketData.categories.length === 2}
+				<StakingBinary {doPrediction} {payouts} />
+			{:else if market.marketType === 1}
+				<StakingCategorical {doPrediction} {payouts} categories={mapToMinMaxStrings(market.marketData.categories)} />
+			{/if}
 		{/if}
 
 		<div class="mt-4">

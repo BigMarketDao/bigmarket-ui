@@ -4,7 +4,7 @@
 	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
 	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, marketDataToTupleCV, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
-	import { getClarityProofForCreateMarket, postCreatePollMessage, signCreateMarketRequest } from '$lib/predictions/predictions';
+	import { getClarityProofForCreateMarket, postCreatePollMessage, signCreateMarketRequest, type Criterion } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { hexToBytes } from '@stacks/common';
@@ -15,6 +15,7 @@
 	import CategorySelection from './CategorySelection.svelte';
 	import MarkdownCreator from '$lib/components/ui/MarkdownCreator.svelte';
 	import MarketTypeSelection from './MarketTypeSelection.svelte';
+	import CriteriaSelection from './CriteriaSelection.svelte';
 
 	export let examplePoll: OpinionPoll;
 	export let onPollSubmit;
@@ -24,6 +25,7 @@
 	let token: string;
 	let category: string;
 	let priceFeedId: string = 'STX/USD/3';
+	let criteria: Criterion;
 
 	let errorMessage: string = '';
 	let result: string | undefined = undefined;
@@ -87,6 +89,7 @@
 		}
 		examplePoll.category = category;
 		examplePoll.priceFeedId = priceFeedId;
+		examplePoll.criteria = criteria;
 		if (!examplePoll.description) {
 			errorMessage = 'Please enter a description';
 			return;
@@ -95,15 +98,16 @@
 			errorMessage = 'Please enter a name';
 			return;
 		}
-		if (!examplePoll.criteria) {
-			errorMessage = 'Please enter a criteria';
-			return;
-		}
 		if (!examplePoll.social.twitter.projectHandle) {
 			errorMessage = 'Please enter a x/twitter handle';
 			return;
 		}
 		if (!examplePoll.social.discord.serverId) {
+			errorMessage = 'Please enter a discord serverId';
+			return;
+		}
+
+		if (!examplePoll.criteria) {
 			errorMessage = 'Please enter a discord serverId';
 			return;
 		}
@@ -224,10 +228,6 @@
 							<div class=""><MarkdownCreator bind:value={template.description} /></div>
 						</div>
 						<div>
-							<label for="poll-description" class="mb-1 block text-sm font-medium">Resolution Criteria</label>
-							<div class=""><MarkdownCreator bind:value={template.criteria} /></div>
-						</div>
-						<div>
 							<label for="treasury" class="mb-1 block text-sm font-medium">Treasury</label>
 							<input id="treasury" type="text" bind:value={template.treasury} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
@@ -247,6 +247,7 @@
 					</div>
 				</div>
 			</div>
+			<CriteriaSelection bind:criteria />
 			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
 			<TokenSelection onSelectToken={handleSelectToken} />
 			<CategorySelection onSelectCategory={handleSelectCategory} />

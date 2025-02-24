@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fetchMarketStakes, getPredictionMarket, totalPoolSum } from '$lib/predictions/predictions';
+	import { fetchMarketStakes, getPredictionMarket } from '$lib/predictions/predictions';
 	import { fetchUserStake, ResolutionState, type PredictionMarketCreateEvent, type PredictionMarketStakeEvent, type UserStake } from '@mijoco/stx_helpers/dist/index';
 	import MarketStatsBar from '$lib/predictions/market/version2/MarketStatsBar.svelte';
 	import MarketHeader from '$lib/predictions/market/version2/MarketHeader.svelte';
@@ -11,10 +11,8 @@
 	import MarketResolving from '$lib/predictions/market/version2/MarketResolving.svelte';
 	import { getConfig } from '$stores/store_helpers';
 	import MarketVoting from '$lib/predictions/market/version2/MarketVoting.svelte';
-	import Banner from '$lib/components/ui/Banner.svelte';
-	import { canUserClaim, getOutcomeMessage } from '$lib/predictions/market-states';
 	import MarketClaiming from '$lib/predictions/market/version2/MarketClaiming.svelte';
-	import TransferLosingAmount from '$lib/predictions/market/version2/do-claim/TransferLosingAmount.svelte';
+	import { getStxAddress } from '$lib/stacks/stacks-connect';
 
 	let market: PredictionMarketCreateEvent;
 	let marketStakes: Array<PredictionMarketStakeEvent> = [];
@@ -44,7 +42,7 @@
 	<div class="mx-auto max-w-7xl space-y-6">
 		<!-- Market Stats Bar -->
 		{#if market}
-			<MarketStatsBar token={market.marketData.token} totalUsers={marketStakes.length} totalStaked={totalPoolSum(market.marketData.stakes)} resolutionDate={market.marketData.priceFeedId} />
+			<MarketStatsBar {market} totalUsers={marketStakes.length} />
 			<MarketHeader {market} />
 			{#if market.marketData.resolutionState === ResolutionState.RESOLUTION_OPEN}
 				<MarketStaking {market} {userStake} />

@@ -35,6 +35,12 @@ export function validEmail(email: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+export type Criterion = {
+	criteria: string;
+	resolvesAt: number;
+	sources: Array<string>;
+};
+
 export type ProofObject = {
 	position: 'left' | 'right';
 	data: Buffer;

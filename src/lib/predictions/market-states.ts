@@ -1,7 +1,7 @@
 import { getSession } from '$stores/store_helpers';
 import { ResolutionState, type PredictionMarketCreateEvent, type ScalarMarketDataItem, type UserStake } from '@mijoco/stx_helpers/dist/index';
 import { userStakeSum } from './predictions';
-import type { BigMarketSessionStore } from '$stores/stores';
+import { estimateBitcoinBlockTime, fmtNumber } from '$lib/utils';
 
 export const getMarketStatus = (resolutionState: number) => {
 	if (resolutionState === ResolutionState.RESOLUTION_OPEN) {
@@ -30,9 +30,10 @@ export const canUserClaim = (market: PredictionMarketCreateEvent, userStake: Use
 	return false;
 };
 
-export const blocksLeftForDispute = (market: PredictionMarketCreateEvent, $sessionStore: BigMarketSessionStore) => {
-	const current = $sessionStore.stacksInfo.burn_block_height;
-	const resWindow = $sessionStore.daoOverview.contractData.disputeWindowLength;
+export const blocksLeftForDispute = (market: PredictionMarketCreateEvent) => {
+	const sess = getSession();
+	const current = sess.stacksInfo.burn_block_height;
+	const resWindow = sess.daoOverview.contractData.disputeWindowLength;
 	if (market.marketType === 1) {
 		const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
 		return resBurnHeight + resWindow - current;
@@ -45,45 +46,65 @@ export const blocksLeftForDispute = (market: PredictionMarketCreateEvent, $sessi
 	return 0;
 };
 
-export const stopBlockForDispute = (market: PredictionMarketCreateEvent, $sessionStore: BigMarketSessionStore) => {
-	const current = $sessionStore.stacksInfo.burn_block_height;
-	const resWindow = $sessionStore.daoOverview.contractData.disputeWindowLength;
+export const coolDownBlock = (market: PredictionMarketCreateEvent) => {
+	const start = market.marketData.marketStart || 0;
+	const end = start + (market.marketData.marketDuration || 0);
+	const endCooling = end + (market.marketData.coolDownPeriod || 0);
+	return endCooling;
+};
+export const dateOfResolution = (market: PredictionMarketCreateEvent) => {
+	const sess = getSession();
+	const current = sess.stacksInfo.burn_block_height;
+	if (market.marketType === 1) {
+		const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
+		return {
+			offChain: resBurnHeight > 0 ? estimateBitcoinBlockTime(resBurnHeight, current) : 0,
+			onChain: fmtNumber(resBurnHeight || 0),
+			tip: ''
+		};
+	} else {
+		const endCooling = coolDownBlock(market);
+		return {
+			offChain: estimateBitcoinBlockTime(endCooling, current),
+			onChain: fmtNumber(endCooling)
+		};
+	}
+};
+
+export const stopBlockForDispute = (market: PredictionMarketCreateEvent) => {
+	const sess = getSession();
+	const current = sess.stacksInfo.burn_block_height;
+	const resWindow = sess.daoOverview.contractData.disputeWindowLength;
 	if (market.marketType === 1) {
 		const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
 		return resBurnHeight + resWindow;
 	} else if (market.marketType === 2) {
-		const start = market.marketData.marketStart || 0;
-		const end = start + (market.marketData.marketDuration || 0);
-		const endCooling = end + (market.marketData.coolDownPeriod || 0);
+		const endCooling = coolDownBlock(market);
 		return endCooling + resWindow;
 	}
 	return 0;
 };
 
-export const startBlockForDispute = (market: PredictionMarketCreateEvent, $sessionStore: BigMarketSessionStore) => {
+export const startBlockForDispute = (market: PredictionMarketCreateEvent) => {
 	if (market.marketType === 1) {
 		const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
 		return resBurnHeight;
 	} else if (market.marketType === 2) {
-		const start = market.marketData.marketStart || 0;
-		const end = start + (market.marketData.marketDuration || 0);
-		const endCooling = end + (market.marketData.coolDownPeriod || 0);
-		return endCooling;
+		return coolDownBlock(market);
 	}
 	return 0;
 };
 
-export const isDisputable = (market: PredictionMarketCreateEvent, $sessionStore: BigMarketSessionStore) => {
+export const isDisputable = (market: PredictionMarketCreateEvent) => {
 	if (market.marketData.resolutionState === ResolutionState.RESOLUTION_RESOLVING) {
-		const current = $sessionStore.stacksInfo.burn_block_height;
-		const resWindow = $sessionStore.daoOverview.contractData.disputeWindowLength;
+		const sess = getSession();
+		const current = sess.stacksInfo.burn_block_height;
+		const resWindow = sess.daoOverview.contractData.disputeWindowLength;
 		if (market.marketType === 1) {
 			const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
 			return current < resBurnHeight + resWindow;
 		} else if (market.marketType === 2) {
-			const start = market.marketData.marketStart || 0;
-			const end = start + (market.marketData.marketDuration || 0);
-			const endCooling = end + (market.marketData.coolDownPeriod || 0);
+			const endCooling = coolDownBlock(market);
 			return current < endCooling + resWindow;
 		}
 	}
@@ -126,9 +147,7 @@ export const isCooling = (market: PredictionMarketCreateEvent) => {
 export const isPostCooling = (market: PredictionMarketCreateEvent) => {
 	const sess = getSession();
 	if (market.marketType === 2) {
-		const start = market.marketData.marketStart || 0;
-		const end = start + (market.marketData.marketDuration || 0);
-		const endCooling = end + (market.marketData.coolDownPeriod || 0);
+		const endCooling = coolDownBlock(market);
 		return sess.stacksInfo.burn_block_height > endCooling;
 	}
 	return false;

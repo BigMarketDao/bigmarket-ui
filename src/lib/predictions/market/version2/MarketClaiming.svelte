@@ -101,7 +101,7 @@
 
 <div class="card bg-neutral shadow-xl">
 	<div class="card-body">
-		<Banner bannerType={'info'} message={getOutcomeMessage(market)} />
+		{@html getOutcomeMessage(market)}
 		{#if userStake && canUserClaim(market, userStake)}
 			<ClaimWinnings {market} {userStake} />
 		{/if}

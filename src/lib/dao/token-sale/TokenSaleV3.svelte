@@ -10,6 +10,7 @@
 	import { Pc, PostConditionMode, uintCV } from '@stacks/transactions';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
+	import { Wallet } from 'lucide-svelte';
 
 	let daoOverview = $sessionStore.daoOverview;
 	let tokenSalePurchases: Array<TokenSalePurchase>;
@@ -90,7 +91,7 @@
 	};
 
 	onMount(async () => {
-		if (getStxAddress()) {
+		if (isLoggedIn()) {
 			tokenSalePurchases = await fetchTokenSalePurchases(getStxAddress());
 			const stageMicro = (tokenSalePurchases[(daoOverview.tokenSale?.currentStage || 1) - 1].amount || 0, govToken.decimals);
 			stakeAmount.set(stageMicro);

@@ -175,8 +175,8 @@ export const isPostCooling = (market: PredictionMarketCreateEvent) => {
 
 export const getOutcomeMessage = (market: PredictionMarketCreateEvent) => {
 	if (market.marketType === 1) {
-		return `Outcome is <span class="font-medium text-red-600">${market.marketData.categories[market.marketData.outcome!]}</span>`;
+		return `Outcome is <span class="font-medium text-primary">${market.marketData.categories[market.marketData.outcome!]}</span>`;
 	}
 	const cats = market.marketData.categories as ScalarMarketDataItem[];
-	return `Outcome is ${market.marketData.priceOutcome || 0} - value between <span class="font-medium text-red-600">${cats[market.marketData.outcome!].min} and ${cats[market.marketData.outcome!].max}</span>`;
+	return `Outcome is ${market.marketData.priceOutcome || 0} - value between <span class="font-medium text-primary">${cats[market.marketData.outcome!].min} and ${cats[market.marketData.outcome!].max}</span>`;
 };

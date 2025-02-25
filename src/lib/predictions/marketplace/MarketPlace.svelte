@@ -35,41 +35,45 @@
 	let unfeaturedMarkets: Array<PredictionMarketCreateEvent>;
 	$: {
 		featuredMarkets = filteredMarkets.filter((market) => market.unhashedData.featured);
-		unfeaturedMarkets = markets; // filteredMarkets.filter((market) => !market.unhashedData.featured);
-		endingSoonMarkets = extractSoonest(markets); // filteredMarkets.filter((market) => !market.unhashedData.featured);
+		unfeaturedMarkets = markets;
+		endingSoonMarkets = extractSoonest(markets);
 	}
+
 	onMount(async () => {
 		filteredMarkets = markets;
 	});
 </script>
 
-<div class="mb-40 flex min-h-screen flex-col items-center gap-y-20">
+<div class="max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
 	<!-- Featured Markets -->
 	{#if featuredMarkets.length > 0}
-		<div class="w-full justify-between space-y-10 bg-gray-100">
+		<div class="w-full space-y-4">
 			<FeaturedMarketStall market={featuredMarket || featuredMarkets[0]} />
-			<div class="relative top-[-40px] flex justify-center text-gray-800">
-				<div class="flex gap-x-5">
-					{#each featuredMarkets as market, index}
-						<a class="cursor-pointer" href="/" on:click|preventDefault={() => setFeaturedMarket(market)}>o</a>
-					{/each}
-				</div>
+			<div class="flex justify-center gap-2">
+				{#each featuredMarkets as market, index}
+					<button class="h-2 w-2 rounded-full transition-all {market === featuredMarket ? 'bg-purple-500' : 'bg-gray-600 hover:bg-purple-400'}" on:click={() => setFeaturedMarket(market)} />
+				{/each}
 			</div>
 		</div>
 	{/if}
 
-	<div class="mx-20 max-h-[250px] w-full overflow-x-clip"><InfoPanelContainer /></div>
-
-	<div class=""><span class="font-inter text-[30px] font-bold leading-tight">ENDING SOON</span></div>
-
-	<!-- Unfeatured Markets Grid -->
-	<div class="grid w-full max-w-6xl grid-cols-1 gap-6 px-10 md:grid-cols-2 lg:grid-cols-3">
-		{#each endingSoonMarkets as m2}
-			<MarketCard market={m2} />
-		{/each}
+	<!-- Info Panels -->
+	<div class="mt-2">
+		<InfoPanelContainer />
 	</div>
 
+	<!-- Ending Soon Section -->
+	<section>
+		<h2 class="mb-6 text-2xl font-bold text-white">Ending Soon</h2>
+		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each endingSoonMarkets as market}
+				<MarketCard {market} />
+			{/each}
+		</div>
+	</section>
+
+	<!-- Market List -->
 	<FilteredMarketView {markets} />
 
-	<GetStartedPanel />
+	<!-- <GetStartedPanel /> -->
 </div>

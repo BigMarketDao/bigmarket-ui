@@ -17,7 +17,7 @@
 </svelte:head>
 
 <div class="w-full">
-	<div class=" flex w-full flex-col">
+	<div class="flex w-full flex-col">
 		{#if markets && markets.length > 0}
 			<MarketPlace {markets} />
 		{/if}

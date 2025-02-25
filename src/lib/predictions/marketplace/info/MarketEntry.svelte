@@ -1,34 +1,78 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { ArrowRightAltOutline } from 'flowbite-svelte-icons';
 	import { type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import LogoContainer from '../LogoContainer.svelte';
-	import { goto } from '$app/navigation';
-	import { ArrowRight, Icon } from 'svelte-hero-icons';
+	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, totalPoolSum } from '../../predictions';
+	import { selectedCurrency } from '$stores/stores';
+	import type { Payout } from '../../predictions';
+	import { Users, TrendingUp, Clock } from 'lucide-svelte';
 
 	export let market: PredictionMarketCreateEvent;
-	let marketData: MarketData | undefined;
+	let payouts: Array<Payout>;
+	let sip10Data: any;
+	let totalPool: number;
 
 	onMount(async () => {
-		// marketData = await fetchMarketData(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1]);
+		sip10Data = getMarketToken(market.marketData.token);
+		const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
+		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData);
+		totalPool = totalPoolSum(market.marketData.stakes);
 	});
 </script>
 
-<div class="mx-16 my-3 md:mx-32">
-	<!-- Market Logo -->
-	<div class="flex w-full justify-start gap-5 border-b border-white py-3 text-white">
-		<div class="w-[100px]"><LogoContainer logo={market.unhashedData.logo} /></div>
-		<div class="flex w-full grow flex-col">
-			<div class="font-inter text-[10px] font-medium md:text-[16px]">
-				{market.unhashedData.category}
+<div class="group relative overflow-hidden rounded-lg border border-purple-800/30 bg-gray-900/50 p-6 backdrop-blur-sm transition-all duration-300 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+	<!-- Background Effects -->
+	<div class="bg-gradient-to-r absolute inset-0 from-purple-500/10 to-blue-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+	<div class="relative flex items-center gap-6">
+		<!-- Logo -->
+		<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-purple-800/30 bg-gray-800/50">
+			<LogoContainer logo={market.unhashedData.logo} />
+		</div>
+
+		<!-- Content -->
+		<div class="flex flex-1 items-center justify-between gap-6">
+			<!-- Market Info -->
+			<div class="space-y-2">
+				<h3 class="text-lg font-bold text-white">
+					{market.unhashedData.name}
+				</h3>
+				<p class="line-clamp-2 text-sm text-gray-400">
+					{market.unhashedData.description}
+				</p>
 			</div>
-			<div class="font-inter text-[16px] font-bold md:text-[24px]">
-				<a href={`/market/${market.marketId}/${market.marketType}`} class="hover:underline">{market.unhashedData.name}</a>
+
+			<!-- Stats -->
+
+			<!-- Trade Button -->
+			<div class="flex shrink-0 items-center gap-6 text-sm">
+				<button class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-purple-700" on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)}>
+					Trade
+					<ArrowRightAltOutline class="h-4 w-4" />
+				</button>
 			</div>
 		</div>
-		<div class="font-inter font-bold text-white">
-			<button class=" md:text-md flex w-[100px] justify-between bg-blue-500 px-3 py-2 text-start text-sm md:w-[150px]" on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)}>
-				<span>Trade</span> <span><Icon src={ArrowRight} height="20" /> </span></button
-			>
+	</div>
+	<div class="flex shrink-0 items-center justify-between gap-6 pt-2 text-sm">
+		<!-- TVL -->
+		<div class="flex items-center gap-2">
+			<TrendingUp class="h-4 w-4 text-purple-400" />
+			<span class="font-medium text-white">${totalPool?.toLocaleString()}</span>
 		</div>
+
+		<!-- Users -->
+		<div class="flex items-center gap-2">
+			<Users class="h-4 w-4 text-purple-400" />
+			<span class="font-medium text-white">{market.marketData.stakes.length}</span>
+		</div>
+
+		<!-- Potential Return -->
+		{#if payouts}
+			<div class="bg-green-500/20 text-green-400 rounded-full px-3 py-1 text-xs font-medium">
+				Up to {payouts[0].fiat} return
+			</div>
+		{/if}
 	</div>
 </div>

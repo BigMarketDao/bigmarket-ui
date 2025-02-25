@@ -12,22 +12,12 @@
 	const dropdownId = 'header-dd';
 	const buttonId = 'header-button';
 
-	const toggleNetwork = async () => {
-		const network = $configStore.VITE_NETWORK;
-		if (network === 'devnet') switchConfig('testnet');
-		else if (network === 'testnet') switchConfig('mainnet');
-		else if (network === 'mainnet') switchConfig('devnet');
-		componentKey++;
-	};
-
 	function toggleMenu() {
 		isOpen = !isOpen;
 	}
-	// Click outside to close dropdown
+
 	function handleClickOutside(event: MouseEvent) {
 		const target = event.target as HTMLElement;
-
-		// Only close the dropdown if the click is outside both the button and dropdown
 		if (isOpen && target.id !== buttonId && !document.getElementById(dropdownId)?.contains(target)) {
 			isOpen = false;
 		}
@@ -42,30 +32,33 @@
 	});
 </script>
 
-<header class="flex h-[95px] w-full bg-gray-1000 shadow-md" bind:this={dropdownRef}>
-	<nav class="container mx-auto flex items-center justify-between p-4 align-middle">
+<header class="fixed left-0 right-0 top-0 z-50 h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
+	<nav class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 		<!-- Logo -->
-		<a href="/" class=" text-xl font-bold text-gray-800 dark:text-white"><img src={logo} alt="BigMarket" /></a>
+		<a href="/" class="flex items-center">
+			<img src={logo} alt="BigMarket" class="h-8" />
+		</a>
 
 		<!-- Desktop Nav -->
-		<div class="hidden space-x-2 md:flex">
-			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/docs')} class="mx-2 hover:text-blue-400">HOW IT WORKS</a></span>
-			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="mx-2 hover:text-blue-400">IDO</a></span>
-			<span class="py-3 font-inter text-[16px] font-bold"><a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="mx-2 hover:text-blue-400">CREATE</a></span>
-			<!-- <span><a href="/" on:click|preventDefault={() => toggleNetwork()} class="mx-2 hover:text-blue-400">{$configStore.VITE_NETWORK}</a></span> -->
-			<span class=""><ConnectMenuDropdown /></span>
-			<span class=""><CurrencyDropdown /></span>
+		<div class="hidden items-center gap-8 md:flex">
+			<a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a>
+			<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
+			<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
+			<div class="flex items-center gap-4">
+				<ConnectMenuDropdown />
+				<CurrencyDropdown />
+			</div>
 		</div>
 
 		<!-- Mobile Menu Button -->
-		<button class="text-gray-600 focus:outline-none md:hidden dark:text-gray-300" on:click={toggleMenu} aria-label="Toggle Menu">
+		<button class="text-indigo-200 focus:outline-none md:hidden" on:click={toggleMenu} aria-label="Toggle Menu">
 			{#if isOpen}
-				<svg id="header-button" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+				<svg id="header-button" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 				</svg>
 			{:else}
-				<svg id="header-button" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+				<svg id="header-button" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
 				</svg>
 			{/if}
 		</button>
@@ -73,22 +66,19 @@
 
 	<!-- Mobile Menu -->
 	{#if isOpen}
-		<div id="header-dd" class="fixed right-20 top-16 z-50 w-1/2 rounded-lg px-3 text-white shadow-lg md:hidden">
-			<div class="m-2 flex flex-col gap-y-4 rounded-md border border-white bg-black p-5">
-				<a href="/" on:click|preventDefault={() => goto('/docs')} class="block w-full font-inter text-lg font-semibold hover:text-blue-400"> HOW IT WORKS </a>
-
-				<a href="/" on:click|preventDefault={() => goto('/dao/token-sale')} class="block w-full font-inter text-lg font-semibold hover:text-blue-400"> IDO </a>
-
-				<a href="/" on:click|preventDefault={() => goto('/market-mgt')} class="block w-full font-inter text-lg font-semibold hover:text-blue-400"> CREATE </a>
-
-				<div class="flex w-full justify-start">
+		<div id="header-dd" class="absolute left-0 right-0 top-20 border-b border-purple-900/20 bg-[#0A0A1A]/95 backdrop-blur-lg md:hidden">
+			<div class="mx-auto flex max-w-7xl flex-col gap-6 p-6">
+				<a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a>
+				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
+				<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
+				<div class="flex flex-col gap-4">
 					<ConnectMenuDropdown />
-				</div>
-
-				<div class="flex w-full justify-start">
 					<CurrencyDropdown />
 				</div>
 			</div>
 		</div>
 	{/if}
 </header>
+
+<!-- Spacer to account for fixed header -->
+<div class="h-20"></div>

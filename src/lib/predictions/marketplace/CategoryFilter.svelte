@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type MarketCategory } from '@mijoco/stx_helpers/dist/index';
+	import type { MarketCategory } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import { getMarketCategories } from '../predictions';
 
@@ -17,17 +17,24 @@
 	});
 </script>
 
-<div class="font-inter mx-3 mb-6 flex flex-wrap gap-2 text-[10px] font-bold md:mx-10 md:text-[16px]">
-	<button on:click={() => filterByCategory('all')} class="rounded-full border border-gray-300 bg-white px-4 py-1 text-black transition hover:bg-gray-100 md:px-16 md:py-3" class:selected={current === 'all'}> All </button>
+<div class="flex flex-wrap gap-3">
+	<button
+		on:click={() => filterByCategory('all')}
+		class="rounded-full border border-purple-900/20 bg-[#151B2D]/50 px-4 py-2 text-sm font-medium backdrop-blur-sm transition-all hover:border-purple-500 hover:bg-purple-500/20 {current === 'all'
+			? 'border-purple-500 bg-purple-500/20 text-purple-400'
+			: 'text-indigo-200'}"
+	>
+		All Markets
+	</button>
+
 	{#each categories as category}
-		<button on:click={() => filterByCategory(category.name)} class=" rounded-full border bg-white px-4 py-1 text-black transition hover:bg-gray-100 md:px-16 md:py-3" class:selected={current === category.name}>
+		<button
+			on:click={() => filterByCategory(category.name)}
+			class="rounded-full border border-purple-900/20 bg-[#151B2D]/50 px-4 py-2 text-sm font-medium backdrop-blur-sm transition-all hover:border-purple-500 hover:bg-purple-500/20 {current === category.name
+				? 'border-purple-500 bg-purple-500/20 text-purple-400'
+				: 'text-indigo-200'}"
+		>
 			{category.displayName}
 		</button>
 	{/each}
 </div>
-
-<style>
-	button.selected {
-		@apply bg-blue-500 text-white hover:bg-blue-600;
-	}
-</style>

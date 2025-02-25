@@ -1,33 +1,41 @@
 <script lang="ts">
 	import InfoPanel from './InfoPanel.svelte';
+	import { TrendingUp, Users, Wallet, Lock } from 'lucide-svelte';
 
-	let infoPanels = [
+	const infoPanels = [
 		{
+			Icon: Wallet,
 			header: 'User-Owned Market',
 			message: 'Bet on US elections, the Oscars, Bitcoin, weather —and more.'
 		},
 		{
-			header: 'Trades on Native Protocols',
+			Icon: TrendingUp,
+			header: 'Native Protocols',
 			message: 'Transact in BTC and STX with high liquidity. Trade from $1 up to $100M.'
 		},
 		{
-			header: 'Dynamic Yield Growth',
-			message: 'Earn competitive, variable interest on your cash and positions.'
+			Icon: Users,
+			header: 'Automatic Payouts',
+			message: 'Instant payouts directly to your wallet when markets resolve.'
 		},
 		{
+			Icon: Lock,
 			header: 'Instant & Uncensored',
 			message: 'No censorship. No KYC. Connect your wallet and start trading'
 		}
 	];
 </script>
 
-<div class="flex min-h-screen flex-col items-center">
-	<!-- Grid Wrapper: Scrolls Horizontally if Needed -->
-	<div class="w-full overflow-x-auto">
-		<div class="grid grid-flow-col gap-6 px-6 py-4">
-			{#each infoPanels as info}
-				<InfoPanel {info} />
-			{/each}
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+	{#each infoPanels as info}
+		<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+
+			<div class="relative space-y-4">
+				<svelte:component this={info.Icon} class="h-8 w-8 text-purple-400" />
+				<h3 class="text-lg font-bold text-white">{info.header}</h3>
+				<p class="text-indigo-200/70 text-sm">{info.message}</p>
+			</div>
 		</div>
-	</div>
+	{/each}
 </div>

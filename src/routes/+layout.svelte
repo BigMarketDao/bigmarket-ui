@@ -9,7 +9,6 @@
 	import { getStxAddress, getUserData } from '$lib/stacks/stacks-connect';
 	import { page } from '$app/state';
 	import { getAllowedTokens, getDaoOverview, isExecutiveTeamMember } from '$lib/predictions/predictions';
-	import type { _ } from '$env/static/private';
 	import { fetchExchangeRates } from '$lib/stacks/rates';
 	import { fetchStacksInfo, type StacksInfo } from '@mijoco/stx_helpers/dist/index';
 	import { getConfig } from '$stores/store_helpers';
@@ -23,12 +22,11 @@
 		unsubscribe3();
 	});
 
-	setConfigByUrl(page.url.searchParams, 'devnet');
+	setConfigByUrl(page.url.searchParams, 'testnet');
 
 	const initApp = async () => {
 		if (!$sessionStore.keySets || !$sessionStore.keySets[$configStore.VITE_NETWORK]) await initAddresses(sessionStore);
 		const exchangeRates = await fetchExchangeRates();
-		console.log('initAppFromServer: exchangeRates: ', exchangeRates);
 		const daoOverview = $sessionStore.daoOverview || (await getDaoOverview());
 		const tokens = $sessionStore.tokens || (await getAllowedTokens());
 		const userSettings = $sessionStore.userSettings || (await isExecutiveTeamMember(undefined, getStxAddress()));
@@ -38,8 +36,7 @@
 		} else {
 			initApplication($configStore.VITE_STACKS_API, $configStore.VITE_MEMPOOL_API, $configStore.VITE_NETWORK, sessionStore, exchangeRates, '$configStore.VITE_SBTC_CONTRACT_ID', getUserData());
 		}
-		// const cb = await fetchContractAssets(getConfig().VITE_STACKS_API, getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_MARKET_PREDICTING);
-		// console.log('cb: ', cb);
+
 		sessionStore.update((conf: BigMarketSessionStore) => {
 			conf.userSettings.executiveTeamMember = userSettings?.executiveTeamMember || false;
 			conf.daoOverview = daoOverview;
@@ -61,8 +58,6 @@
 		const daoOverview = await getDaoOverview();
 		const tokens = await getAllowedTokens();
 		const userSettings = await isExecutiveTeamMember(undefined, getStxAddress());
-		// const cb = await fetchContractAssets(getConfig().VITE_STACKS_API, getDaoConfig().VITE_DOA_DEPLOYER + '.' + getDaoConfig().VITE_DAO_MARKET_PREDICTING);
-		// console.log('cb: ', cb);
 		sessionStore.update((conf: BigMarketSessionStore) => {
 			conf.userSettings.executiveTeamMember = userSettings?.executiveTeamMember || false;
 			conf.daoOverview = daoOverview;
@@ -73,21 +68,20 @@
 
 	onMount(async () => {
 		await initApp();
-
 		inited = true;
 	});
 </script>
 
-<div class="min-h-screen bg-gray-1000 bg-cover font-extralight text-white">
-	<div class=" min-h-[calc(100vh-160px)] px-0">
+<div class="min-h-screen bg-[#0A0A1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0A0A1A] to-[#0A0A1A] font-extralight text-white">
+	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex min-h-screen flex-col">
-			<div class="border-b border-white px-20"><Header /></div>
+			<div class="border-b border-purple-900/20 backdrop-blur-sm"><Header /></div>
 			<div class="mb-10 grow">
 				{#if inited}
-					<slot></slot>
+					<slot />
 				{/if}
 			</div>
-			<div class="border-t border-white px-20"><Footer /></div>
+			<div class="border-t border-purple-900/20"><Footer /></div>
 		</div>
 	</div>
 </div>

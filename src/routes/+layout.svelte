@@ -23,7 +23,7 @@
 		unsubscribe3();
 	});
 
-	setConfigByUrl(page.url.searchParams, 'testnet');
+	setConfigByUrl(page.url.searchParams, 'devnet');
 
 	const initApp = async () => {
 		if (!$sessionStore.keySets || !$sessionStore.keySets[$configStore.VITE_NETWORK]) await initAddresses(sessionStore);

@@ -12,9 +12,9 @@
 	let bannerClassList = '';
 	onMount(async () => {
 		if (bannerType === 'warning') {
-			bannerClassList = clazz + ' bg-yellow-400';
+			bannerClassList = clazz + ' bg-primary';
 		} else if (bannerType === 'danger') {
-			bannerClassList = clazz + ' bg-error-400';
+			bannerClassList = clazz + ' bg-primary';
 		} else if (bannerType === 'success') {
 			bannerClassList = clazz + ' bg-success-700 text-white';
 		} else if (bannerType === 'waiting' || bannerType === 'checking') {

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Payout } from '$lib/predictions/predictions';
 	import { TrendingUp } from 'lucide-svelte';
-	import { onMount } from 'svelte';
 
 	export let doPrediction: (index: number) => void;
 	export let payouts: Array<Payout>;
@@ -9,7 +8,7 @@
 	let selectedCategory: number | null = null;
 </script>
 
-<div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+<div class="mt-6 grid grid-cols-2 justify-around gap-4">
 	<div class="flex flex-col gap-2">
 		<button
 			on:click={() => {

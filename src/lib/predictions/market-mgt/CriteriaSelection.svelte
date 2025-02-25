@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Criterion } from '../predictions';
 	import { DatePicker } from 'date-picker-svelte';
 	import { format } from 'date-fns';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { urlRegex } from '$lib/utils';
+	import type { Criterion } from '@mijoco/stx_helpers/dist/index';
 
+	export let marketType: number;
 	export let criteria: Criterion;
 	let localCriterion = { ...criteria };
 	$: criteria = localCriterion;
@@ -15,6 +16,7 @@
 	let maxDate: Date = new Date('2050-12-31 12:00');
 	let dateFormat = 'yyyy-MM-dd HH:mm';
 	$: localCriterion.resolvesAt = value.getTime();
+	let componentKey: number = 0;
 	let currentSource: string | undefined;
 	let errorMessage: string | undefined;
 
@@ -23,12 +25,17 @@
 			errorMessage = 'Please enter a valid url';
 			return;
 		}
+		if (!localCriterion.sources) localCriterion.sources = [];
+		if (localCriterion.sources.indexOf(currentSource) > -1) {
+			errorMessage = 'This url appears to already be included';
+			return;
+		}
 		if (!urlRegex.test(currentSource.trim())) {
 			errorMessage = 'This url appears to invalid web address';
 			return;
 		}
-		if (!localCriterion.sources) localCriterion.sources = [];
 		localCriterion.sources.push(currentSource);
+		componentKey++;
 		currentSource = undefined;
 	}
 
@@ -38,6 +45,12 @@
 	}
 
 	onMount(() => {
+		if (marketType === 2) {
+			const twoDaysFromNow = new Date();
+			twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+			localCriterion.resolvesAt = twoDaysFromNow.getTime();
+		}
+
 		// Clone the object to ensure reactivity
 		if (!localCriterion) {
 			// localCriterion = {
@@ -63,15 +76,18 @@
 		</div>
 
 		<!-- Resolution Date with Datepicker -->
-		<div class="mx-auto mt-5 w-full max-w-md">
-			<label for="date-picker" class="block text-sm font-medium text-gray-700">Select Date & Time</label>
+		<div class="mt-5 w-full">
+			{#if marketType < 2}
+				<label for="date-picker" class="block text-sm font-medium text-gray-700">Select Date & Time</label>
 
-			<div id="date-picker" class="relative mt-2">
-				<DatePicker bind:value max={maxDate} min={minDate} timePrecision="minute" />
-			</div>
+				<div id="date-picker" class="relative mt-2">
+					<DatePicker bind:value max={maxDate} min={minDate} timePrecision="minute" />
+				</div>
 
-			<!-- <p class="mt-2 text-gray-600">Selected: <strong class="text-white">{new Date(localCriterion.resolvesAt)}</strong></p> -->
-			<p class="mt-2 text-gray-600">Selected: <strong class="text-white">{format(new Date(localCriterion.resolvesAt), dateFormat)}</strong></p>
+				<p class="mt-2 text-gray-600">Resolution after: <strong class="text-white">{format(new Date(localCriterion.resolvesAt), dateFormat)}</strong></p>
+			{:else}
+				<p class="mt-2 text-gray-600">Resolution after 2 days / 288 blocks: <strong class="text-white">{format(new Date(localCriterion.resolvesAt), dateFormat)}</strong></p>
+			{/if}
 		</div>
 
 		<!-- Sources Section -->
@@ -93,12 +109,14 @@
 			</div>
 			<button class="mt-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" on:click={addSource}> + Add Source </button>
 			<div class="mt-2 space-y-2">
-				{#each localCriterion.sources as source, index}
-					<div class="flex items-center gap-2">
-						<input type="text" class="w-full rounded-md border border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" value={localCriterion.sources[index]} />
-						<button class="text-red-500 hover:text-red-700" on:click={() => removeSource(index)}> ✖ </button>
-					</div>
-				{/each}
+				{#key componentKey}
+					{#each localCriterion.sources as source, index}
+						<div class="flex items-center gap-2">
+							<input type="text" class="w-full rounded-md border border-gray-300 px-2 py-1 text-black focus:border-blue-500 focus:ring-blue-500" value={localCriterion.sources[index]} />
+							<button class="text-red-500 hover:text-red-700" on:click={() => removeSource(index)}> ✖ </button>
+						</div>
+					{/each}
+				{/key}
 			</div>
 		</div>
 	</div>

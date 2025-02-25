@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import { configStore } from '$stores/stores_config';
 	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
-	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, marketDataToTupleCV, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
+	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, marketDataToTupleCV, type Criterion, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
-	import { getClarityProofForCreateMarket, postCreatePollMessage, signCreateMarketRequest, type Criterion } from '$lib/predictions/predictions';
+	import { getClarityProofForCreateMarket, postCreatePollMessage, signCreateMarketRequest } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { hexToBytes } from '@stacks/common';
@@ -89,7 +89,7 @@
 		}
 		examplePoll.category = category;
 		examplePoll.priceFeedId = priceFeedId;
-		examplePoll.criteria = criteria;
+		examplePoll.criterion = criteria;
 		if (!examplePoll.description) {
 			errorMessage = 'Please enter a description';
 			return;
@@ -107,9 +107,23 @@
 			return;
 		}
 
-		if (!examplePoll.criteria) {
+		if (!examplePoll.criterion) {
 			errorMessage = 'Please enter a discord serverId';
 			return;
+		}
+		if (examplePoll.criterion) {
+			if (!examplePoll.criterion.criteria) {
+				errorMessage = 'Please enter a criteria for market resolution';
+				return;
+			}
+			if (!examplePoll.criterion.sources || examplePoll.criterion.sources.length === 0) {
+				errorMessage = 'Please enter web references for market resolution';
+				return;
+			}
+			if (!examplePoll.criterion.resolvesAt) {
+				errorMessage = 'Please enter web references for market resolution';
+				return;
+			}
 		}
 		pollMessage = marketDataToTupleCV(examplePoll.name, examplePoll.category, examplePoll.createdAt, examplePoll.proposer, examplePoll.token);
 		const dataHash = dataHashSip18(getConfig().VITE_NETWORK, getConfig().VITE_PUBLIC_APP_NAME, getConfig().VITE_PUBLIC_APP_VERSION, pollMessage);
@@ -247,8 +261,8 @@
 					</div>
 				</div>
 			</div>
-			<CriteriaSelection bind:criteria />
 			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
+			<CriteriaSelection bind:criteria marketType={template.marketType} />
 			<TokenSelection onSelectToken={handleSelectToken} />
 			<CategorySelection onSelectCategory={handleSelectCategory} />
 

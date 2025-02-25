@@ -27,7 +27,7 @@
 		<div class="mx-auto px-4 text-white shadow-md">
 			<div class="mb-6">
 				{#if categories}
-					<select id="popular-contracts" on:change={(e) => addCategory(e)} class="h-10 w-full rounded-md border-gray-300 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
+					<select id="popular-contracts" on:change={(e) => addCategory(e)} class="h-10 w-full rounded-md border-gray-300 px-4 py-3 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
 						<option value="" disabled selected>-- Select a Category --</option>
 						{#each categories as category}
 							{#if category.active}

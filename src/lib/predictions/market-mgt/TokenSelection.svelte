@@ -35,7 +35,7 @@
 
 			<div class="mb-6">
 				{#if tokens}
-					<select id="popular-contracts" on:change={(e) => addContract(e)} class="h-10 w-full rounded-md border-gray-300 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
+					<select id="popular-contracts" on:change={(e) => addContract(e)} class="h-10 w-full rounded-md border-gray-300 px-3 py-1 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
 						<option value="" disabled selected>-- Select a Token --</option>
 						{#each tokens as token}
 							{#if token.allowed}

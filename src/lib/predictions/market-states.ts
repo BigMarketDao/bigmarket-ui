@@ -2,6 +2,7 @@ import { getSession } from '$stores/store_helpers';
 import { ResolutionState, type PredictionMarketCreateEvent, type ScalarMarketDataItem, type UserStake } from '@mijoco/stx_helpers/dist/index';
 import { userStakeSum } from './predictions';
 import { estimateBitcoinBlockTime, fmtNumber } from '$lib/utils';
+import { DateTime } from 'luxon';
 
 export const getMarketStatus = (resolutionState: number) => {
 	if (resolutionState === ResolutionState.RESOLUTION_OPEN) {
@@ -55,19 +56,31 @@ export const coolDownBlock = (market: PredictionMarketCreateEvent) => {
 export const dateOfResolution = (market: PredictionMarketCreateEvent) => {
 	const sess = getSession();
 	const current = sess.stacksInfo.burn_block_height;
-	if (market.marketType === 1) {
-		const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
-		return {
-			offChain: resBurnHeight > 0 ? estimateBitcoinBlockTime(resBurnHeight, current) : 0,
-			onChain: fmtNumber(resBurnHeight || 0),
-			tip: ''
-		};
-	} else {
+	if (market.marketType === 2) {
 		const endCooling = coolDownBlock(market);
 		return {
 			offChain: estimateBitcoinBlockTime(endCooling, current),
 			onChain: fmtNumber(endCooling)
 		};
+	} else {
+		if (isStaking(market)) {
+			let resolvesAt = market.unhashedData?.criterion?.resolvesAt || new Date().getTime();
+			const currentTimeUtc = DateTime.utc().toISO();
+			const estimatedTime = DateTime.fromMillis(resolvesAt, { zone: 'utc' });
+
+			return {
+				offChain: estimatedTime.toFormat('yyyy-MM-dd HH:mm') || new Date(),
+				onChain: 0,
+				tip: market.unhashedData?.criterion?.criteria
+			};
+		} else {
+			const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
+			return {
+				offChain: resBurnHeight > 0 ? estimateBitcoinBlockTime(resBurnHeight, current) : 0,
+				onChain: fmtNumber(resBurnHeight || 0),
+				tip: ''
+			};
+		}
 	}
 };
 
@@ -131,6 +144,13 @@ export const isStaking = (market: PredictionMarketCreateEvent) => {
 		}
 	}
 	return false;
+};
+
+export const isResolving = (market: PredictionMarketCreateEvent) => {
+	return market.marketData.resolutionState === ResolutionState.RESOLUTION_RESOLVING;
+};
+export const isResolved = (market: PredictionMarketCreateEvent) => {
+	return market.marketData.resolutionState === ResolutionState.RESOLUTION_RESOLVED;
 };
 
 export const isCooling = (market: PredictionMarketCreateEvent) => {

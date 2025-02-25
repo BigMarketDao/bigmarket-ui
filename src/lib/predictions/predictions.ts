@@ -35,12 +35,6 @@ export function validEmail(email: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export type Criterion = {
-	criteria: string;
-	resolvesAt: number;
-	sources: Array<string>;
-};
-
 export type ProofObject = {
 	position: 'left' | 'right';
 	data: Buffer;
@@ -165,6 +159,13 @@ const defToken: Sip10Data = {
 	tokenUri: '',
 	totalSupply: 0
 };
+
+export async function resolveMarkets(): Promise<any> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/resolver/resolve`;
+	const response = await fetch(path);
+	const res = (await response.json()) || [];
+	return res;
+}
 
 export async function getAllowedTokens(): Promise<Array<TokenPermissionEvent>> {
 	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/allowed-tokens`;

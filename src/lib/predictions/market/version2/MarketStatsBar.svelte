@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dateOfResolution } from '$lib/predictions/market-states';
+	import { dateOfResolution, isResolved, isResolving } from '$lib/predictions/market-states';
 	import { getMarketToken, totalPoolSum } from '$lib/predictions/predictions';
 	import { fmtMicroToStx, trimTrailingZeros } from '$lib/utils';
 	import type { PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers';
@@ -35,7 +35,15 @@
 		<div class="stat-figure text-accent">
 			<TrendingUp class="h-8 w-8" />
 		</div>
-		<div class="stat-title pb-2">Resolution Date</div>
-		<div class="stat-value mt-[-5px] text-sm leading-snug text-accent">BTC {resolutionDate.onChain}<br />~ {resolutionDate.offChain}</div>
+		{#if market.marketType === 2}
+			<div class="stat-title">Resolves</div>
+			<div class="stat-value mt-[-5px] text-sm leading-snug text-secondary">BTC {resolutionDate.onChain}<br />~ {resolutionDate.offChain}</div>
+		{:else if isResolving(market) || isResolved(market)}
+			<div class="stat-title">Resolved</div>
+			<div class={'stat-value text-gray-900 '}>{resolutionDate.offChain}</div>
+		{:else}
+			<div class="stat-title">Resolves</div>
+			<div class={'stat-value text-secondary'}>{resolutionDate.offChain}</div>
+		{/if}
 	</div>
 </div>

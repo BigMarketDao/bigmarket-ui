@@ -11,6 +11,8 @@
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
 	import { ArrowUpRightFromSquareOutline, ArrowUpRightFromSquareSolid, LinkBreakOutline } from 'flowbite-svelte-icons';
 	import { explorerAddressUrl } from '$lib/stacks/stacks-connect';
+	import { fetchExchangeRates } from '$lib/stacks/rates';
+	import { resolveMarkets } from '$lib/predictions/predictions';
 
 	let data: PredictionContractData;
 	let contractBalances: ContractBalances;
@@ -175,5 +177,6 @@
 				/>
 			</div>
 		{/if}
+		<div class="flex justify-end text-primary"><a href="/" on:click|preventDefault={() => resolveMarkets()}>resolve markets</a></div>
 	</div>
 </div>

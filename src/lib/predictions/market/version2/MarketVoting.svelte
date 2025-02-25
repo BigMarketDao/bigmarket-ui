@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { boolCV, bufferCV, Cl, falseCV, listCV, noneCV, Pc, PostConditionMode, trueCV, uintCV } from '@stacks/transactions';
+	import { bufferCV, Cl, noneCV, Pc, PostConditionMode, trueCV, uintCV } from '@stacks/transactions';
 	import { showContractCall } from '@stacks/connect';
 	import { sessionStore } from '$stores/stores';
 	import { fetchResolutionVote, fullBalanceInSip10Token, type MarketData, type PollVoteEvent, type PredictionMarketCreateEvent, type ResolutionVote, type Sip10Data } from '@mijoco/stx_helpers/dist/index';

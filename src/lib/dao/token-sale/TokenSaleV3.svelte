@@ -35,20 +35,15 @@
 		contract: getDaoConfig().VITE_DAO_TREASURY,
 		token: token.split('::')[1],
 		balance: daoOverview.treasuryBalances.fungible_tokens[token].balance,
-		decimals: getMarketToken(token.split('::')[0]).decimals
+		decimals: getMarketToken(token.split('::')[0]).decimals,
+		symbol: getMarketToken(token.split('::')[0]).symbol
 	}));
 	$: tokenAmount = stacksLeading ? (amount * stage?.price || 0).toFixed(6) : (amount / stage?.price || 0).toFixed(6);
 	$: sip10Data = getStxToken($sessionStore.tokens);
 	$: govToken = getGovernanceToken($sessionStore.tokens);
 	$: stageProgress = stage ? Math.min((stage.tokensSold / stage.maxSupply) * 100, 100) : 0;
 	$: stages = daoOverview?.tokenSale?.stages || [];
-
-	const distribution = [
-		{ category: 'Community/IDO', percentage: 75, amount: 7500000 },
-		// { category: 'Staking Rewards', percentage: 15, amount: 1500000 },
-		{ category: 'Team & Council', percentage: 15, amount: 1500000 },
-		{ category: 'Treasury', percentage: 10, amount: 1000000 }
-	];
+	$: tokensReceived = stacksLeading ? amount * stage.price : amount;
 
 	const switcheroo = () => {
 		stacksLeading = !stacksLeading;
@@ -64,7 +59,6 @@
 			errorMessage = 'Please connect your wallet';
 			return;
 		}
-		console.log(amount);
 		if (!amount || amount <= 0) {
 			errorMessage = `Amount must be greater than 0 ${sip10Data.symbol}`;
 			return;
@@ -102,9 +96,7 @@
 			stakeAmount.set(stageMicro);
 			stageBalance = fmtMicroToStx(stageMicro);
 			const bals = await fetchUserBalances(getConfig().VITE_STACKS_API, getConfig().VITE_MEMPOOL_API, getStxAddress(), '', '');
-			console.log('$sessionStore.balances?: ', bals);
 			const bigContract = `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}::bmg-token`;
-			console.log('$sessionStore.balances?: ' + bigContract);
 			bigBalance = Number(bals?.tokenBalances?.fungible_tokens[bigContract]?.balance || 0);
 			stxBalance = Number(bals?.tokenBalances?.stx.balance || 0);
 		}
@@ -112,229 +104,131 @@
 </script>
 
 {#if stage && tokens}
-	<div class="min-h-screen bg-gray-900 text-white">
-		<!-- Header -->
+	<div class="mx-auto max-w-7xl space-y-8 px-4 py-8">
+		<!-- Purchase Card -->
+		<div class="group relative overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg transition-all duration-300 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+			<div class="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(168,85,247,0.05)_10px,rgba(168,85,247,0.05)_20px)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-		<!-- Main Content -->
-		<section class="relative grid grid-cols-1 gap-5 px-6 pt-5 lg:grid-cols-2">
-			<!-- Left Column: Token Info -->
-			<div class="space-y-5">
-				<!-- Token Overview Card -->
-				<div class="card border border-gray-700 bg-gray-1000/50 p-5">
-					<div class="card-body">
-						<h3 class="card-title text-xl font-semibold text-blue-400">Token Overview</h3>
-						<div class="mt-4 space-y-4">
-							<div class="flex justify-between">
-								<span class="text-gray-400">Token Name</span>
-								<span class="font-semibold">BigMarket (BIG)</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-gray-400">Total Supply</span>
-								<span class="font-semibold">10,000,000 BIG</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-gray-400">Blockchain</span>
-								<span class="font-semibold">Stacks L2</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-gray-400">Token Standard</span>
-								<span class="font-semibold">SIP-010</span>
-							</div>
-						</div>
+			<div class="relative">
+				<!-- Stage Info -->
+				<div class="mb-8 flex items-center justify-between">
+					<div>
+						<h2 class="text-2xl font-bold text-white">Stage {currentStage + 1}</h2>
+						<p class="text-indigo-200/70 mt-1">Progress: {stageProgress.toFixed(2)}%</p>
+					</div>
+					<div class="text-right">
+						<p class="text-indigo-200/70 text-sm">Current Price</p>
+						<p class="text-xl font-bold text-purple-400">
+							{$selectedCurrency.code}
+							{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+						</p>
 					</div>
 				</div>
 
-				<!-- Token Distribution Card -->
-				<div class="card border border-gray-700 bg-gray-1000/50 p-5">
-					<div class="card-body">
-						<h3 class="card-title text-xl font-semibold text-purple-400">Token Distribution</h3>
-						<div class="mt-4 space-y-4">
-							{#each distribution as item}
-								<div class="space-y-2">
-									<div class="flex justify-between">
-										<span>{item.category}</span>
-										<span class="text-purple-400">{item.percentage}%</span>
-									</div>
-									<div class="h-2 w-full rounded-full bg-gray-700">
-										<div class="from-pink-500 h-full bg-hero-gradient to-purple-500 transition-all duration-500" style="width: {item.percentage}%"></div>
-									</div>
-									<div class="text-right text-sm text-gray-400">
-										{item.amount.toLocaleString()} BIG
-									</div>
-								</div>
-							{/each}
+				{#if !walletConnected}
+					<div class="rounded-xl bg-[#151B2D] p-8 text-center">
+						<Wallet class="mx-auto h-12 w-12 text-purple-400" />
+						<h3 class="mt-4 text-lg font-semibold text-white">Connect Your Wallet</h3>
+						<p class="text-indigo-200/70 mt-2">Connect your wallet to participate in the token sale</p>
+						<button class="mt-6 w-full rounded-lg bg-purple-500 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-purple-600"> Connect Wallet </button>
+					</div>
+				{:else}
+					<!-- Wallet Info -->
+					<div class="mb-6 grid grid-cols-2 gap-4">
+						<div class="rounded-lg bg-[#151B2D] p-4">
+							<div class="text-indigo-200/70 text-sm">Your Wallet</div>
+							<div class="mt-1 font-mono text-sm text-white">{truncate(getStxAddress())}</div>
+						</div>
+						<div class="rounded-lg bg-[#151B2D] p-4">
+							<div class="text-indigo-200/70 text-sm">Your Balance</div>
+							<div class="mt-1 text-sm text-white">
+								{fmtMicroToStx(bigBalance, 6)}
+								{daoOverview.contractData.tokenSymbol}
+								<br />
+								{fmtMicroToStx(stxBalance)} STX
+							</div>
 						</div>
 					</div>
-				</div>
+
+					<!-- Purchase Input -->
+					<div class="space-y-4">
+						<div class="flex gap-4">
+							<input
+								type="number"
+								placeholder="Enter amount"
+								bind:value={amount}
+								on:change={handleChange}
+								class="placeholder-indigo-200/30 flex-1 rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+							/>
+							<select bind:value={saleCurrency} on:change={() => switcheroo()} class="rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20">
+								<option>STX</option>
+								<option>BIG</option>
+							</select>
+						</div>
+
+						<div class="rounded-lg bg-[#151B2D] p-4">
+							<div class="flex justify-between text-sm">
+								<span class="text-indigo-200/70">You will receive</span>
+								<span class="text-white">{tokensReceived} BIG</span>
+							</div>
+						</div>
+					</div>
+
+					{#if errorMessage}
+						<div class="bg-red-500/20 text-red-400 mt-4 rounded-lg p-4">
+							{errorMessage}
+						</div>
+					{/if}
+
+					{#if txId}
+						<div class="mt-4 rounded-lg bg-purple-500/20 p-4 text-purple-400">
+							Transaction in progress. View on <a href={explorerTxUrl(txId)} target="_blank" class="underline">explorer</a>
+						</div>
+					{/if}
+
+					<button on:click={buyTokens} class="mt-6 w-full rounded-lg bg-purple-500 py-3 text-sm font-semibold text-white transition-all hover:bg-purple-600"> Buy BIG Tokens </button>
+
+					<p class="text-indigo-200/50 mt-4 text-sm">Tokens are available for voting immediately but transfers are locked until the sale ends.</p>
+				{/if}
 			</div>
+		</div>
 
-			<!-- Right Column: Sales Widget -->
-			<div class="lg:sticky lg:top-6">
-				<div class="card border border-gray-700 bg-gray-1000/50 p-5">
-					<div class="card-body">
-						<h3 class="text-pink-400 card-title text-xl font-semibold">
-							Token Sale - Stage {currentStage + 1}
-						</h3>
-						<div class="mt-4 space-y-6">
-							<!-- Stage Progress -->
-							<div>
-								<div class="mb-2 flex justify-between">
-									<span class="text-gray-400">Current Stage Progress</span>
-									<span class="text-pink-400">{stageProgress.toFixed(2)}%</span>
-								</div>
-								<div class="h-4 w-full rounded-full bg-gray-700">
-									<div class="mb-12 h-full rounded-full bg-progress-gradient transition-all duration-500" style="width: {stageProgress}%"></div>
-								</div>
-							</div>
+		<!-- Sale Stages -->
+		<div class="relative overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
+			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 
-							<!-- Stage Details -->
-							<div class="grid grid-cols-2 gap-4">
-								<div class="rounded-lg border border-gray-600 bg-gray-700/50 p-4">
-									<div class="text-sm text-gray-400">Current Price</div>
-									<div class="text-pink-400 text-2xl font-bold">
-										<!-- ${stage ? 1 / stage.price : 0} -->
-										{$selectedCurrency.code}
-										{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+			<div class="relative">
+				<h2 class="text-2xl font-bold text-white">Sale Stages</h2>
+				<div class="mt-6 space-y-4">
+					{#each stages as stage, index}
+						<button class="group relative w-full overflow-hidden rounded-lg bg-[#151B2D] p-4 text-left transition-all hover:bg-[#1A2438] {index === currentStage ? 'ring-2 ring-purple-500' : ''}" on:click={() => (currentStage = index)}>
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-3">
+									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F1225] text-sm font-bold {index === currentStage ? 'text-purple-400' : 'text-indigo-200/50'}">
+										{index + 1}
 									</div>
-								</div>
-								<div class="rounded-lg border border-gray-600 bg-gray-700/50 p-4">
-									<div class="text-sm text-gray-400">Tokens Available</div>
-									<div class="text-pink-400 text-2xl font-bold">
-										{stage ? fmtAmount(fmtMicroToStxNumber(stage.maxSupply), $selectedCurrency.code) : '0'}
-									</div>
-								</div>
-							</div>
-
-							<!-- Purchase Form -->
-							<div class="rounded-lg border border-gray-700 bg-gray-900/50 p-6">
-								<div class="mb-4 flex justify-between">
 									<div>
-										<div class="text-sm text-gray-400">Your Wallet</div>
-										<div class="font-mono text-sm">{truncate(getStxAddress())}</div>
-									</div>
-									<div class="text-right">
-										<div class="text-sm text-gray-400">Your Balance</div>
-										<div>
-											{fmtMicroToStx(bigBalance, 6)}
-											{daoOverview.contractData.tokenSymbol}
-										</div>
-										<div>
-											{fmtMicroToStx(stxBalance)}
-											{'STX'}
-										</div>
-									</div>
-								</div>
-
-								<div class="mb-4 flex gap-4">
-									<input type="number" placeholder="Enter BIG amount" on:change={handleChange} bind:value={amount} class="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2" disabled={!walletConnected} />
-									<select bind:value={saleCurrency} on:change={() => switcheroo()} class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2" disabled={!walletConnected}>
-										<option>STX</option>
-										<option>BIG</option>
-									</select>
-								</div>
-
-								<button on:click={() => buyTokens()} class="btn btn-primary btn-active w-full rounded-lg py-3 font-semibold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all duration-300" disabled={!walletConnected}>
-									{walletConnected ? 'Buy BIG Tokens' : 'Connect Wallet First'}
-								</button>
-
-								{#if !walletConnected}
-									<div class="mt-2 flex items-center gap-2 text-sm text-yellow-400">
-										<!-- <AlertCircle class="h-4 w-4" /> -->
-										<span>Please connect your wallet to purchase tokens.</span>
-									</div>
-								{/if}
-								{#if txId}
-									<div class="my-4 flex w-full justify-start gap-x-4">
-										<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
-									</div>
-								{/if}
-
-								<div class="mt-4 flex items-start gap-2 text-sm text-gray-400">
-									<!-- <AlertCircle class="mt-1 h-4 w-4 flex-shrink-0" /> -->
-									<p>Tokens are available to use in voting straight away but transfers are locked until the token sale ends - this is to protect early participants and ensures fair distribution.</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-		<section class="relative flex w-full gap-5 px-6 py-5">
-			<!-- IDO Stages Timeline -->
-			<div class="w-full border border-gray-700 bg-gray-1000/50 p-5">
-				<div class="space-y-4">
-					<h4 class="font-semibold">IDO Stages</h4>
-					<div class="space-y-2">
-						{#each stages as stage, index}
-							<!-- svelte-ignore a11y_click_events_have_key_events -->
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div on:click={() => (currentStage = index)} class={`flex cursor-pointer items-center gap-4 rounded p-2 transition-all ${index === currentStage ? 'border border-purple-500/50 bg-gray-700/50' : ''}`}>
-								<div
-									class="flex h-6 w-6 items-center justify-center rounded-full"
-									class:bg-green-500={index < currentStage}
-									class:bg-purple-500={index === currentStage && index >= currentStage}
-									class:bg-gray-600={index >= currentStage && index !== currentStage}
-								>
-									{index + 1}
-								</div>
-								<div class="flex-1">
-									<div class="flex justify-between">
-										<span>{stage.maxSupply.toLocaleString()} BIG</span>
-										<span class="text-gray-400">
+										<div class="text-lg font-semibold text-white">{fmtMicroToStxNumber(stage.maxSupply).toLocaleString()} BIG</div>
+										<div class="text-indigo-200/50 text-sm">
+											{$selectedCurrency.code}
 											{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
-										</span>
-									</div>
-									<div class="text-sm text-gray-400">
-										<div class="flex justify-between">
-											<div>
-												Raise: {fmtMicroToStx(stage.tokensSold, daoOverview.contractData.tokenDecimals)}
-												{daoOverview.contractData.tokenSymbol}
-											</div>
-											<div>
-												{fmtMicroToStx(stage.tokensSold * (1 / stage.price), daoOverview.contractData.tokenDecimals)}
-												{'STX'}
-											</div>
-											<div>
-												{$selectedCurrency.symbol}
-												{toFiat($selectedCurrency.code, stage.tokensSold, { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
-											</div>
 										</div>
 									</div>
 								</div>
+								<div class="text-right">
+									<div class="text-indigo-200/70 text-sm">Progress</div>
+									<div class="text-lg font-semibold text-purple-400">
+										{((stage.tokensSold / stage.maxSupply) * 100).toFixed(1)}%
+									</div>
+								</div>
 							</div>
-						{/each}
-					</div>
+							<div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#0F1225]">
+								<div class="bg-gradient-to-r to-indigo-500 h-full rounded-full from-purple-500 transition-all duration-300" style="width: {(stage.tokensSold / stage.maxSupply) * 100}%" />
+							</div>
+						</button>
+					{/each}
 				</div>
 			</div>
-		</section>
-
-		<!-- Features Section -->
-		<section class="bg-black/50 px-6 py-10">
-			<div class="mx-auto max-w-7xl">
-				<h2 class="bg-gradient-to-r mb-12 from-blue-400 to-purple-400 bg-clip-text text-center text-3xl font-bold text-transparent">Why Choose BigMarket?</h2>
-				<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-					<!-- Feature Card 1 -->
-					<div class="card rounded-lg border border-gray-700 bg-gray-800/50 p-6 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-transform duration-300 hover:scale-105">
-						<h3 class="mb-4 text-xl font-semibold">AI-Driven Governance</h3>
-						<p class="text-gray-300">Smart algorithms propose markets, balance liquidity, and detect fraud through advanced pattern recognition.</p>
-					</div>
-					<!-- Feature Card 2 -->
-					<div class="card rounded-lg border border-gray-700 bg-gray-800/50 p-6 shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-transform duration-300 hover:scale-105">
-						<h3 class="mb-4 text-xl font-semibold">Bitcoin Security</h3>
-						<p class="text-gray-300">Built on Stacks L2 with Bitcoin settlement, ensuring maximum security and immutability for all predictions.</p>
-					</div>
-					<!-- Feature Card 3 -->
-					<div class="card rounded-lg border border-gray-700 bg-gray-800/50 p-6 shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-transform duration-300 hover:scale-105">
-						<h3 class="mb-4 text-xl font-semibold">Fair Economics</h3>
-						<p class="text-gray-300">Dynamic fee model with transparent distribution: 40% dev fund, 30% DAO treasury, 20% staking, 10% buyback.</p>
-					</div>
-					<!-- Feature Card 4 -->
-					<div class="card rounded-lg border border-gray-700 bg-gray-800/50 p-6 shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-transform duration-300 hover:scale-105">
-						<h3 class="mb-4 text-xl font-semibold">Staking Rewards</h3>
-						<p class="text-gray-300">Earn up to 12% base APR with bonus multipliers for longer lock-in periods up to 6 months.</p>
-					</div>
-				</div>
-			</div>
-		</section>
-	</div>
-{/if}
+		</div>
+	</div>{/if}

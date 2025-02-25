@@ -8,109 +8,96 @@
 	import MarketFees from '$lib/predictions/docs/MarketFees.svelte';
 	import TokenSaleInfo from '$lib/predictions/docs/TokenSaleInfo.svelte';
 	import { Accordion, AccordionItem } from 'flowbite-svelte';
+	import { ArrowRight } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
-	// Open first accordion item by default
-	let activeIndex: number | null = -1;
-	let page1: string;
-	let page2: string;
-	let page3: string;
+	let activeSection: number | null = null;
 
-	const toggleAccordion = (index: number) => {
-		activeIndex = activeIndex === index ? null : index;
-	};
+	const sections = [
+		{
+			title: 'Connect Your Wallet',
+			description: 'Learn how to connect your wallet and start using BigMarket',
+			component: ConnectWallet
+		},
+		{
+			title: 'Making Predictions',
+			description: 'Discover how to analyze markets and place predictions',
+			component: MakePredictions
+		},
+		{
+			title: 'Creating Markets',
+			description: 'Guide to creating and managing your own prediction markets',
+			component: CreateMarkets
+		},
+		{
+			title: 'Market Fees',
+			description: 'Understanding the fee structure and distribution',
+			component: MarketFees
+		},
+		{
+			title: 'Token Sale',
+			description: 'Information about the BIG token sale and tokenomics',
+			component: TokenSaleInfo
+		}
+	];
 
 	onMount(async () => {
-		// page1 = await readGitbookPage();
-		// console.log(page1);
-		// page1 = await readGithubPage('getting-started/publish-your-docs.md');
-		// page3 = await readGithubPage('how-it-works/editor/creating-a-market-user-guide.md');
-		// page2 = await readGithubPage('how-it-works/making-predictions-on-bigmarket.md');
+		// Default to first section open
+		activeSection = 0;
 	});
 </script>
 
-<div class="">
-	<DaoHero title={'BigMarket DAO - User Guides'} subtitle={''} />
-	<div>
-		<h2 class="text-md mt-6 text-center font-semibold">
-			📌 See the <a href="https://big-market-dao.gitbook.io/big-market-dao-docs" target="_blank" class="cursor-pointer text-blue-800 hover:text-blue-600">official docs</a> for full information on prediction markets and how to get involved
-		</h2>
-	</div>
-	<div class="mx-auto mt-5 max-w-4xl px-6 py-5 md:px-20">
-		<!-- Accordion -->
-		<div class="mt-6 divide-y rounded-lg border border-gray-200">
-			<!-- Connect Your Wallet -->
-			<div>
-				<button class="flex w-full items-center justify-between px-4 py-3 text-left text-xl font-semibold" on:click={() => toggleAccordion(0)}>
-					Connect Your Wallet
-					<span class="transition-transform" class:rotate-180={activeIndex === 0}>▼</span>
-				</button>
-				{#if activeIndex === 0}
-					<div class="border-t border-gray-200 p-4">
-						<ConnectWallet />
-						<!-- <MarkDown markdown={page1} /> -->
-					</div>
-				{/if}
+<div class="min-h-screen bg-[#0A0A1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0A0A1A] to-[#0A0A1A]">
+	<!-- Hero Section -->
+	<DaoHero title={'How BigMarket Works'} subtitle={'Your comprehensive guide to prediction markets on Bitcoin L2. Learn how to trade, create markets, and participate in the ecosystem.'} />
+
+	<!-- Main Content -->
+	<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+		<div class="grid gap-8 lg:grid-cols-3">
+			<!-- Navigation Sidebar -->
+			<div class="space-y-4 lg:col-span-1">
+				{#each sections as section, index}
+					<button
+						class="group relative w-full overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 text-left shadow-lg transition-all duration-300 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] {activeSection ===
+						index
+							? 'border-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.15)]'
+							: ''}"
+						on:click={() => (activeSection = index)}
+					>
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+
+						<div class="relative">
+							<h3 class="text-lg font-semibold text-white">{section.title}</h3>
+							<p class="text-indigo-200/70 mt-2 text-sm">{section.description}</p>
+
+							<ArrowRight class="absolute right-0 top-1/2 h-5 w-5 -translate-y-1/2 text-purple-400 opacity-0 transition-all duration-300 group-hover:opacity-100" />
+						</div>
+					</button>
+				{/each}
 			</div>
 
-			<!-- Making Predictions -->
-			<div>
-				<button class="flex w-full items-center justify-between px-4 py-3 text-left text-xl font-semibold" on:click={() => toggleAccordion(1)}>
-					Making Predictions
-					<span class="transition-transform" class:rotate-180={activeIndex === 1}>▼</span>
-				</button>
-				{#if activeIndex === 1}
-					<div class="border-t border-gray-200 p-4">
-						<MakePredictions />
-						<!-- <MarkDown markdown={page2} /> -->
-					</div>
-				{/if}
-			</div>
+			<!-- Content Area -->
+			<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg lg:col-span-2">
+				<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 
-			<!-- Market Creation for Users -->
-			<div>
-				<button class="flex w-full items-center justify-between px-4 py-3 text-left text-xl font-semibold" on:click={() => toggleAccordion(2)}>
-					Market Creation for Users
-					<span class="transition-transform" class:rotate-180={activeIndex === 2}>▼</span>
-				</button>
-				{#if activeIndex === 2}
-					<div class="border-t border-gray-200 p-4">
-						<CreateMarkets />
-						<!-- <MarkDown markdown={page3} /> -->
-					</div>
-				{/if}
+				<div class="relative">
+					{#if activeSection !== null}
+						<svelte:component this={sections[activeSection].component} />
+					{/if}
+				</div>
 			</div>
+		</div>
 
-			<!-- Market Fees -->
-			<div>
-				<button class="flex w-full items-center justify-between px-4 py-3 text-left text-xl font-semibold" on:click={() => toggleAccordion(3)}>
-					Market Fees
-					<span class="transition-transform" class:rotate-180={activeIndex === 2}>▼</span>
-				</button>
-				{#if activeIndex === 3}
-					<div class="border-t border-gray-200 p-4">
-						<MarketFees />
-						<!-- <MarkDown markdown={page3} /> -->
-					</div>
-				{/if}
-			</div>
-
-			<!-- Connect Your Wallet -->
-			<div>
-				<button class="flex w-full items-center justify-between px-4 py-3 text-left text-xl font-semibold" on:click={() => toggleAccordion(4)}>
-					IDO / Token Sale
-					<span class="transition-transform" class:rotate-180={activeIndex === 0}>▼</span>
-				</button>
-				{#if activeIndex === 4}
-					<div class="border-t border-gray-200 p-4">
-						<TokenSaleInfo />
-						<!-- <MarkDown markdown={page1} /> -->
-					</div>
-				{/if}
-			</div>
+		<!-- Documentation Link -->
+		<div class="mt-16 text-center">
+			<a
+				href="https://big-market-dao.gitbook.io/big-market-dao-docs"
+				target="_blank"
+				class="inline-flex items-center gap-2 rounded-lg border border-purple-900/20 bg-[#0F1225] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]"
+			>
+				View Full Documentation
+				<ArrowRight class="h-4 w-4" />
+			</a>
 		</div>
 	</div>
 </div>
-
-<style>
-</style>

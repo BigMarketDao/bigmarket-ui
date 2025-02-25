@@ -8,6 +8,7 @@
 	import EmailRegistration from '$lib/components/EmailRegistration.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 	import { fmtMicroToStx } from '$lib/utils';
+	import DaoHero from '$lib/components/common/DaoHero.svelte';
 
 	let showPollResult = false;
 	let txId: string;
@@ -72,22 +73,13 @@
 </script>
 
 <svelte:head>
-	<title>New Poll</title>
-	<meta name="description" content="Create an opinion poll" />
+	<title>Create Market</title>
+	<meta name="description" content="Create prediction markets at bigmarket.ai" />
 </svelte:head>
 
 <div class="min-h-screen bg-[#0A0A1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0A0A1A] to-[#0A0A1A]">
 	<!-- Hero Section -->
-	<div class="relative overflow-hidden border-b border-purple-900/20 py-24">
-		<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-
-		<div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-			<div class="text-center">
-				<h1 class="bg-gradient-to-r to-indigo-300 from-purple-400 bg-clip-text text-4xl font-bold text-primary sm:text-6xl">Create a Market</h1>
-				<p class="text-indigo-200/70 mx-auto mt-6 max-w-2xl text-lg">Launch your own prediction market on Bitcoin L2. Set the terms, define outcomes, and let the community trade.</p>
-			</div>
-		</div>
-	</div>
+	<DaoHero title={'Create a Market'} subtitle={'Launch your own prediction market on Bitcoin L2. Set the terms, define outcomes, and let the community trade.'} />
 
 	<!-- Quick Info Cards -->
 	<div class="border-b border-purple-900/20 bg-[#0F1225]/50 py-12 backdrop-blur-sm">
@@ -125,7 +117,7 @@
 
 	<div class="mx-auto max-w-4xl px-6 py-4">
 		<div class="my-2 flex w-full flex-col">
-			{#if !canCreate}
+			{#if canCreate}
 				<CreateMarket {examplePoll} onPollSubmit={handlePollSubmission} />
 			{:else}
 				<EmailRegistration />

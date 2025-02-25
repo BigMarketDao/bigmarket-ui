@@ -13,8 +13,8 @@
 </script>
 
 <svelte:head>
-	<title>Z-KYC ME</title>
-	<meta name="description" content="Prove who you are without handing over the keys" />
+	<title>BigMarket Token Sale</title>
+	<meta name="description" content="DAO Governance tokens to participate in BigMarket prediction markets on Bitcoin" />
 </svelte:head>
 
 <div class="w-full">

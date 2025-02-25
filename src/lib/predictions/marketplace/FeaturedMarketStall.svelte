@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import type { PredictionMarketCreateEvent, PredictionMarketStakeEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
-	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, totalPoolSum } from '../predictions';
+	import { calculatePayoutCategorical, convertFiatToNative, fetchMarketStakes, getMarketToken, totalPoolSum } from '../predictions';
 	import ExchangeRateHome from '$lib/components/common/ExchangeRateHome.svelte';
 	import { selectedCurrency, stakeAmountHome } from '$stores/stores';
 	import LogoContainerSmall from './LogoContainerSmall.svelte';
@@ -11,12 +11,14 @@
 	import StakeChart from '../market/version2/do-charts/StakeChart.svelte';
 
 	export let market: PredictionMarketCreateEvent;
+	let marketStakes: PredictionMarketStakeEvent[];
 	let totalPoolMicro = 0;
 	let inited = false;
 	let sip10Data: Sip10Data;
 	let payouts: any;
 
 	onMount(async () => {
+		marketStakes = await fetchMarketStakes(market.marketId, market.marketType);
 		sip10Data = getMarketToken(market.marketData.token);
 		totalPoolMicro = totalPoolSum(market.marketData.stakes);
 		stakeAmountHome.set(totalPoolMicro);
@@ -26,10 +28,10 @@
 	});
 </script>
 
-<div class="relative overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
-	<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+<div class=" overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
+	<div class=" inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 
-	<div class="relative z-10">
+	<div class=" z-10">
 		<div class="mb-8 flex w-full items-center justify-between gap-8 rounded-md border border-purple-950 bg-[#151B2D] p-2">
 			<div class="flex items-center gap-3">
 				<TrendingUp class="h-6 w-6 text-purple-400" />
@@ -47,7 +49,7 @@
 				<Users class="h-6 w-6 text-purple-400" />
 				<div>
 					<p class="text-sm font-medium text-purple-300">Total Users</p>
-					<p class="text-lg font-bold text-white">{market.marketData.stakes.length}</p>
+					<p class="text-lg font-bold text-white">{marketStakes?.length || 0}</p>
 				</div>
 			</div>
 		</div>

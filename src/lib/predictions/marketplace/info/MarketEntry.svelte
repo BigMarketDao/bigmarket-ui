@@ -4,21 +4,24 @@
 	import { type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import LogoContainer from '../LogoContainer.svelte';
-	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, totalPoolSum } from '../../predictions';
+	import { calculatePayoutCategorical, convertCryptoToFiat, convertFiatToNative, getMarketToken, totalPoolSum } from '../../predictions';
 	import { selectedCurrency } from '$stores/stores';
 	import type { Payout } from '../../predictions';
 	import { Users, TrendingUp, Clock } from 'lucide-svelte';
+	import { fmtMicroToStx, fmtMicroToStxNumber } from '$lib/utils';
 
 	export let market: PredictionMarketCreateEvent;
 	let payouts: Array<Payout>;
 	let sip10Data: any;
 	let totalPool: number;
+	let totalPoolMicro: string;
 
 	onMount(async () => {
 		sip10Data = getMarketToken(market.marketData.token);
 		const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
 		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData);
 		totalPool = totalPoolSum(market.marketData.stakes);
+		totalPoolMicro = convertCryptoToFiat(sip10Data.decimals === 6, fmtMicroToStxNumber(totalPoolSum(market.marketData.stakes), sip10Data.decimals));
 	});
 </script>
 
@@ -59,14 +62,14 @@
 		<!-- TVL -->
 		<div class="flex items-center gap-2">
 			<TrendingUp class="h-4 w-4 text-purple-400" />
-			<span class="font-medium text-white">${totalPool?.toLocaleString()}</span>
+			<span class="font-medium text-white">{totalPoolMicro?.toLocaleString()}</span>
 		</div>
 
 		<!-- Users -->
-		<div class="flex items-center gap-2">
+		<!-- <div class="flex items-center gap-2">
 			<Users class="h-4 w-4 text-purple-400" />
-			<span class="font-medium text-white">{market.marketData.stakes.length}</span>
-		</div>
+			<span class="font-medium text-white">{fmtMicroToStxNumber(totalPool, sip10Data?.decimals || 6)}</span>
+		</div> -->
 
 		<!-- Potential Return -->
 		{#if payouts}

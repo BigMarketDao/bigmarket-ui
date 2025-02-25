@@ -2,6 +2,11 @@
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
 </script>
 
+<svelte:head>
+	<title>BigMarket Terms</title>
+	<meta name="description" content="DAO Governance of Bitcoin prediction markets" />
+</svelte:head>
+
 <div class="bg-gray-50">
 	<DaoHero title={'BigMarket DAO'} subtitle={'Terms and Conditions'} />
 	<div class="px-6 py-10 md:px-20">

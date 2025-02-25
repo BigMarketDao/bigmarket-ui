@@ -37,7 +37,7 @@
 				<div class="divider">Resolution Criteria</div>
 
 				<ul class="list-inside list-disc space-y-2 text-base-content/70">
-					{market.unhashedData.criteria}
+					{market.unhashedData.criterion?.criteria || 'Resolution criteria coming soon'}
 				</ul>
 			</div>
 		</div>

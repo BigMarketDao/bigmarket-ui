@@ -21,7 +21,13 @@
 	{#each categories as category, index}
 		<div class="flex flex-col gap-2">
 			<button on:click={() => doPrediction(index)} class="btn btn-primary {selectedCategory === index ? 'btn-active' : ''}">
-				{category.min} &ge; x &lt {category.max}
+				{#if index === 0}
+					x &lt {category.max}
+				{:else if index === categories.length - 1}
+					{category.min} &ge; x
+				{:else}
+					{category.min} &ge; x &lt {category.max}
+				{/if}
 			</button>
 			<div class="card bg-base-200 p-4">
 				<div class="text-sm opacity-70">Potential Return</div>

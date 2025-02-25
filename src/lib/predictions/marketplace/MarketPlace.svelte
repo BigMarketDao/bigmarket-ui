@@ -12,9 +12,11 @@
 	let filteredMarkets: Array<PredictionMarketCreateEvent> = [];
 	let category: string;
 	let featuredMarket: PredictionMarketCreateEvent;
+	let componentKey = 0;
 
 	const setFeaturedMarket = (market: PredictionMarketCreateEvent) => {
 		featuredMarket = market;
+		componentKey++;
 	};
 	const handleSelectCategory = (newCategory: string) => {
 		category = newCategory;
@@ -48,7 +50,9 @@
 	<!-- Featured Markets -->
 	{#if featuredMarkets.length > 0}
 		<div class="w-full space-y-4">
-			<FeaturedMarketStall market={featuredMarket || featuredMarkets[0]} />
+			{#key componentKey}
+				<FeaturedMarketStall market={featuredMarket || featuredMarkets[0]} />
+			{/key}
 			<div class="flex justify-center gap-2">
 				{#each featuredMarkets as market, index}
 					<button class="h-2 w-2 rounded-full transition-all {market === featuredMarket ? 'bg-purple-500' : 'bg-gray-600 hover:bg-purple-400'}" on:click={() => setFeaturedMarket(market)} />

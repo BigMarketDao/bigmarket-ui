@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ArrowRightAltOutline } from 'flowbite-svelte-icons';
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import type { PredictionMarketCreateEvent, ScalarMarketDataItem } from '@mijoco/stx_helpers/dist/index';
 	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, totalPoolSum } from '../../predictions';
 	import { selectedCurrency } from '$stores/stores';
 	import { onMount } from 'svelte';
@@ -18,6 +18,10 @@
 		const img = event.target as HTMLImageElement;
 		img.src = placeholderImage;
 	}
+
+	const getScalarCats = (): ScalarMarketDataItem[] => {
+		return market.marketData.categories as ScalarMarketDataItem[];
+	};
 
 	onMount(async () => {
 		sip10Data = getMarketToken(market.marketData.token);
@@ -68,32 +72,34 @@
 
 		<!-- Market Type Specific Return Sections -->
 		{#if payouts}
-			{#if market.marketType === 0}
-				<!-- Binary Market (Yes/No) -->
-				<div class="grid grid-cols-2 gap-4">
-					<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-green-900/30 flex flex-col items-center justify-center rounded-lg bg-[#1A2438] p-4 transition-colors">
-						<span class="text-green-400 text-lg font-bold">YES</span>
-						<span class="text-green-400/80 text-sm">{payouts[1].fiat}</span>
-					</button>
-					<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-red-900/30 flex flex-col items-center justify-center rounded-lg bg-[#1A2438] p-4 transition-colors">
-						<span class="text-red-400 text-lg font-bold">NO</span>
-						<span class="text-red-400/80 text-sm">{payouts[0].fiat}</span>
-					</button>
-				</div>
-			{:else if market.marketType === 1}
-				<!-- Categorical Market -->
-				<div class="space-y-2">
-					{#each market.marketData.categories as category, i}
-						<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-indigo-900/30 flex w-full items-center justify-between rounded-lg bg-[#1A2438] p-3 transition-colors">
-							<span class="text-indigo-200">{category}</span>
-							<span class="font-bold text-purple-400">{payouts[i].fiat}</span>
+			<!-- Binary Market (Yes/No) -->
+			{#if market.marketType === 1}
+				{#if market.marketData.categories.length === 2}
+					<div class="grid grid-cols-2 gap-4">
+						<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-green-900/30 flex flex-col items-center justify-center rounded-lg bg-[#1A2438] p-4 transition-colors">
+							<span class="text-green-400 text-lg font-bold">YES</span>
+							<span class="text-green-400/80 text-sm">{payouts[1].fiat}</span>
 						</button>
-					{/each}
-				</div>
+						<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-red-900/30 flex flex-col items-center justify-center rounded-lg bg-[#1A2438] p-4 transition-colors">
+							<span class="text-red-400 text-lg font-bold">NO</span>
+							<span class="text-red-400/80 text-sm">{payouts[0].fiat}</span>
+						</button>
+					</div>
+				{:else}
+					<!-- Categorical Market -->
+					<div class="space-y-2">
+						{#each market.marketData.categories as category, i}
+							<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-indigo-900/30 flex w-full items-center justify-between rounded-lg bg-[#1A2438] p-3 transition-colors">
+								<span class="text-indigo-200">{category}</span>
+								<span class="font-bold text-purple-400">{payouts[i].fiat}</span>
+							</button>
+						{/each}
+					</div>
+				{/if}
 			{:else if market.marketType === 2}
 				<!-- Scalar Market (Number Ranges) -->
 				<div class="space-y-2">
-					{#each market.marketData.categories as category, i}
+					{#each getScalarCats() as category, i}
 						<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-indigo-900/30 flex w-full items-center justify-between rounded-lg bg-[#1A2438] p-3 transition-colors">
 							<span class="text-indigo-200">{category.min} - {category.max}</span>
 							<span class="font-bold text-purple-400">{payouts[i].fiat}</span>

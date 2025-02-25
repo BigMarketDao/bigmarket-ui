@@ -20,8 +20,8 @@
 </script>
 
 <svelte:head>
-	<title>New Poll</title>
-	<meta name="description" content="Create an opinion poll" />
+	<title>Create Market</title>
+	<meta name="description" content="Create prediction markets at bigmarket.ai" />
 </svelte:head>
 
 <div class="mx-auto max-w-4xl py-4 md:px-6">

@@ -29,8 +29,8 @@
 </script>
 
 <svelte:head>
-	<title>Market Volumes</title>
-	<meta name="description" content="Create an opinion poll" />
+	<title>BigMarket Settings</title>
+	<meta name="description" content="BigMarket DAO and prediction market settings" />
 </svelte:head>
 
 <div class="">

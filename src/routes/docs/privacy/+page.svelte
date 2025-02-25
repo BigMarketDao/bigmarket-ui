@@ -2,6 +2,11 @@
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
 </script>
 
+<svelte:head>
+	<title>BigMarket Privacy</title>
+	<meta name="description" content="BigMarket privacy policy" />
+</svelte:head>
+
 <div class="bg-gray-50">
 	<DaoHero title={'BigMarket DAO'} subtitle={'Privacy Policy'} />
 	<div class="px-6 py-10 md:px-20">

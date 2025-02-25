@@ -47,6 +47,11 @@
 	});
 </script>
 
+<svelte:head>
+	<title>BigMarket Docs</title>
+	<meta name="description" content="DAO Governance of Bitcoin prediction markets" />
+</svelte:head>
+
 <div class="min-h-screen bg-[#0A0A1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0A0A1A] to-[#0A0A1A]">
 	<!-- Hero Section -->
 	<DaoHero title={'How BigMarket Works'} subtitle={'Your comprehensive guide to prediction markets on Bitcoin L2. Learn how to trade, create markets, and participate in the ecosystem.'} />

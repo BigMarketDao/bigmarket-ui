@@ -12,8 +12,8 @@
 </script>
 
 <svelte:head>
-	<title>Z-KYC ME</title>
-	<meta name="description" content="Prove who you are without handing over the keys" />
+	<title>Bitcoin Prediction Markets</title>
+	<meta name="description" content="BigMarket DAO and AI powered prediction markets built on Bitcoin" />
 </svelte:head>
 
 <div class="w-full">

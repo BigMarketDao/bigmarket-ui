@@ -37,7 +37,11 @@
 		name: '$WELSH to 0.001 USD by block 3,614,769',
 		category: 'meme',
 		description: 'Is it going to happen? ',
-		criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarket DAO community oracle. See terms for details.',
+		criterion: {
+			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarket DAO community oracle. See terms for details.',
+			resolvesAt: 0,
+			sources: []
+		},
 		token: '',
 		logo: 'https://pbs.twimg.com/profile_images/1648994389799346176/_X8oyw9I_400x400.jpg',
 		social: {
@@ -66,8 +70,8 @@
 </script>
 
 <svelte:head>
-	<title>New Poll</title>
-	<meta name="description" content="Create an opinion poll" />
+	<title>BigMarket Register</title>
+	<meta name="description" content="Register for DAO Governance of Bitcoin prediction markets" />
 </svelte:head>
 
 {#if showPollResult}{/if}

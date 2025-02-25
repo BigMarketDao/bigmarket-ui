@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import TokenSaleV3 from '$lib/dao/token-sale/TokenSaleV3.svelte';
 	import { ArrowRight } from 'lucide-svelte';
+	import DaoHero from '$lib/components/common/DaoHero.svelte';
 
 	onMount(async () => {
 		const daoOverview = await getDaoOverview();
@@ -14,12 +15,14 @@
 	});
 </script>
 
+<svelte:head>
+	<title>BigMarket Token Sale</title>
+	<meta name="description" content="DAO Governance tokens to participate in BigMarket prediction markets on Bitcoin" />
+</svelte:head>
+
 <div class="min-h-screen bg-[#0A0A1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0A0A1A] to-[#0A0A1A]">
 	<!-- Hero Section -->
-	<div class="relative mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
-		<h1 class="bg-gradient-to-r to-indigo-300 lg:text-7xl from-purple-400 bg-clip-text text-5xl font-bold text-primary sm:text-6xl">Join the BigMarket IDO</h1>
-		<p class="text-indigo-200/70 mx-auto mt-6 max-w-2xl text-xl">Secure your stake in the world's most advanced AI-governed prediction platform</p>
-	</div>
+	<DaoHero title={'Join the BigMarket IDO'} subtitle={"Secure your stake in the world's most advanced AI-governed prediction platform"} />
 
 	<!-- Main Content -->
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

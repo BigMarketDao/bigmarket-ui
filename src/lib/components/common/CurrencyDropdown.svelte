@@ -46,7 +46,7 @@
 	});
 </script>
 
-<div class=" text-left" bind:this={dropdownRef}>
+<div class=" z-50 text-left" bind:this={dropdownRef}>
 	<!-- Selected Currency Button -->
 	<button class="inline-block font-inter font-bold text-white hover:text-gray-400" on:click={() => (isOpen = !isOpen)}>
 		<span class="relative top-[-5px] inline w-auto rounded-[50%] p-2 font-inter text-[36px] font-bold">{$selectedCurrency.flag}</span>

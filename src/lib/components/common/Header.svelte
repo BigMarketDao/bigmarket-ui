@@ -32,7 +32,7 @@
 	});
 </script>
 
-<header class="fixed left-0 right-0 top-0 z-50 h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
+<header class=" left-0 right-0 top-0 z-[999] h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
 	<nav class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 		<!-- Logo -->
 		<a href="/" class="flex items-center">
@@ -44,7 +44,7 @@
 			<a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a>
 			<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
 			<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
-			<div class="flex items-center gap-4">
+			<div class=" flex items-center gap-4">
 				<ConnectMenuDropdown />
 				<CurrencyDropdown />
 			</div>
@@ -66,7 +66,7 @@
 
 	<!-- Mobile Menu -->
 	{#if isOpen}
-		<div id="header-dd" class="absolute left-0 right-0 top-20 border-b border-purple-900/20 bg-[#0A0A1A]/95 backdrop-blur-lg md:hidden">
+		<div id="header-dd" class=" left-0 right-0 top-20 z-[999] border-b border-purple-900/20 bg-[#0A0A1A]/95 bg-black backdrop-blur-lg md:hidden">
 			<div class="mx-auto flex max-w-7xl flex-col gap-6 p-6">
 				<a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a>
 				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
@@ -81,4 +81,4 @@
 </header>
 
 <!-- Spacer to account for fixed header -->
-<div class="h-20"></div>
+<!-- <div class="h-20"></div> -->

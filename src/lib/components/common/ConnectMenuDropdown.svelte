@@ -38,10 +38,10 @@
 	});
 </script>
 
-<div class="relative inline-block text-left" bind:this={dropdownRef}>
+<div class="relative z-[999] inline-block text-left" bind:this={dropdownRef}>
 	<!-- Selected Currency Button -->
 	{#if isLoggedIn()}
-		<button class="relative inline-block px-4 py-3 font-inter text-sm font-bold text-white hover:rounded-md hover:bg-blue-800 hover:text-white" on:click={() => (isOpen = !isOpen)}>
+		<button class=" inline-block px-4 py-3 font-inter text-sm font-bold text-white hover:rounded-md hover:bg-blue-800 hover:text-white" on:click={() => (isOpen = !isOpen)}>
 			<span class="ml-2"><Icon src={User} height={'20px'} width={'20px'} class="me-2 inline-block text-white" /> {truncate(getStxAddress())}</span>
 			<!-- <span class="ml-2">▼</span> -->
 		</button>

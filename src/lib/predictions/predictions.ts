@@ -126,6 +126,25 @@ export function convertCryptoToFiat(stacks: boolean, amountNative: number): stri
 	else amountFiat = amountNative * rate.fifteen;
 	return selectedCurrency.symbol + parseFloat(amountFiat.toFixed(2)).toLocaleString() + ' ' + selectedCurrency.code; //fmtStxMicro(amountNative, sip10Data.decimals);
 }
+export function convertCryptoToFiatNumber(
+	selectedCurrency: {
+		code: string;
+		name: string;
+		flag: string;
+		symbol: string;
+	},
+	stacks: boolean,
+	amountNative: number
+): number {
+	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const sess = getSession();
+	const rate = sess.exchangeRates.find((c) => c.currency === selectedCurrency.code);
+	if (!rate) return 0.0;
+	let amountFiat = 0;
+	if (stacks) amountFiat = rate.stxToBtc * amountNative * rate.fifteen;
+	else amountFiat = amountNative * rate.fifteen;
+	return parseFloat(amountFiat.toFixed(2));
+}
 export async function isExecutiveTeamMember(coreExecuteContractId: string | undefined, stxAddress: string): Promise<{ executiveTeamMember: boolean }> {
 	let path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${stxAddress}`;
 	if (coreExecuteContractId) path = `${getConfig().VITE_BIGMARKET_API}/dao/events/extensions/is-core-team-member/${coreExecuteContractId}/${stxAddress}`;

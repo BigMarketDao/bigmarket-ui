@@ -1,4 +1,5 @@
 import { getConfig } from '$stores/store_helpers';
+import { sessionStore } from '$stores/stores';
 import { callContractReadOnly, type PollVoteEvent } from '@mijoco/stx_helpers/dist/index';
 import { Cl, cvToJSON, serializeCV } from '@stacks/transactions';
 
@@ -24,14 +25,3 @@ export async function readDiaPrice(stacksApi: string, contractAddress: string, c
 	const ts = clarityResponse.value.value.timestamp.value;
 	return { ts, price };
 }
-const isCoolDown = () => {
-	return $sessionStore.stacksInfo.burn_block_height > (market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0);
-};
-
-const isStaking = () => {
-	return $sessionStore.stacksInfo.burn_block_height < (market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0);
-};
-
-const isAfterCoolDown = () => {
-	return $sessionStore.stacksInfo.burn_block_height > (market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0) + (market.marketData.coolDownPeriod || 0);
-};

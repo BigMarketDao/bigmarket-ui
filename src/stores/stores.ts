@@ -8,6 +8,7 @@ export type Currency = {
 	code: string;
 	name: string;
 	flag: string;
+	symbol: string;
 };
 
 export type BigMarketSessionStore = {
@@ -28,4 +29,5 @@ export type BigMarketSessionStore = {
 // Track user input amount
 export const stakeAmount = writable(0);
 export const stakeAmountHome = writable(0);
-export const selectedCurrency = writable({ code: 'USD', name: 'US Dollar', flag: '🇺🇸', symbol: '$' });
+//export const selectedCurrency = writable({ code: 'USD', name: 'US Dollar', flag: '🇺🇸', symbol: '$' });
+export const selectedCurrency = persisted('selectedCurrency', { code: 'USD', name: 'US Dollar', flag: '🇺🇸', symbol: '$' } as Currency);

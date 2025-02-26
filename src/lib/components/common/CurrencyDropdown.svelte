@@ -46,7 +46,7 @@
 	});
 </script>
 
-<div class=" z-50 text-left" bind:this={dropdownRef}>
+<div class="relative z-50 text-left" bind:this={dropdownRef}>
 	<!-- Selected Currency Button -->
 	<button class="inline-block font-inter font-bold text-white hover:text-gray-400" on:click={() => (isOpen = !isOpen)}>
 		<span class="relative top-[-5px] inline w-auto rounded-[50%] p-2 font-inter text-[36px] font-bold">{$selectedCurrency.flag}</span>
@@ -56,7 +56,7 @@
 
 	<!-- Dropdown Menu -->
 	{#if isOpen}
-		<div class="absolute right-20 z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black shadow-lg">
+		<div class="absolute left-0 z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black shadow-lg">
 			{#each currencies as currency}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->

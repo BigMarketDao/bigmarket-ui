@@ -82,12 +82,12 @@
 	<DaoHero title={'Create a Market'} subtitle={'Launch your own prediction market on Bitcoin L2. Set the terms, define outcomes, and let the community trade.'} />
 
 	<!-- Quick Info Cards -->
-	<div class="border-b border-purple-900/20 bg-[#0F1225]/50 py-12 backdrop-blur-sm">
+	<div class="bg-[#]/50 border-b border-purple-900/20 py-12">
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
 					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-					<div class="relative">
+					<div class="">
 						<p class="text-indigo-200/70 text-sm">Creation Fee</p>
 						<p class="mt-2 text-3xl font-bold text-white">{fmtMicroToStx($sessionStore.daoOverview.contractData.marketCreateFee)} STX</p>
 						<p class="mt-1 text-sm text-purple-400">One-time fee</p>
@@ -96,7 +96,7 @@
 
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
 					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-					<div class="relative">
+					<div class="">
 						<p class="text-indigo-200/70 text-sm">Market Fee</p>
 						<p class="mt-2 text-3xl font-bold text-white">0-{$sessionStore.daoOverview.contractData.marketFeeBipsMax / 100}%</p>
 						<p class="mt-1 text-sm text-purple-400">Customizable</p>
@@ -105,7 +105,7 @@
 
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
 					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-					<div class="relative">
+					<div class="">
 						<p class="text-indigo-200/70 text-sm">Resolution Time</p>
 						<p class="mt-2 text-3xl font-bold text-white">24h-1y</p>
 						<p class="mt-1 text-sm text-purple-400">Average 2 days</p>

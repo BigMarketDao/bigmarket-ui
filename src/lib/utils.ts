@@ -68,7 +68,7 @@ export function fmtMicroToStxFormatted(amountStx: number) {
 	return formatted;
 }
 
-export function fmtRoundToNDecimalPlaces(value: number, n: number) {
+export function fmtRoundToNDecimalPlaces(value: number, n: number): number {
 	return Number(value.toFixed(n));
 }
 

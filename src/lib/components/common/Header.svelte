@@ -32,7 +32,7 @@
 	});
 </script>
 
-<header class=" left-0 right-0 top-0 z-[999] h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
+<header class="fixed left-0 right-0 top-0 z-[999] h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
 	<nav class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 		<!-- Logo -->
 		<a href="/" class="flex items-center">
@@ -81,4 +81,4 @@
 </header>
 
 <!-- Spacer to account for fixed header -->
-<!-- <div class="h-20"></div> -->
+<div class="h-20"></div>

@@ -24,10 +24,11 @@ import {
 	type MarketCategory,
 	type UserStake,
 	type MarketData,
-	type GateKeeper
+	type GateKeeper,
+	type LeaderBoard
 } from '@mijoco/stx_helpers/dist/index';
 import { getConfig, getDaoConfig, getSelectedCurrency, getSession } from '$stores/store_helpers';
-import { fmtAmount, fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
+import { fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
 
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -186,6 +187,12 @@ export async function resolveMarkets(): Promise<any> {
 	return res;
 }
 
+export async function getLeaderBoard(): Promise<LeaderBoard> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/leader-board`;
+	const response = await fetch(path);
+	const res = (await response.json()) || [];
+	return res;
+}
 export async function getAllowedTokens(): Promise<Array<TokenPermissionEvent>> {
 	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/allowed-tokens`;
 	const response = await fetch(path);

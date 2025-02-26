@@ -16,11 +16,13 @@
 
 	let data: PredictionContractData;
 	let contractBalances: ContractBalances;
+	let scalarBalances: ContractBalances;
 	let treasuryBalances: ContractBalances;
 
 	onMount(async () => {
 		data = $sessionStore.daoOverview.contractData;
 		contractBalances = $sessionStore.daoOverview.contractBalances;
+		scalarBalances = $sessionStore.daoOverview.scalarBalances;
 		treasuryBalances = $sessionStore.daoOverview.treasuryBalances;
 
 		const t = await readPredictionContractData(getConfig().VITE_STACKS_API, getDaoConfig().VITE_DOA_DEPLOYER, getDaoConfig().VITE_DAO_MARKET_PREDICTING);
@@ -172,6 +174,7 @@
 				<ContractBalanceTable
 					contracts={[
 						{ contract: getDaoConfig().VITE_DAO_TREASURY, balances: treasuryBalances },
+						{ contract: getDaoConfig().VITE_DAO_MARKET_SCALAR, balances: scalarBalances },
 						{ contract: getDaoConfig().VITE_DAO_MARKET_PREDICTING, balances: contractBalances }
 					]}
 				/>

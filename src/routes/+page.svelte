@@ -1,13 +1,15 @@
 <script lang="ts">
 	import MarketPlace from '$lib/predictions/marketplace/MarketPlace.svelte';
-	import { fetchMarkets } from '$lib/predictions/predictions';
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { fetchMarkets, getLeaderBoard } from '$lib/predictions/predictions';
+	import type { LeaderBoard, PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 
 	let markets: Array<PredictionMarketCreateEvent>;
+	let leaderBoard: LeaderBoard;
 
 	onMount(async () => {
 		markets = await fetchMarkets();
+		leaderBoard = await getLeaderBoard();
 	});
 </script>
 
@@ -19,7 +21,7 @@
 <div class="w-full">
 	<div class="flex w-full flex-col">
 		{#if markets && markets.length > 0}
-			<MarketPlace {markets} />
+			<MarketPlace {markets} {leaderBoard} />
 		{/if}
 	</div>
 </div>

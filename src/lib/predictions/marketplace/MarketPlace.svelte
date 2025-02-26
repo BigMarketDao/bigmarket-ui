@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import type { LeaderBoard, PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import FeaturedMarketStall from './FeaturedMarketStall.svelte';
-	import CategoryFilter from './CategoryFilter.svelte';
 	import InfoPanelContainer from './info/InfoPanelContainer.svelte';
 	import MarketCard from './info/MarketCard.svelte';
 	import FilteredMarketView from './FilteredMarketView.svelte';
-	import GetStartedPanel from './info/GetStartedPanel.svelte';
+	import LeaderBoardDisplay from '../leader-board/LeaderBoardDisplay.svelte';
 
 	export let markets: Array<PredictionMarketCreateEvent> = [];
+	export let leaderBoard: LeaderBoard;
 	let filteredMarkets: Array<PredictionMarketCreateEvent> = [];
 	let category: string;
 	let featuredMarket: PredictionMarketCreateEvent;
@@ -64,6 +64,10 @@
 	<!-- Info Panels -->
 	<div class="mt-2">
 		<InfoPanelContainer />
+	</div>
+
+	<div class="mt-2">
+		<LeaderBoardDisplay {leaderBoard} {markets} />
 	</div>
 
 	<!-- Ending Soon Section -->

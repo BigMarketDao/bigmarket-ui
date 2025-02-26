@@ -20,7 +20,7 @@
 			<Users class="h-8 w-8" />
 		</div>
 		<div class="stat-title">Total Stakes</div>
-		<div class="stat-value text-primary">{totalUsers}</div>
+		<div class="stat-value text-primary"><a href={`/market/analysis/${market.marketId}/${market.marketType}`}>{totalUsers}</a></div>
 	</div>
 
 	<div class="stat">

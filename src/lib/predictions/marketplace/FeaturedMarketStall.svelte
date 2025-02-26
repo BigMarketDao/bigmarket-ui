@@ -61,7 +61,7 @@
 				<!-- Header with Logo and Title -->
 				<div class="flex items-center gap-6">
 					<div class="h-[150px] w-[150px] overflow-hidden rounded-lg border border-purple-900/20 bg-[#151B2D]">
-						<LogoContainerSmall logo={market.unhashedData.logo} />
+						<LogoContainerSmall logo={market.unhashedData.logo} width={150} height={150} />
 					</div>
 					<div>
 						<h2 class="text-3xl font-bold leading-tight text-white lg:text-4xl">

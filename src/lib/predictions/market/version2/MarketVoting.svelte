@@ -211,10 +211,9 @@
 					{/if}
 					{#if totalBalanceUstx === 0}
 						<div class="my-5">
-							<Banner
-								bannerType={'info'}
-								message={'You have no governacne tokens - they may be locked on other proposals. <br/>Visit <a class="text-blue-700 font-semibold hover:text-blue-800" href="/dao/mint">bdg mint page</a> to unlock or mint some more.'}
-							/>
+							<p>
+								You have no governacne tokens - they may be locked on other proposals. <br />Visit <a class="font-semibold text-blue-700 hover:text-blue-800" href="/dao/mint">bdg mint page</a> to unlock or mint some more.
+							</p>
 						</div>
 						<div class="mt-4">
 							<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />

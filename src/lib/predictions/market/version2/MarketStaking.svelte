@@ -129,16 +129,18 @@
 		{:else}
 			<h2 class="card-title mb-6 text-2xl">Place Your Stake</h2>
 
-			<div class="form-control">
-				<label for="stake-input" class="label">
-					<span class="label-text">Stake Amount: <ExchangeRate {sip10Data} /> </span>
-					<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} {sip10Data.symbol}</span>
-				</label>
-				<div class="join">
-					<input id="stake-input" type="number" placeholder="Enter amount (e.g., 0.04)" bind:value={amountToStake} on:keyup={() => handleInput()} class={' input join-item input-bordered flex-1 '} />
-					<span class={'btn join-item no-animation border border-none'}>{sip10Data.symbol}</span>
+			{#if isStaking(market)}
+				<div class="form-control">
+					<label for="stake-input" class="label">
+						<span class="label-text">Stake Amount: <ExchangeRate {sip10Data} /> </span>
+						<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} {sip10Data.symbol}</span>
+					</label>
+					<div class="join">
+						<input id="stake-input" type="number" placeholder="Enter amount (e.g., 0.04)" bind:value={amountToStake} on:keyup={() => handleInput()} class={' input join-item input-bordered flex-1 '} />
+						<span class={'btn join-item no-animation border border-none'}>{sip10Data.symbol}</span>
+					</div>
 				</div>
-			</div>
+			{/if}
 			{#if txId}
 				<div class="mb-4 flex w-full justify-start gap-x-4">
 					<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
@@ -150,7 +152,13 @@
 				</div>
 			{/if}
 			{#if market.marketType === 2}
-				<StakingScalar {doPrediction} {payouts} {market} />
+				{#if isStaking(market)}
+					<StakingScalar {doPrediction} {payouts} {market} />
+				{:else}
+					<p>
+						Cool down is in progress. The outcome is determined at the height of the first stacks block after the cool cool down expires <a href="/docs" class="font-medium text-red-600">see the docs</a> for more information.
+					</p>
+				{/if}
 			{:else if market.marketData.categories.length === 2}
 				<StakingBinary {doPrediction} {payouts} />
 			{:else if market.marketType === 1}

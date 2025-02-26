@@ -7,6 +7,7 @@
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 	import { blocksLeftForDispute, getOutcomeMessage, hasUserStaked, isDisputable, startBlockForDispute, stopBlockForDispute } from '$lib/predictions/market-states';
 	import { isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
+	import { mapToMinMaxStrings } from '$lib/utils';
 
 	export let market: PredictionMarketCreateEvent = {} as PredictionMarketCreateEvent;
 	export let userStake: UserStake | undefined;
@@ -35,7 +36,7 @@
 	<div class="card-body">
 		{#if disputable}
 			<p>
-				Resolution is in progress. Preliminary outcome is <span class="font-medium text-red-600">{market.marketData.categories[market.marketData.outcome!]}</span>.
+				Resolution is in progress. Preliminary outcome is <span class="font-medium text-red-600">{mapToMinMaxStrings(market.marketData.categories)[market.marketData.outcome!]}</span>.
 			</p>
 			<p>
 				Dispute window closes in <span class="font-bold">{blocksLeftForDispute(market)}</span> blocks. If no challenge is made the market will be resolvable and claims can then be made.

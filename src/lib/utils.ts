@@ -8,6 +8,15 @@ export const xsbp = 700;
 
 export const urlRegex = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/[^\s]*)?$/i;
 
+export function shuffleArray<T>(array: T[]): T[] {
+	const shuffled = [...array]; // Clone to avoid mutating the original
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap elements
+	}
+	return shuffled;
+}
+
 export function mapToMinMaxStrings(data: Array<string | ScalarMarketDataItem>): string[] {
 	if (typeof data[0] === 'string') {
 		return data as string[]; // Directly return if already an array of strings

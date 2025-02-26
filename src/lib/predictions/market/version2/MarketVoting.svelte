@@ -25,6 +25,7 @@
 	let votingPower = 0;
 	let votedPower = 0;
 	let txVoting = false;
+	let showTable = false;
 	let sip10Data: Sip10Data;
 
 	let errorMessage: string | undefined;
@@ -158,54 +159,56 @@
 						<h2>Voting in Progress</h2>
 						<p class="mb-4 font-semibold text-gray-800">Cast your vote to resolve this market.</p>
 					{/if}
-					<table class="w-full table-auto border-collapse border border-gray-300">
-						<thead>
-							<tr class="bg-gray-200">
-								<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Label</th>
-								<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Value</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr class="bg-white">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">proposer</td>
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.proposer}
-								</td>
-							</tr>
-							<tr class="bg-gray-50">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">End Height</td>
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.endBurnHeight}
-								</td>
-							</tr>
-							<tr class="bg-gray-50">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Concluded</td>
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.concluded}
-								</td>
-							</tr>
-							{#if resolutionVote.concluded}
-								<tr class="bg-gray-50">
-									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Winner</td>
+					{#if showTable}
+						<table class="w-full table-auto border-collapse border border-gray-300">
+							<thead>
+								<tr class="bg-gray-200">
+									<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Label</th>
+									<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Value</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="bg-white">
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">proposer</td>
 									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-										{resolutionVote.winningCategory}
+										{resolutionVote.proposer}
 									</td>
 								</tr>
-							{/if}
-							<tr class="bg-gray-50">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes For</td>
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.votes[1]}
-								</td>
-							</tr>
-							<tr class="bg-gray-50">
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes Against</td>
-								<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-									{resolutionVote.votes[0]}
-								</td>
-							</tr>
-						</tbody>
-					</table>
+								<tr class="bg-gray-50">
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">End Height</td>
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+										{resolutionVote.endBurnHeight}
+									</td>
+								</tr>
+								<tr class="bg-gray-50">
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Concluded</td>
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+										{resolutionVote.concluded}
+									</td>
+								</tr>
+								{#if resolutionVote.concluded}
+									<tr class="bg-gray-50">
+										<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Winner</td>
+										<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+											{resolutionVote.winningCategory}
+										</td>
+									</tr>
+								{/if}
+								<tr class="bg-gray-50">
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes For</td>
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+										{resolutionVote.votes[1]}
+									</td>
+								</tr>
+								<tr class="bg-gray-50">
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Votes Against</td>
+									<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
+										{resolutionVote.votes[0]}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					{/if}
 					{#if totalBalanceUstx === 0}
 						<div class="my-5">
 							<Banner
@@ -227,23 +230,24 @@
 							</div>
 						{/if}
 						{#if txId}
-							<div class="mt-5">
+							<div class="my-5">
 								<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
 							</div>
 						{/if}
-						<div class="my-4 flex w-full flex-wrap gap-x-2">
+						<div class="flex w-full gap-2">
 							{#each market.marketData.categories as category, index}
 								<button
 									on:click={() => {
 										errorMessage = undefined;
 										castVote(index, votingPower);
 									}}
-									class="bg-success-700 hover:bg-success-500 w-full flex-1 rounded px-4 py-2 text-white transition-all duration-300 sm:w-auto"
+									class="btn btn-primary w-1/2"
 								>
 									{category}
 								</button>
 							{/each}
 						</div>
+
 						<div class="mt-4">
 							<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
 						</div>

@@ -149,6 +149,13 @@ export const isStaking = (market: PredictionMarketCreateEvent) => {
 export const isResolving = (market: PredictionMarketCreateEvent) => {
 	return market.marketData.resolutionState === ResolutionState.RESOLUTION_RESOLVING;
 };
+export const getResolutionMessage = (state: number) => {
+	if (state === ResolutionState.RESOLUTION_RESOLVING) return 'market is resolving';
+	else if (state === ResolutionState.RESOLUTION_OPEN) return 'market is open';
+	else if (state === ResolutionState.RESOLUTION_RESOLVED) return 'market is resolved';
+	else if (state === ResolutionState.RESOLUTION_DISPUTED) return 'market is disputed';
+	else return 'market state unknown';
+};
 export const isResolved = (market: PredictionMarketCreateEvent) => {
 	return market.marketData.resolutionState === ResolutionState.RESOLUTION_RESOLVED;
 };

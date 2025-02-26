@@ -55,15 +55,7 @@
 	});
 </script>
 
-<div class="my-5 max-w-xl rounded-lg bg-gray-50 p-4 shadow-md">
-	<!-- Staking Info -->
-	<div class="mb-3 flex flex-col">
-		<span class="text-lg font-medium text-gray-800"> Market Resolution </span>
-		<p>
-			Cast your vote and help decide how this market resolves {#if votingPower > 0}{votingPower}{/if}
-		</p>
-	</div>
-
+<div class="my-5 w-full rounded-lg bg-gray-50 shadow-md">
 	<!-- Input Field -->
 	<div class="flex items-center gap-2">
 		<input

@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { LeaderBoard, PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { ResolutionState, type LeaderBoard, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import FeaturedMarketStall from './FeaturedMarketStall.svelte';
 	import InfoPanelContainer from './info/InfoPanelContainer.svelte';
 	import MarketCard from './info/MarketCard.svelte';
 	import FilteredMarketView from './FilteredMarketView.svelte';
 	import LeaderBoardDisplay from '../leader-board/LeaderBoardDisplay.svelte';
+	import { shuffleArray } from '$lib/utils';
 
 	export let markets: Array<PredictionMarketCreateEvent> = [];
 	export let leaderBoard: LeaderBoard;
@@ -36,7 +37,10 @@
 	let featuredMarkets: Array<PredictionMarketCreateEvent> = [];
 	let unfeaturedMarkets: Array<PredictionMarketCreateEvent>;
 	$: {
-		featuredMarkets = filteredMarkets.filter((market) => market.unhashedData.featured);
+		//featuredMarkets = filteredMarkets.filter((market) => market.unhashedData.featured);
+		featuredMarkets = filteredMarkets.filter((market) => market.marketData.resolutionState === ResolutionState.RESOLUTION_OPEN);
+		featuredMarkets = shuffleArray(featuredMarkets);
+
 		unfeaturedMarkets = markets;
 		endingSoonMarkets = extractSoonest(markets);
 	}

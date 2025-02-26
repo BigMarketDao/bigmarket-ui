@@ -9,6 +9,7 @@
 	import type { Payout } from '../../predictions';
 	import { Users, TrendingUp, Clock } from 'lucide-svelte';
 	import { fmtMicroToStx, fmtMicroToStxNumber } from '$lib/utils';
+	import { getResolutionMessage } from '$lib/predictions/market-states';
 
 	export let market: PredictionMarketCreateEvent;
 	let payouts: Array<Payout>;
@@ -40,11 +41,12 @@
 			<!-- Market Info -->
 			<div class="space-y-2">
 				<h3 class="text-lg font-bold text-white">
-					{market.unhashedData.name}
+					<a class="font-bold leading-tight text-white hover:text-purple-500" href={`/market/${market.marketId}/${market.marketType}`}>{market.unhashedData.name}</a>
 				</h3>
 				<p class="line-clamp-2 text-sm text-gray-400">
 					{market.unhashedData.description}
 				</p>
+				<p class="text-sm text-gray-600">{getResolutionMessage(market.marketData.resolutionState)}</p>
 			</div>
 
 			<!-- Stats -->

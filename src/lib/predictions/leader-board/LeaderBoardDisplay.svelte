@@ -54,7 +54,7 @@
 					<div class="min-h-[300px h-auto">
 						<h2 class="mb-5 text-2xl font-medium text-purple-300">Top markets by volume</h2>
 						{#each leaderBoard.topMarkets as topMarket}
-							<div class="mb-10 flex items-center">
+							<div class="mb-10 flex items-center gap-x-4">
 								<div class="h-auto w-auto overflow-hidden rounded-lg border border-purple-900/20 bg-[#151B2D]">
 									<div><img src={topMarket.market.unhashedData.logo} alt="Market Logo" class={'h-[70px] w-[50px] place-self-center rounded-full object-cover'} /></div>
 								</div>

@@ -102,7 +102,7 @@
 						<tr class="border-b transition hover:bg-gray-700">
 							<td class="border border-gray-300 px-4 py-2">Resolution</td>
 							<td class="border border-gray-300 px-4 py-2">
-								<Bulletin message={'the account that is able to resolve a market. this account will be controlled by an automated process such as an on chain oracle, ai agent etc'} trigger={'resolutionAgent'}>
+								<Bulletin message={'The AI agent account. Agents are able to create and resolve markets.'} trigger={'resolutionAgent'}>
 									<span slot="title"
 										>{data.resolutionAgent}
 										<a href={explorerAddressUrl(data.resolutionAgent)} target="_blank"><Icon src={ArrowUpRight} width={'20px'} height={'20px'} class="inline-block rounded-[50%] border border-blue-800 p-1 text-blue-800" /></a>
@@ -180,6 +180,5 @@
 				/>
 			</div>
 		{/if}
-		<div class="flex justify-end text-primary"><a href="/" on:click|preventDefault={() => resolveMarkets()}>resolve markets</a></div>
 	</div>
 </div>

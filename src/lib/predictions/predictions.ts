@@ -180,8 +180,8 @@ const defToken: Sip10Data = {
 	totalSupply: 0
 };
 
-export async function resolveMarkets(): Promise<any> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/resolver/resolve`;
+export async function resolveMarketAI(marketId: number, marketType: number): Promise<any> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/resolver/resolve/${marketId}/${marketType}`;
 	const response = await fetch(path);
 	const res = (await response.json()) || [];
 	return res;

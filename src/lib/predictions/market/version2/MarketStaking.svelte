@@ -133,7 +133,16 @@
 				<div class="form-control">
 					<label for="stake-input" class="label">
 						<span class="label-text">Stake Amount: <ExchangeRate {sip10Data} /> </span>
-						<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} {sip10Data.symbol}</span>
+						<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}
+							>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)}
+							{sip10Data.symbol}
+
+							{#if sip10Data.symbol === 'BIG'}
+								<span class="label-text-alt mx-2">
+									<a href="/dao/token-sale" class=" link-primary">mint</a>
+								</span>
+							{/if}
+						</span>
 					</label>
 					<div class="join">
 						<input id="stake-input" type="number" placeholder="Enter amount (e.g., 0.04)" bind:value={amountToStake} on:keyup={() => handleInput()} class={' input join-item input-bordered flex-1 '} />

@@ -9,6 +9,7 @@
 	import { explorerTxUrl, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { mapToMinMaxStrings } from '$lib/utils';
+	import { resolveMarketAI } from '$lib/predictions/predictions';
 
 	export let market: PredictionMarketCreateEvent;
 	export let onResolved;
@@ -16,10 +17,16 @@
 	let errorMessage: string | undefined;
 	let txId: string;
 	let stacksHeight = 0;
+	let resolverAI = true;
 
 	const resolveMarket = async (outcome: string | number) => {
 		if (!isLoggedIn()) {
 			errorMessage = 'Please connect your wallet';
+			return;
+		}
+		if (resolverAI) {
+			const result = await resolveMarketAI(market.marketId, market.marketType);
+			console.log('resolveMarket: ', result);
 			return;
 		}
 		const contractAddress = market.votingContract.split('.')[0];

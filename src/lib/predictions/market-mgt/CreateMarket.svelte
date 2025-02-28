@@ -16,21 +16,23 @@
 	import MarkdownCreator from '$lib/components/ui/MarkdownCreator.svelte';
 	import MarketTypeSelection from './MarketTypeSelection.svelte';
 	import CriteriaSelection from './CriteriaSelection.svelte';
+	import LogoDisplay from './LogoDisplay.svelte';
 
-	export let examplePoll: OpinionPoll;
+	export let examplePoll: StoredOpinionPoll;
 	export let onPollSubmit;
 	let inited = false;
+
 	let merkelRoot: string | undefined;
 	let contractIds: Array<string> | undefined;
-	let token: string;
-	let category: string;
-	let priceFeedId: string = 'STX/USD/3';
-	let criteria: Criterion;
+	let token: string = examplePoll.token;
+	let category: string = examplePoll.category;
+	let priceFeedId: string = examplePoll.priceFeedId || 'STX/USD';
+	let criteria: Criterion = examplePoll.criterion;
+	let featured = examplePoll.featured;
 
 	let errorMessage: string = '';
 	let result: string | undefined = undefined;
 	let pollMessage: any;
-	let featured = false;
 	$: explorerUrl = `${$configStore.VITE_STACKS_API}/txid/${result}?chain=${$configStore.VITE_NETWORK}`;
 
 	let template: OpinionPoll;
@@ -194,6 +196,13 @@
 
 	onMount(async () => {
 		template = examplePoll;
+		if (examplePoll.outcomes) {
+			template.marketType = examplePoll.outcomes?.length === 2 ? 0 : 1;
+			template.marketTypeDataCategorical = [];
+			for (const o of examplePoll.outcomes) {
+				template.marketTypeDataCategorical.push({ label: o });
+			}
+		}
 		inited = true;
 	});
 </script>
@@ -251,9 +260,7 @@
 							<input id="poll-logo" type="text" bind:value={template.logo} class="w-full rounded-md border-gray-300 p-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 						</div>
 						{#if template.logo}
-							<div>
-								<img src={template.logo} alt="Poll Logo" class="h-20 rounded-md shadow-md" />
-							</div>
+							<LogoDisplay logo={template.logo} />
 						{/if}
 						<div>
 							<label for="poll-logo" class="mb-1 block text-sm font-medium">Percentage Market Fee (maximum is {$sessionStore.daoOverview.contractData.marketFeeBipsMax / 100}%)</label>
@@ -264,8 +271,8 @@
 			</div>
 			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
 			<CriteriaSelection bind:criteria marketType={template.marketType} />
-			<TokenSelection onSelectToken={handleSelectToken} />
-			<CategorySelection onSelectCategory={handleSelectCategory} />
+			<TokenSelection currentToken={token} onSelectToken={handleSelectToken} />
+			<CategorySelection categoryName={category} onSelectCategory={handleSelectCategory} />
 
 			<!-- <div class="rounded-md border shadow-md">
 				<button class="w-full bg-gray-100 px-4 py-3 text-left font-medium text-gray-900 hover:bg-gray-200" type="button" data-accordion-target="#vote-gating"> Vote Gating </button>

@@ -11,7 +11,7 @@
 	let localCriterion = { ...criteria };
 	$: criteria = localCriterion;
 
-	let value: Date = new Date();
+	let value: Date = new Date(criteria.resolvesAt);
 	let minDate: Date = new Date();
 	let maxDate: Date = new Date('2050-12-31 12:00');
 	let dateFormat = 'yyyy-MM-dd HH:mm';
@@ -30,10 +30,10 @@
 			errorMessage = 'This url appears to already be included';
 			return;
 		}
-		if (!urlRegex.test(currentSource.trim())) {
-			errorMessage = 'This url appears to invalid web address';
-			return;
-		}
+		// if (!urlRegex.test(currentSource.trim())) {
+		// 	errorMessage = 'This url appears to invalid web address';
+		// 	return;
+		// }
 		localCriterion.sources.push(currentSource);
 		componentKey++;
 		currentSource = undefined;
@@ -50,15 +50,7 @@
 			twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
 			localCriterion.resolvesAt = twoDaysFromNow.getTime();
 		}
-
-		// Clone the object to ensure reactivity
-		if (!localCriterion) {
-			// localCriterion = {
-			// 	criteria: null,
-			// 	sources: [],
-			// 	resolvesAt: new Date().getTime()
-			// };
-		}
+		localCriterion = criteria;
 	});
 </script>
 

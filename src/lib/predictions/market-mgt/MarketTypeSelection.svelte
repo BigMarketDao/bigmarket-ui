@@ -4,7 +4,7 @@
 
 	export let priceFeedId: string;
 	export let marketType = 0;
-	export let marketTypeDataCategorical: Array<MarketCategoricalOption> = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }];
+	export let marketTypeDataCategorical: Array<MarketCategoricalOption>;
 	export let marketTypeDataScalar: Array<ScalarMarketDataItem> = [
 		{ min: 0.4, max: 0.6 },
 		{ min: 0.6, max: 0.8 },
@@ -21,6 +21,7 @@
 		{ name: 'Categorical Market - multiple options', value: 1 },
 		{ name: 'Scalar Market - range of options', value: 2 }
 	];
+	let startType = 1;
 
 	// Categorical Market Options
 	function addRange() {
@@ -48,6 +49,12 @@
 	}
 
 	onMount(() => {
+		if (marketTypeDataCategorical) {
+			startType = 1;
+			if (marketTypeDataCategorical.length === 2) {
+				startType = 0;
+			}
+		}
 		// marketTypeDataCategorical = [{ label: 'Option 1' }, { label: 'Option 2' }, { label: 'Option 3' }];
 	});
 </script>
@@ -65,7 +72,7 @@
 				<select id="market-type" bind:value={marketType} on:change={() => changeMarketType()} class="h-auto w-full rounded-md border-gray-300 px-4 py-4 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
 					<option value="" disabled selected>-- Select a Market Type --</option>
 					{#each marketTypes as type}
-						<option value={type.value}>{type.name}</option>
+						<option value={type.value} selected={type.value === startType}>{type.name}</option>
 					{/each}
 				</select>
 			</div>

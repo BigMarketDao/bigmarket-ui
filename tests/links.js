@@ -1,3 +1,12 @@
+export const bigmarket_ai = [
+	'https://github.com/BigMarketDao/bigmarket-ai',
+	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/server.py',
+	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/scraping_tools.py',
+	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/llm_tools_resolution.py',
+	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/llm_tools_creation.py',
+	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/llm_tools_ai_markets.py',
+	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/README.md'
+];
 export const pythdev = [
 	'https://github.com/Trust-Machines/stacks-pyth-bridge/tree/clarity-v3',
 	'https://github.com/Trust-Machines/stacks-pyth-bridge/blob/clarity-v3/contracts/pyth-traits-v1.clar',

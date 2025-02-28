@@ -3,10 +3,10 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
-import { pythdev } from './links';
+import { bigmarket_ai } from './links';
 
 // List of GitBook URLs to export
-const gitBookPages = pythdev;
+const gitBookPages = bigmarket_ai;
 
 // Test suite
 test('Export GitBook pages to PDF', async () => {
@@ -20,7 +20,7 @@ test('Export GitBook pages to PDF', async () => {
 		console.log(`Created directory: ${exportDir}`);
 	}
 
-	const combinedPDFPath = path.join(exportDir, 'pythdev.pdf');
+	const combinedPDFPath = path.join(exportDir, 'bigmarket_ai.pdf');
 
 	// Create a new PDF document
 	const combinedPdfDoc = await PDFDocument.create();

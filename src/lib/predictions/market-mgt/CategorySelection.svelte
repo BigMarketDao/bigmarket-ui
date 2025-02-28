@@ -4,6 +4,7 @@
 	import { getMarketCategories } from '../predictions';
 
 	export let onSelectCategory: any;
+	export let categoryName: string;
 
 	function addCategory(event: any) {
 		if (!event || !event.target || !event.target.value) return;
@@ -31,7 +32,7 @@
 						<option value="" disabled selected>-- Select a Category --</option>
 						{#each categories as category}
 							{#if category.active}
-								<option value={category.name}>{category.displayName}</option>
+								<option value={category.name} selected={category.name.toLowerCase() === categoryName.toLowerCase()}>{category.displayName}</option>
 							{/if}
 						{/each}
 					</select>

@@ -6,6 +6,7 @@
 	import { getConfig } from '$stores/store_helpers';
 
 	export let onSelectToken: any;
+	export let currentToken: string;
 
 	function addContract(event: any) {
 		if (!event || !event.target || !event.target.value) return;
@@ -39,7 +40,7 @@
 						<option value="" disabled selected>-- Select a Token --</option>
 						{#each tokens as token}
 							{#if token.allowed}
-								<option value={token.token}>{token.sip10Data?.symbol.toUpperCase()}</option>
+								<option value={token.token} selected={token.token.toLowerCase() === currentToken.toLowerCase()}>{token.sip10Data?.symbol.toUpperCase()}</option>
 							{/if}
 						{/each}
 					</select>

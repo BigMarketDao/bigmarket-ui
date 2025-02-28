@@ -181,9 +181,9 @@ const defToken: Sip10Data = {
 };
 
 export async function createMarketAI(proposer: string, market: { mechanism: number; source: string; suggestion: string }): Promise<StoredOpinionPoll> {
-	let path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-discovery/${proposer}/${market.source}`;
+	let path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-discovery`;
 	if (market.mechanism === 1) {
-		path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-suggestion/${proposer}/${market.suggestion}`;
+		path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-suggestion`;
 	}
 	const response = await fetch(path, {
 		method: 'POST',

@@ -1,73 +1,47 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { explorerTxUrl, getStxAddress } from '$lib/stacks/stacks-connect';
-	import type { OpinionPoll } from '@mijoco/stx_helpers/dist/index';
-	import { sessionStore } from '$stores/stores';
-	import { canCreateMarket } from '$lib/predictions/predictions';
+	import { getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
+	import { aiMarket } from '$stores/stores';
+	import { canCreateMarket, createMarketAI } from '$lib/predictions/predictions';
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
-	import PromptDiscoveryMarket from '$lib/predictions/market-mgt/prompt/PromptDiscoveryMarket.svelte';
+	import Banner from '$lib/components/ui/Banner.svelte';
+	import PromptMarket from '$lib/predictions/market-mgt/prompt/PromptMarket.svelte';
+	import { LoaderCircle } from 'lucide-svelte';
+	import CreateMarket from '$lib/predictions/market-mgt/CreateMarket.svelte';
+	import EmailRegistration from '$lib/components/EmailRegistration.svelte';
+	import type { StoredOpinionPoll } from '@mijoco/stx_helpers';
 
-	let showPollResult = false;
 	let txId: string;
-	$: explorerUrl = explorerTxUrl(txId);
-	let startDelay = 5;
-	let endDelay = 500;
+	let errorMessage: string = '';
+	let running = false;
+	let loaded = false;
 	$: canCreate = false;
-	$: canPrompt = false;
+	let examplePoll: StoredOpinionPoll;
 
 	const handlePollSubmission = (data: any) => {
 		txId = data;
-		showPollResult = true;
-		//goto('/');
 	};
-	function closeModal() {
-		showPollResult = false;
-	}
-	// $WELSH to 0.001 USD by block 3,614,769
-	// Meme season is coming to Stacks - better get ready !
-	// https://pbs.twimg.com/profile_images/1648994389799346176/_X8oyw9I_400x400.jpg
 
-	// Scientist discover the world is in fact donutoid!
-	// https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTa6vLfyKLpdOZH2-qEccGcym4bMpRGAUmvRw&s
-
-	// Gravity changes direction - everyone falls off world?
-
-	// Ants pack up and leave the UK!
-	let examplePoll: OpinionPoll = {
-		name: '$WELSH to 0.001 USD by block 3,614,769',
-		category: 'meme',
-		description: 'Is it going to happen? ',
-		criterion: {
-			resolvesAt: new Date().getTime(),
-			sources: [],
-			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarket DAO community oracle. See terms for details.'
-		},
-		token: '',
-		priceFeedId: 'STX/USD/0',
-		treasury: getStxAddress(),
-		logo: 'https://pbs.twimg.com/profile_images/1648994389799346176/_X8oyw9I_400x400.jpg',
-		social: {
-			twitter: {
-				projectHandle: 'Stacks'
-			},
-			discord: {
-				serverId: '1306302974515089510'
-			},
-			website: {
-				url: 'https://www.stacks.co/'
-			}
-		},
-		createdAt: new Date().getTime(),
-		startBurnHeight: ($sessionStore?.poxInfo?.current_burnchain_block_height || 0) + startDelay,
-		endBurnHeight: ($sessionStore?.poxInfo?.current_burnchain_block_height || 0) + endDelay,
-		proposer: getStxAddress(),
-		marketType: 1,
-		marketFee: 2
+	const handlePromptMarket = async (market: { mechanism: number; source: string; suggestion: string }) => {
+		if (!isLoggedIn()) {
+			loginStacksFromHeader(document);
+			return;
+		}
+		running = true;
+		let llmMarket;
+		if ((!market.suggestion || market.suggestion.trim().length === 0) && (!market.source || market.source.trim().length === 0)) {
+			errorMessage = 'Please enter a news source or a suggestion';
+		} else {
+			llmMarket = await createMarketAI(getStxAddress(), market);
+			aiMarket.set(llmMarket);
+			examplePoll = llmMarket;
+			loaded = true;
+		}
+		running = false;
 	};
 
 	onMount(async () => {
 		canCreate = await canCreateMarket();
-		canPrompt = true;
 	});
 </script>
 
@@ -81,12 +55,32 @@
 	<DaoHero title={'Prompt a Market'} subtitle={'Launch your own prediction market on Bitcoin L2! With a suggestion! <br/><br/><button class="mb-5 btn btn-primary">Try now for free!</button>'} />
 
 	<!-- Quick Info Cards -->
-
-	<div class="mx-auto max-w-4xl px-6 py-4">
-		<div class="my-2 flex w-full flex-col">
-			{#if canPrompt}
-				<PromptDiscoveryMarket />
+	{#if loaded}
+		<div>
+			{#if canCreate}
+				<CreateMarket {examplePoll} onPollSubmit={handlePollSubmission} />
+			{:else}
+				<EmailRegistration />
 			{/if}
 		</div>
-	</div>
+	{:else if !running}
+		<div class="mx-auto max-w-3xl space-y-6">
+			{#if errorMessage}
+				<div class="mb-3">
+					<Banner bannerType={'danger'} message={errorMessage} />
+				</div>
+			{/if}
+			<!-- Accordion: Markets Info -->
+			<div class="rounded-md border shadow-md">
+				<button class="w-full bg-gray-100 px-4 py-3 text-left font-medium text-gray-900 hover:bg-gray-200" type="button" data-accordion-target="#markets-info"> Generate Market </button>
+				<div id="poll-info" class="flex flex-col gap-y-5 px-4 py-4">
+					<PromptMarket promptMarket={handlePromptMarket} />
+				</div>
+			</div>
+		</div>
+	{:else}
+		<div class="mx-auto max-w-3xl space-y-6">
+			<LoaderCircle class="h-8 w-8" />
+		</div>
+	{/if}
 </div>

@@ -180,16 +180,16 @@ const defToken: Sip10Data = {
 	totalSupply: 0
 };
 
-export async function createMarketAIDiscovery(proposer: string, source: string): Promise<any> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-discovery/${proposer}/${source}`;
-	const response = await fetch(path);
-	const res = (await response.json()) || [];
-	return res;
-}
-
-export async function createMarketAISuggestion(proposer: string, source: string): Promise<any> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-suggestion/${proposer}/${source}`;
-	const response = await fetch(path);
+export async function createMarketAI(proposer: string, market: { mechanism: number; source: string; suggestion: string }): Promise<StoredOpinionPoll> {
+	let path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-discovery/${proposer}/${market.source}`;
+	if (market.mechanism === 1) {
+		path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-suggestion/${proposer}/${market.suggestion}`;
+	}
+	const response = await fetch(path, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', Authorization: '' },
+		body: market.mechanism === 1 ? JSON.stringify({ proposer, suggestion: market.suggestion }) : JSON.stringify({ proposer, source: market.source })
+	});
 	const res = (await response.json()) || [];
 	return res;
 }

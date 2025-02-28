@@ -11,7 +11,7 @@
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import TokenSelection from './TokenSelection.svelte';
 	import { Cl, Pc } from '@stacks/transactions-v6';
-	import { sessionStore } from '$stores/stores';
+	import { aiMarket, sessionStore } from '$stores/stores';
 	import CategorySelection from './CategorySelection.svelte';
 	import MarkdownCreator from '$lib/components/ui/MarkdownCreator.svelte';
 	import MarketTypeSelection from './MarketTypeSelection.svelte';
@@ -143,6 +143,7 @@
 			console.log('publicKey: ' + signature.publicKey);
 			console.log('domain: ', domain);
 			const result = await postCreatePollMessage(poll);
+			aiMarket.set(poll);
 			if (typeof result === 'string') {
 				errorMessage = result;
 			} else {

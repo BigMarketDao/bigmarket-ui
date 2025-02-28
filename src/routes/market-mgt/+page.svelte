@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import CreateMarket from '$lib/predictions/market-mgt/CreateMarket.svelte';
 	import { explorerTxUrl, getStxAddress } from '$lib/stacks/stacks-connect';
-	import type { OpinionPoll } from '@mijoco/stx_helpers/dist/index';
+	import type { OpinionPoll, StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { sessionStore } from '$stores/stores';
 	import { canCreateMarket } from '$lib/predictions/predictions';
 	import EmailRegistration from '$lib/components/EmailRegistration.svelte';
@@ -10,33 +10,19 @@
 	import { fmtMicroToStx } from '$lib/utils';
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
 
-	let showPollResult = false;
 	let txId: string;
 	$: explorerUrl = explorerTxUrl(txId);
 	let startDelay = 5;
 	let endDelay = 500;
 	$: canCreate = false;
 	$: canPrompt = false;
+	let examplePoll: StoredOpinionPoll;
 
 	const handlePollSubmission = (data: any) => {
 		txId = data;
-		showPollResult = true;
-		//goto('/');
 	};
-	function closeModal() {
-		showPollResult = false;
-	}
-	// $WELSH to 0.001 USD by block 3,614,769
-	// Meme season is coming to Stacks - better get ready !
-	// https://pbs.twimg.com/profile_images/1648994389799346176/_X8oyw9I_400x400.jpg
 
-	// Scientist discover the world is in fact donutoid!
-	// https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTa6vLfyKLpdOZH2-qEccGcym4bMpRGAUmvRw&s
-
-	// Gravity changes direction - everyone falls off world?
-
-	// Ants pack up and leave the UK!
-	let examplePoll: OpinionPoll = {
+	examplePoll = {
 		name: '$WELSH to 0.001 USD by block 3,614,769',
 		category: 'meme',
 		description: 'Is it going to happen? ',
@@ -65,7 +51,12 @@
 		endBurnHeight: ($sessionStore?.poxInfo?.current_burnchain_block_height || 0) + endDelay,
 		proposer: getStxAddress(),
 		marketType: 1,
-		marketFee: 2
+		marketFee: 2,
+		objectHash: '',
+		processed: false,
+		signature: '',
+		publicKey: '',
+		featured: false
 	};
 
 	onMount(async () => {

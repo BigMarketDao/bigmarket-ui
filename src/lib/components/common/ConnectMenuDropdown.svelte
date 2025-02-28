@@ -1,19 +1,14 @@
 <script lang="ts">
 	import { getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
-	import { authenticate, logUserOut } from '$lib/stacks/stacks-connect';
+	import { logUserOut } from '$lib/stacks/stacks-connect';
 	import { truncate } from '$lib/utils';
-	import { ProfileCardOutline, UserCircleOutline } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import { Icon, User } from 'svelte-hero-icons';
 
+	export let connectWallet;
 	let isOpen = false;
 	let dropdownRef: HTMLElement | null = null;
 
-	const loginStacks = async () => {
-		authenticate(function () {
-			typeof window !== 'undefined' ? window.location.reload() : '';
-		});
-	};
 	const logoutStacks = async () => {
 		logUserOut();
 	};
@@ -46,7 +41,7 @@
 			<!-- <span class="ml-2">▼</span> -->
 		</button>
 	{:else}
-		<button class="rounded-md bg-blue-900 py-3 font-inter text-sm font-normal text-white hover:text-blue-400"><a id="connect-wallet" href="/" on:click|preventDefault={() => loginStacks()} class="mx-2">CONNECT WALLET</a></button>
+		<button class="rounded-md bg-blue-900 py-3 font-inter text-sm font-normal text-white hover:text-blue-400"><a id="connect-wallet" href="/" on:click|preventDefault={() => connectWallet()} class="mx-2">CONNECT WALLET</a></button>
 	{/if}
 
 	<!-- Dropdown Menu -->

@@ -6,7 +6,7 @@
 	import { fetchResolutionVote, fullBalanceInSip10Token, type MarketData, type PollVoteEvent, type PredictionMarketCreateEvent, type ResolutionVote, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
 	import { getStacksNetwork, getTransaction } from '@mijoco/stx_helpers/dist/stacks-node';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
-	import { explorerTxUrl, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
+	import { explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { hexToBytes } from '@stacks/common';
 	import { fetchMarketsVotes, getGovernanceToken, getMarketToken, isSTX } from '$lib/predictions/predictions';
@@ -83,6 +83,10 @@
 	};
 
 	const concludeVote = async () => {
+		if (!isLoggedIn()) {
+			loginStacksFromHeader(document);
+			return;
+		}
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = getDaoConfig().VITE_DAO_MARKET_VOTING;
 		let functionName = 'conclude-market-vote';
@@ -143,6 +147,11 @@
 	<div class="card-body">
 		{#if resolutionVote && market.marketData}
 			<div class="flex flex-col gap-y-4">
+				{#if txId}
+					<div class="my-4">
+						<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
+					</div>
+				{/if}
 				{#if errorMessage}
 					<div class="my-4">
 						{errorMessage}
@@ -214,9 +223,6 @@
 							<p>
 								You have no governacne tokens - they may be locked on other proposals. <br />Visit <a class="font-semibold text-blue-700 hover:text-blue-800" href="/dao/mint">bdg mint page</a> to unlock or mint some more.
 							</p>
-						</div>
-						<div class="mt-4">
-							<BlockHeightProgressBar startBurnHeight={market.marketData.resolutionBurnHeight} stopBurnHeight={resolutionVote.endBurnHeight} />
 						</div>
 					{:else if resolutionVote.endBurnHeight >= currentBurnHeight}
 						<div>

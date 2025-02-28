@@ -1,12 +1,13 @@
 <script lang="ts">
 	import logo from '$lib/assets/BIGMARKET-logo-white.png';
-	import { configStore, switchConfig } from '$stores/stores_config';
-	import { goto } from '$app/navigation';
 	import CurrencyDropdown from './CurrencyDropdown.svelte';
 	import ConnectMenuDropdown from './ConnectMenuDropdown.svelte';
 	import { onDestroy, onMount } from 'svelte';
+	import SlotModal from './SlotModal.svelte';
+	import OnRamp from '../onramps/OnRamp.svelte';
 
 	let isOpen = false;
+	let showModal = false;
 	let componentKey = 0;
 	let dropdownRef: HTMLElement | null = null;
 	const dropdownId = 'header-dd';
@@ -15,6 +16,10 @@
 	function toggleMenu() {
 		isOpen = !isOpen;
 	}
+	function closeModal() {
+		showModal = false;
+		componentKey++;
+	}
 
 	function handleClickOutside(event: MouseEvent) {
 		const target = event.target as HTMLElement;
@@ -22,6 +27,11 @@
 			isOpen = false;
 		}
 	}
+
+	const connectWallet = () => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		showModal = !showModal;
+	};
 
 	onMount(() => {
 		window.addEventListener('click', handleClickOutside);
@@ -45,7 +55,7 @@
 			<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
 			<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
 			<div class=" flex items-center gap-4">
-				<ConnectMenuDropdown />
+				<ConnectMenuDropdown {connectWallet} />
 				<CurrencyDropdown />
 			</div>
 		</div>
@@ -72,7 +82,7 @@
 				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
 				<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
 				<div class="flex flex-col gap-4">
-					<ConnectMenuDropdown />
+					<ConnectMenuDropdown {connectWallet} />
 					<CurrencyDropdown />
 				</div>
 			</div>
@@ -82,3 +92,11 @@
 
 <!-- Spacer to account for fixed header -->
 <div class="h-20"></div>
+
+{#if showModal}
+	<SlotModal onClose={() => closeModal()}>
+		<div class="z-50" slot="modalBody">
+			<OnRamp />
+		</div>
+	</SlotModal>
+{/if}

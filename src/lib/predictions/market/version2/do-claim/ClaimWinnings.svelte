@@ -10,7 +10,7 @@
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
 	import { getMarketToken, isSTX, totalPoolSum, userStakeSum } from '$lib/predictions/predictions';
-	import { canUserClaim } from '$lib/predictions/market-states';
+	import { canUserClaim, getOutcomeMessage } from '$lib/predictions/market-states';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake;
@@ -98,66 +98,73 @@
 </script>
 
 <div>
-	<div class="flex flex-col gap-y-4">
-		{#if txId}
-			<div class="mt-5">
-				<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
-			</div>
-		{/if}
-		{#if errorMessage}
-			<div class="my-4">
-				{errorMessage}
-			</div>
-		{/if}
-
-		<div class="">
-			<h2 class="mb-4 text-lg font-semibold text-gray-800">Claim Winnings</h2>
+	<div class="">
+		<div class="flex flex-col gap-y-4">
+			<h2 class="text-lg font-semibold text-white">Claim Winnings</h2>
+			<p class="font-semibold text-white">{@html getOutcomeMessage(market)}</p>
+			{#if canUserClaim(market, userStake)}
+				<div class="">
+					<button
+						on:click={() => {
+							errorMessage = undefined;
+							claimWinnings();
+						}}
+						class="w-auto rounded bg-primary px-4 py-2 font-inter font-semibold text-white hover:bg-purple-600"
+					>
+						CLAIM WINNINGS
+					</button>
+				</div>
+			{/if}
+			{#if txId}
+				<div class="my-5">
+					<Banner bannerType={'warning'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
+				</div>
+			{/if}
+			{#if errorMessage}
+				<div class="my-4">
+					{errorMessage}
+				</div>
+			{/if}
 			{#if sip10Data}
 				<table class="w-full table-auto border-collapse border border-gray-300">
 					<thead>
-						<tr class="bg-gray-200">
+						<tr class="bg-gray-400">
 							<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Label</th>
 							<th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">Value</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="bg-white">
+						<tr class="bg-gray-400">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Total Pool</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
 								{fmtMicroToStx(totalPool, sip10Data.decimals)}
 							</td>
 						</tr>
-						<tr class="bg-gray-50">
+						<tr class="bg-gray-400">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Winning Pool</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
 								{fmtMicroToStx(winningPool, sip10Data.decimals)}
 							</td>
 						</tr>
-						<tr class="bg-white">
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Staked</td>
-							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
-								{fmtMicroToStx(staked + devFee, sip10Data.decimals)}
-							</td>
-						</tr>
-						<tr class="bg-gray-50">
+						<tr class="bg-gray-400">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Dev Fee</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
 								{fmtMicroToStx(devFee, sip10Data.decimals)}
 							</td>
 						</tr>
-						<tr class="bg-white">
+						<tr class="bg-gray-400">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Dao Fee</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
 								{fmtMicroToStx(daoFee, sip10Data.decimals)}
 							</td>
 						</tr>
-						<tr class="bg-gray-50">
+						<tr class="bg-gray-400">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Staked</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
 								{fmtMicroToStx(staked, sip10Data.decimals)}
 							</td>
 						</tr>
-						<tr class="bg-white">
+						<tr class="bg-gray-400">
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">Net Share</td>
 							<td class="border border-gray-300 px-4 py-2 text-sm text-gray-800">
 								{fmtMicroToStx(userShareNet, sip10Data.decimals)}
@@ -165,17 +172,6 @@
 						</tr>
 					</tbody>
 				</table>
-			{/if}
-			{#if canUserClaim(market, userStake)}
-				<button
-					on:click={() => {
-						errorMessage = undefined;
-						claimWinnings();
-					}}
-					class="mt-4 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-600"
-				>
-					CLAIM WINNINGS
-				</button>
 			{/if}
 		</div>
 	</div>

@@ -88,9 +88,9 @@ export function getStxAddress() {
 	if (!isLoggedIn()) return;
 	const ud = userSession.loadUserData();
 	if (getConfig().VITE_NETWORK === 'testnet' || getConfig().VITE_NETWORK === 'devnet') {
-		return ud.profile.stxAddress['testnet'];
+		return ud.profile.stxAddress.testnet;
 	}
-	return ud.profile.stxAddress['mainnet'];
+	return ud.profile.stxAddress.mainnet;
 }
 
 export function getStxNetwork() {

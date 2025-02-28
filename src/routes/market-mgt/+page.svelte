@@ -16,6 +16,7 @@
 	let startDelay = 5;
 	let endDelay = 500;
 	$: canCreate = false;
+	$: canPrompt = false;
 
 	const handlePollSubmission = (data: any) => {
 		txId = data;
@@ -69,6 +70,7 @@
 
 	onMount(async () => {
 		canCreate = await canCreateMarket();
+		canPrompt = true;
 	});
 </script>
 
@@ -103,12 +105,21 @@
 					</div>
 				</div>
 
-				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+				<!-- <div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
 					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 					<div class="">
 						<p class="text-indigo-200/70 text-sm">Resolution Time</p>
 						<p class="mt-2 text-3xl font-bold text-white">24h-1y</p>
 						<p class="mt-1 text-sm text-purple-400">Average 2 days</p>
+					</div>
+				</div>
+ -->
+				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="relative">
+						<p class="text-indigo-200/70 text-sm">AI Markets</p>
+						<p class="mt-2 text-3xl font-bold text-white">Prompt</p>
+						<p class="mt-1 text-sm text-purple-400"><a href="/market-mgt/prompt" class="link link-primary z-50">Try free!</a></p>
 					</div>
 				</div>
 			</div>

@@ -12,7 +12,7 @@
 				{title}
 			</h1>
 			<p class="text-indigo-200/70 mx-auto mt-6 max-w-2xl text-lg">
-				{subtitle}
+				{@html subtitle}
 			</p>
 		</div>
 	</div>

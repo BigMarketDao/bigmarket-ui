@@ -180,8 +180,22 @@ const defToken: Sip10Data = {
 	totalSupply: 0
 };
 
+export async function createMarketAIDiscovery(proposer: string, source: string): Promise<any> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-discovery/${proposer}/${source}`;
+	const response = await fetch(path);
+	const res = (await response.json()) || [];
+	return res;
+}
+
+export async function createMarketAISuggestion(proposer: string, source: string): Promise<any> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/agent/create/by-suggestion/${proposer}/${source}`;
+	const response = await fetch(path);
+	const res = (await response.json()) || [];
+	return res;
+}
+
 export async function resolveMarketAI(marketId: number, marketType: number): Promise<any> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/resolver/resolve/${marketId}/${marketType}`;
+	const path = `${getConfig().VITE_BIGMARKET_API}/agent/resolve/${marketId}/${marketType}`;
 	const response = await fetch(path);
 	const res = (await response.json()) || [];
 	return res;

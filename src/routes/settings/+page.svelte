@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { readPredictionContractData, type ContractBalances, type PredictionContractData } from '@mijoco/stx_helpers/dist/index';
-	import { ArrowUpOnSquare, ArrowUpRight, Icon } from 'svelte-hero-icons';
+	import { ArrowUpRight, Icon } from 'svelte-hero-icons';
 	import { Spinner } from 'flowbite-svelte';
 	import { sessionStore } from '$stores/stores';
 	import ContractBalanceTable from '$lib/predictions/settings/ContractBalanceTable.svelte';
@@ -9,10 +9,7 @@
 	import Bulletin from '$lib/components/ui/Bulletin.svelte';
 	import { fmtMicroToStx } from '$lib/utils';
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
-	import { ArrowUpRightFromSquareOutline, ArrowUpRightFromSquareSolid, LinkBreakOutline } from 'flowbite-svelte-icons';
 	import { explorerAddressUrl } from '$lib/stacks/stacks-connect';
-	import { fetchExchangeRates } from '$lib/stacks/rates';
-	import { resolveMarkets } from '$lib/predictions/predictions';
 
 	let data: PredictionContractData;
 	let contractBalances: ContractBalances;

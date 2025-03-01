@@ -57,9 +57,10 @@
 			{#key componentKey}
 				<FeaturedMarketStall market={featuredMarket || featuredMarkets[0]} />
 			{/key}
-			<div class="flex justify-center gap-2">
+			<div class="mt-4 flex justify-center gap-3">
 				{#each featuredMarkets as market, index}
-					<button class="h-2 w-2 rounded-full transition-all {market === featuredMarket ? 'bg-purple-500' : 'bg-gray-600 hover:bg-purple-400'}" on:click={() => setFeaturedMarket(market)} />
+					<button class="h-3 w-3 rounded-full transition-all duration-300 {market === featuredMarket ? 'scale-110 bg-purple-500' : 'bg-gray-600 hover:bg-purple-400'}" on:click={() => setFeaturedMarket(market)} aria-label={`View market ${index + 1}`}
+					></button>
 				{/each}
 			</div>
 		</div>

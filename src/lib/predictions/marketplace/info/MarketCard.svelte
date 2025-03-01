@@ -37,28 +37,22 @@
 	<div class="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(168,85,247,0.05)_10px,rgba(168,85,247,0.05)_20px)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
 	<div class="relative space-y-4">
-		<!-- Header: Logo -->
-		<div class="flex items-start justify-between">
+		<!-- Header: Logo and Title aligned -->
+		<div class="flex items-start gap-4">
 			<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[#151B2D]">
 				<img src={market.unhashedData.logo || placeholderImage} alt="Market Logo" class="h-full w-full object-cover" on:error={handleImageError} />
 			</div>
+			<div>
+				<h3 class="text-lg font-bold text-white">
+					<a href={`/market/${market.marketId}/${market.marketType}`} class="hover:text-purple-400">
+						{market.unhashedData.name}
+					</a>
+				</h3>
+			</div>
 		</div>
 
-		<!-- Content -->
-		<div class="space-y-2">
-			<h3 class="text-lg font-bold text-white">
-				<a href={`/market/${market.marketId}/${market.marketType}`} class="hover:text-purple-400">
-					{market.unhashedData.name}
-				</a>
-			</h3>
-
-			<p class="text-indigo-200/70 line-clamp-2 text-sm">
-				{market.unhashedData.description}
-			</p>
-		</div>
-
-		<!-- Stats -->
-		<div class="flex justify-center gap-8 border-t border-purple-900/20 py-4 text-sm">
+		<!-- Stats with fixed divider -->
+		<div class="flex justify-between border-t border-purple-900/20 py-4 text-sm">
 			<div class="flex items-center gap-2">
 				<TrendingUp class="h-4 w-4 text-purple-400" />
 				<span class="text-indigo-200 font-medium">${totalPool?.toLocaleString()}</span>

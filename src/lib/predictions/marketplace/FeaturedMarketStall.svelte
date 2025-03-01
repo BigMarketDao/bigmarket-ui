@@ -28,61 +28,53 @@
 	});
 </script>
 
-<div class=" overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
-	<div class=" inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+<div class=" rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
+	<div class=" inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 
 	<div class=" z-10">
-		<div class="mb-8 flex w-full items-center justify-between gap-8 rounded-md border border-purple-950 bg-[#151B2D] p-2">
-			<div class="flex items-center gap-3">
-				<TrendingUp class="h-6 w-6 text-purple-400" />
-				<div>
-					<p class="text-sm font-medium text-purple-300">Total Value Locked</p>
-					<p class="text-lg font-bold text-white">
-						{#if sip10Data}
-							<ExchangeRateHome {sip10Data} />
-						{/if}
-					</p>
-				</div>
-			</div>
+		<div class="grid grid-cols-1 gap-8 lg:grid-cols-5">
+			<!-- Left Column: Content (3/5 width) -->
+			<div class="flex flex-col space-y-6 lg:col-span-3">
+				<!-- Market Stats Icons - Positioned above title -->
+				<div class="flex items-center justify-start gap-4">
+					<div class="flex items-center gap-2 rounded-full bg-[#151B2D]/80 px-4 py-2">
+						<TrendingUp class="h-4 w-4 text-purple-400" />
+						<div>
+							<p class="text-xs text-white">
+								{#if sip10Data}
+									<ExchangeRateHome {sip10Data} />
+								{/if}
+							</p>
+						</div>
+					</div>
 
-			<div class="flex items-center gap-3">
-				<Users class="h-6 w-6 text-purple-400" />
-				<div>
-					<p class="text-sm font-medium text-purple-300">Total Users</p>
-					<p class="text-lg font-bold text-white">{marketStakes?.length || 0}</p>
+					<div class="flex items-center gap-2 rounded-full bg-[#151B2D]/80 px-4 py-2">
+						<Users class="h-4 w-4 text-purple-400" />
+						<p class="text-xs text-white">{marketStakes?.length || 0} users</p>
+					</div>
 				</div>
-			</div>
-		</div>
-		<div class="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
-			<!-- Left Column: Content -->
-			<div class="flex-1 space-y-6">
-				<!-- Stats Bar -->
 
 				<!-- Header with Logo and Title -->
-				<div class="flex items-center gap-6">
+				<div class="flex items-center gap-5">
 					<div class="h-[150px] w-[150px] overflow-hidden rounded-lg border border-purple-900/20 bg-[#151B2D]">
-						<LogoContainerSmall logo={market.unhashedData.logo} width={150} height={150} />
+						<LogoContainerSmall logo={market.unhashedData.logo} />
 					</div>
-					<div>
+					<div class="flex flex-col justify-center">
 						<h2 class="text-3xl font-bold leading-tight text-white lg:text-4xl">
 							{market.unhashedData.name}
 						</h2>
+						<p class="text-indigo-200/70 mt-2 line-clamp-2 text-lg">
+							{market.unhashedData.description}
+						</p>
 					</div>
 				</div>
 
-				<!-- Description -->
-				<div class="h-[72px]">
-					<p class="text-indigo-200/70 line-clamp-3 text-lg">
-						{market.unhashedData.description}
-					</p>
-				</div>
-
 				<!-- Trading Actions -->
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-2 gap-6">
 					<div class="space-y-2">
 						<button
 							on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)}
-							class="border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500 w-full rounded-lg border-2 px-6 py-3 font-semibold transition-all hover:text-white"
+							class="border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500 w-full rounded-lg border-2 px-6 py-3 font-semibold transition-all duration-300 hover:text-white"
 						>
 							Yes
 						</button>
@@ -94,7 +86,10 @@
 					</div>
 
 					<div class="space-y-2">
-						<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500 w-full rounded-lg border-2 px-6 py-3 font-semibold transition-all hover:text-white">
+						<button
+							on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)}
+							class="border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500 w-full rounded-lg border-2 px-6 py-3 font-semibold transition-all duration-300 hover:text-white"
+						>
 							No
 						</button>
 						{#if payouts}
@@ -105,9 +100,10 @@
 					</div>
 				</div>
 			</div>
-			<!-- Right Panel -->
-			<div class="w-full md:w-1/2">
-				<div class="min-h-[300px h-auto text-black">
+
+			<!-- Right Panel (2/5 width) - Chart -->
+			<div class="w-full lg:col-span-2">
+				<div class="scale-85 h-auto origin-top-right transform">
 					<StakeChart {market} title={''} />
 				</div>
 			</div>

@@ -38,7 +38,7 @@
 		category: 'meme',
 		description: 'Is it going to happen? ',
 		criterion: {
-			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarket DAO community oracle. See terms for details.',
+			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarketDAO community oracle. See terms for details.',
 			resolvesAt: 0,
 			sources: []
 		},

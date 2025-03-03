@@ -23,10 +23,10 @@
 	onMount(async () => {});
 </script>
 
-<div class=" rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
+<div class="rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
 	<div class=" inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 	{#if leaderBoard}
-		<div class="relative z-10">
+		<div class=" z-10">
 			<div class="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
 				<!-- Left Column: Recent Activity -->
 				<div class="w-full md:w-1/2">

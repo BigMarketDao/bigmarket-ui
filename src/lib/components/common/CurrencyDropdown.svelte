@@ -56,7 +56,7 @@
 
 	<!-- Dropdown Menu -->
 	{#if isOpen}
-		<div class="absolute left-0 z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black shadow-lg">
+		<div class="absolute bottom-0 left-0 z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black shadow-lg">
 			{#each currencies as currency}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->

@@ -5,8 +5,8 @@
 	<h1 class="mb-6 text-center text-4xl font-bold">📘 Creating Markets</h1>
 	<h3 class="mt-4 text-lg font-semibold">Who Can Create a Market?</h3>
 	<p class="mb-4">
-		Market creation can be gated by community vote. If gating is enabled, only approved addresses can create markets. The <strong>BigMarket DAO (BIG)</strong> manages this via a <strong>Merkle whitelist</strong>, ensuring that only approved users
-		have access.
+		Market creation can be gated by community vote. If gating is enabled, only approved addresses can create markets. The <strong>BigMarketDAO (BIG)</strong> manages this via a <strong>Merkle whitelist</strong>, ensuring that only approved users have
+		access.
 	</p>
 
 	<h3 class="text-lg font-semibold">✅ Is Market Creation Open Right Now?</h3>

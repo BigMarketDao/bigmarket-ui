@@ -29,7 +29,7 @@
 
 <svelte:head>
 	<title>BigMarket Settings</title>
-	<meta name="description" content="BigMarket DAO and prediction market settings" />
+	<meta name="description" content="BigMarketDAO and prediction market settings" />
 </svelte:head>
 
 <div class="">

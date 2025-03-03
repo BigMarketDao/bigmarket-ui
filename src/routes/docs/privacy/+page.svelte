@@ -8,7 +8,7 @@
 </svelte:head>
 
 <div class="bg-gray-50">
-	<DaoHero title={'BigMarket DAO'} subtitle={'Privacy Policy'} />
+	<DaoHero title={'BigMarketDAO'} subtitle={'Privacy Policy'} />
 	<div class="px-6 py-10 md:px-20">
 		<div class="mx-auto max-w-4xl px-6 py-12">
 			<p><strong>Effective Date:</strong> 16/Dec/2024</p>

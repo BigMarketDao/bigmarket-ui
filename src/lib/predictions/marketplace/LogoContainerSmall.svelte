@@ -10,4 +10,4 @@
 	}
 </script>
 
-<div class=""><img width={150} height={150} src={logo || placeholderImage} alt="Market Logo" on:error={handleError} class="max-h-[150px] max-w-[150px] place-self-center rounded-full object-cover" /></div>
+<div class=""><img src={logo || placeholderImage} alt="Market Logo" on:error={handleError} class="max-h-[150px] min-h-[150px] min-w-[150px] max-w-[150px] place-self-start rounded-sm object-cover" /></div>

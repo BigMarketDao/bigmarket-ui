@@ -8,7 +8,7 @@
 </svelte:head>
 
 <div class="bg-gray-50">
-	<DaoHero title={'BigMarket DAO'} subtitle={'Terms and Conditions'} />
+	<DaoHero title={'BigMarketDAO'} subtitle={'Terms and Conditions'} />
 	<div class="px-6 py-10 md:px-20">
 		<div class="mx-auto max-w-4xl px-6 py-12">
 			<h1 class="mb-8 text-center text-4xl font-bold">Disclaimer and Terms of Use</h1>

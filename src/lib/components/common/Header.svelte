@@ -51,12 +51,12 @@
 
 		<!-- Desktop Nav -->
 		<div class="hidden items-center gap-8 md:flex">
-			<a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a>
-			<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
+			<!-- <a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a> -->
+			<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">BigMarket IDO</a>
 			<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
 			<div class=" flex items-center gap-4">
 				<ConnectMenuDropdown {connectWallet} />
-				<CurrencyDropdown />
+				<!-- <CurrencyDropdown /> -->
 			</div>
 		</div>
 
@@ -78,12 +78,12 @@
 	{#if isOpen}
 		<div id="header-dd" class=" left-0 right-0 top-20 z-[999] border-b border-purple-900/20 bg-[#0A0A1A]/95 bg-black backdrop-blur-lg md:hidden">
 			<div class="mx-auto flex max-w-7xl flex-col gap-6 p-6">
-				<a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a>
-				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">IDO</a>
+				<!-- <a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a> -->
+				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">BigMarket IDO</a>
 				<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
 				<div class="flex flex-col gap-4">
 					<ConnectMenuDropdown {connectWallet} />
-					<CurrencyDropdown />
+					<!-- <CurrencyDropdown /> -->
 				</div>
 			</div>
 		</div>

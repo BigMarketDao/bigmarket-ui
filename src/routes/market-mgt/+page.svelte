@@ -29,7 +29,7 @@
 		criterion: {
 			resolvesAt: new Date().getTime(),
 			sources: [],
-			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarket DAO community oracle. See terms for details.'
+			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarketDAO community oracle. See terms for details.'
 		},
 		token: '',
 		priceFeedId: 'STX/USD/0',

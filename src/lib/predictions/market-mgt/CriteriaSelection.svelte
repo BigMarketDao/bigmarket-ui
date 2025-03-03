@@ -5,6 +5,7 @@
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { urlRegex } from '$lib/utils';
 	import type { Criterion } from '@mijoco/stx_helpers/dist/index';
+	import { Profanity } from '@2toad/profanity';
 
 	export let marketType: number;
 	export let criteria: Criterion;
@@ -30,16 +31,14 @@
 			errorMessage = 'This url appears to already be included';
 			return;
 		}
-		// if (!urlRegex.test(currentSource.trim())) {
-		// 	errorMessage = 'This url appears to invalid web address';
-		// 	return;
-		// }
+		const profanity = new Profanity();
+		currentSource = profanity.censor(currentSource);
+
 		localCriterion.sources.push(currentSource);
 		componentKey++;
 		currentSource = undefined;
 	}
 
-	// Remove a source field by index
 	function removeSource(index: number) {
 		localCriterion.sources = localCriterion.sources.filter((_, i) => i !== index);
 	}

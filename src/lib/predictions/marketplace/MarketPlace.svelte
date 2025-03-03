@@ -11,21 +11,12 @@
 	export let markets: Array<PredictionMarketCreateEvent> = [];
 	export let leaderBoard: LeaderBoard;
 	let filteredMarkets: Array<PredictionMarketCreateEvent> = [];
-	let category: string;
 	let featuredMarket: PredictionMarketCreateEvent;
 	let componentKey = 0;
 
 	const setFeaturedMarket = (market: PredictionMarketCreateEvent) => {
 		featuredMarket = market;
 		componentKey++;
-	};
-	const handleSelectCategory = (newCategory: string) => {
-		category = newCategory;
-		if (category && category !== 'all') {
-			filteredMarkets = markets.filter((o) => o.unhashedData.category === category);
-		} else {
-			filteredMarkets = markets;
-		}
 	};
 
 	const extractSoonest = (markets: Array<PredictionMarketCreateEvent>) => {
@@ -71,10 +62,6 @@
 		<InfoPanelContainer />
 	</div>
 
-	<div class="mt-2">
-		<LeaderBoardDisplay {leaderBoard} {markets} />
-	</div>
-
 	<!-- Ending Soon Section -->
 	<section>
 		<h2 class="mb-6 text-2xl font-bold text-white">Ending Soon</h2>
@@ -88,5 +75,7 @@
 	<!-- Market List -->
 	<FilteredMarketView {markets} />
 
-	<!-- <GetStartedPanel /> -->
+	<div class="mt-2">
+		<LeaderBoardDisplay {leaderBoard} {markets} />
+	</div>
 </div>

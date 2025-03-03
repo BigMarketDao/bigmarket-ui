@@ -114,7 +114,7 @@ export function convertFiatToNative(sip10Data: Sip10Data, amountFiat: number, cu
 	let amountNative = 0;
 	if (sip10Data.symbol === 'STX') amountNative = amountFiat / (rate.stxToBtc * rate.fifteen);
 	else amountNative = amountFiat / rate.fifteen;
-	return amountNative; //fmtStxMicro(amountNative, sip10Data.decimals);
+	return parseFloat(amountNative.toFixed(sip10Data.decimals)); //fmtStxMicro(amountNative, sip10Data.decimals);
 }
 export function convertCryptoToFiat(stacks: boolean, amountNative: number): string {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);

@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { getGovernanceToken, getMarketToken, getStxToken } from '$lib/predictions/predictions';
 	import { explorerTxUrl, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
-	import { fmtAmount, fmtMicroToStx, fmtMicroToStxNumber, fmtStxMicro, toFiat, truncate } from '$lib/utils';
+	import { fmtMicroToStx, fmtMicroToStxNumber, fmtStxMicro, toFiat, truncate } from '$lib/utils';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { fetchUserBalances, getStacksNetwork, type DaoOverview, type Sip10Data, type TokenSalePurchase, type TokenSaleStage } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import { fetchTokenSalePurchases } from '../token-sale';
 	import { showContractCall } from '@stacks/connect';
 	import { Pc, PostConditionMode, uintCV } from '@stacks/transactions';
-	import Banner from '$lib/components/ui/Banner.svelte';
 	import { selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
 	import { Wallet } from 'lucide-svelte';
 
+	export let fiatPerStx = 0;
 	let daoOverview = $sessionStore.daoOverview;
 	let tokenSalePurchases: Array<TokenSalePurchase>;
 	let stage: TokenSaleStage;
@@ -26,7 +26,6 @@
 	let stageBalance = '0';
 	let currentStage = (daoOverview?.tokenSale?.currentStage || 1) - 1;
 	let walletConnected = isLoggedIn();
-	let saleCurrency = 'STX';
 	$: stxBalance = 0;
 	$: bigBalance = 0;
 
@@ -39,12 +38,17 @@
 		decimals: getMarketToken(token.split('::')[0]).decimals,
 		symbol: getMarketToken(token.split('::')[0]).symbol
 	}));
-	$: tokenAmount = stacksLeading ? (amount * stage?.price || 0).toFixed(6) : (amount / stage?.price || 0).toFixed(6);
 	$: sip10Data = getStxToken($sessionStore.tokens);
 	$: govToken = getGovernanceToken($sessionStore.tokens);
 	$: stageProgress = stage ? Math.min((stage.tokensSold / stage.maxSupply) * 100, 100) : 0;
 	$: stages = daoOverview?.tokenSale?.stages || [];
-	$: tokensReceived = stacksLeading ? amount * stage.price : amount;
+
+	// 0.05 USD per BIG -> 1 USD = 1/0.05 BIG = 20 BIG
+	// 1 USD = x STX
+	// x SXT = 1 USD = 1/0.05 BIG
+	// 1 STX = 1/x USD = 1/(0.05x)
+	$: tokensReceived = stacksLeading ? (amount / (0.05 * fiatPerStx)).toFixed(6) : amount;
+	$: tokenAmount = stacksLeading ? (amount || 0).toFixed(6) : (amount / (0.05 * fiatPerStx) || 0).toFixed(6);
 
 	const switcheroo = () => {
 		stacksLeading = !stacksLeading;
@@ -100,6 +104,7 @@
 			const bigContract = `${getDaoConfig().VITE_DOA_DEPLOYER}.${getDaoConfig().VITE_DAO_GOVERNANCE_TOKEN}::bmg-token`;
 			bigBalance = Number(bals?.tokenBalances?.fungible_tokens[bigContract]?.balance || 0);
 			stxBalance = Number(bals?.tokenBalances?.stx.balance || 0);
+			const stxToFiat = 0;
 		}
 	});
 </script>
@@ -162,7 +167,7 @@
 								on:change={handleChange}
 								class="placeholder-indigo-200/30 flex-1 rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
 							/>
-							<select bind:value={saleCurrency} on:change={() => switcheroo()} class="rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20">
+							<select on:change={() => switcheroo()} class="rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20">
 								<option>STX</option>
 								<option>BIG</option>
 							</select>

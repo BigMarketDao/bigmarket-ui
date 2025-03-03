@@ -63,7 +63,7 @@
 		const postConditions = [];
 		if (!isSTX(market.marketData.token)) {
 			const formattedToken = (market.marketData.token.split('.')[0] + '.' + market.marketData.token.split('.')[1]) as `${string}.${string}`;
-			const postConditionFt = Pc.principal(address).willSendEq(microStxAmount).ft(formattedToken, sip10Data.symbol);
+			const postConditionFt = Pc.principal(address).willSendEq(microStxAmount).ft(formattedToken, market.marketData.token.split('.')[1]);
 			postConditions.push(postConditionFt);
 		} else {
 			postConditions.push(Pc.principal(address).willSendEq(microStxAmount).ustx());

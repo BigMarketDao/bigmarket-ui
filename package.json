@@ -40,6 +40,7 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
+		"@2toad/profanity": "^3.1.1",
 		"@mijoco/stx_helpers": "^0.6.83",
 		"@mysten/dapp-kit": "^0.14.43",
 		"@mysten/sui": "^1.17.0",

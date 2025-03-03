@@ -15,7 +15,7 @@
 
 <svelte:head>
 	<title>Bitcoin Prediction Markets</title>
-	<meta name="description" content="BigMarket DAO and AI powered prediction markets built on Bitcoin" />
+	<meta name="description" content="BigMarketDAO and AI powered prediction markets built on Bitcoin" />
 </svelte:head>
 
 <div class="w-full">

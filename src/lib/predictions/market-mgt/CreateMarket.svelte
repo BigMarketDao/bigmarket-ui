@@ -17,6 +17,7 @@
 	import MarketTypeSelection from './MarketTypeSelection.svelte';
 	import CriteriaSelection from './CriteriaSelection.svelte';
 	import LogoDisplay from './LogoDisplay.svelte';
+	import { Profanity } from '@2toad/profanity';
 
 	export let examplePoll: StoredOpinionPoll;
 	export let onPollSubmit;
@@ -80,6 +81,16 @@
 
 	const getSignature = async () => {
 		examplePoll.createdAt = new Date().getTime();
+		const profanity = new Profanity();
+		template.description = profanity.censor(template.description);
+		console.log('post profanity: ' + template.description);
+		template.criterion.criteria = profanity.censor(template.criterion.criteria);
+		console.log('post profanity: ' + template.criterion.criteria);
+		template.name = profanity.censor(template.name);
+		console.log('post profanity: ' + template.name);
+		template.logo = profanity.censor(template.logo);
+		console.log('post profanity: ' + template.logo);
+
 		if (!token) {
 			errorMessage = 'Please select a token';
 			return;
@@ -106,6 +117,10 @@
 		}
 		if (!examplePoll.social.discord.serverId) {
 			errorMessage = 'Please enter a discord serverId';
+			return;
+		}
+		if (examplePoll.marketFee > $sessionStore.daoOverview.contractData.marketFeeBipsMax) {
+			errorMessage = 'Market fee cannot exceed ' + $sessionStore.daoOverview.contractData.marketFeeBipsMax / 100 + '% ';
 			return;
 		}
 
@@ -197,6 +212,7 @@
 	onMount(async () => {
 		template = examplePoll;
 		if (examplePoll.outcomes) {
+			template.marketFee = template.marketFee / 100;
 			template.marketType = examplePoll.outcomes?.length === 2 ? 0 : 1;
 			template.marketTypeDataCategorical = [];
 			for (const o of examplePoll.outcomes) {
@@ -269,7 +285,7 @@
 					</div>
 				</div>
 			</div>
-			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
+			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical!} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
 			<CriteriaSelection bind:criteria marketType={template.marketType} />
 			<TokenSelection currentToken={token} onSelectToken={handleSelectToken} />
 			<CategorySelection categoryName={category} onSelectCategory={handleSelectCategory} />

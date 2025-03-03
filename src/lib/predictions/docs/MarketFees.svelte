@@ -34,7 +34,7 @@
 			<h3 class="text-2xl font-semibold text-gray-700">2️⃣ DAO Fund Fee</h3>
 			<p class="text-lg leading-relaxed">
 				<strong>Applied to:</strong> Winning claims <br />
-				<strong>Purpose:</strong> Funds the <strong>BigMarket DAO treasury</strong>. <br />
+				<strong>Purpose:</strong> Funds the <strong>BigMarketDAO treasury</strong>. <br />
 				<strong>Where it goes:</strong> The DAO <strong>controls and spends</strong> these funds via governance voting.
 			</p>
 		</div>
@@ -55,7 +55,7 @@
 			<h3 class="text-2xl font-semibold text-gray-700">4️⃣ Market Creation Fee</h3>
 			<p class="text-lg leading-relaxed">
 				<strong>Applied to:</strong> New market creation <br />
-				<strong>Purpose:</strong> Discourages spam and funds the <strong>BigMarket DAO treasury</strong>. <br />
+				<strong>Purpose:</strong> Discourages spam and funds the <strong>BigMarketDAO treasury</strong>. <br />
 				<strong>Where it goes:</strong> Paid directly to the DAO treasury.
 			</p>
 		</div>

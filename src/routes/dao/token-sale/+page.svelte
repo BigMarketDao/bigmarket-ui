@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { getDaoOverview } from '$lib/predictions/predictions';
-	import { sessionStore, type BigMarketSessionStore } from '$stores/stores';
+	import { convertFiatToNative, getAllowedTokens, getDaoOverview, getStxToken } from '$lib/predictions/predictions';
+	import { selectedCurrency, sessionStore, type BigMarketSessionStore } from '$stores/stores';
 	import { onMount } from 'svelte';
 	import TokenSaleV3 from '$lib/dao/token-sale/TokenSaleV3.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
+
+	let fiatPerStx = 0;
 
 	onMount(async () => {
 		const daoOverview = await getDaoOverview();
@@ -12,6 +14,14 @@
 			conf.daoOverview = daoOverview;
 			return conf;
 		});
+
+		// 0.05 USD per BIG -> 1 USD = 1/0.05 BIG = 20 BIG
+		// 1 USD = x STX
+		// x SXT = 1 USD = 1/0.05 BIG
+		// 1 STX = 1/x USD = 1/(0.05x)
+		fiatPerStx = convertFiatToNative(getStxToken(await getAllowedTokens()), 1, $selectedCurrency.code);
+		const rate = $sessionStore.exchangeRates.find((c) => c.currency === $selectedCurrency.code);
+		if (rate) return 0;
 	});
 </script>
 
@@ -22,14 +32,17 @@
 
 <div class="min-h-screen bg-[#0A0A1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0A0A1A] to-[#0A0A1A]">
 	<!-- Hero Section -->
-	<DaoHero title={'Join the BigMarket IDO'} subtitle={"Secure your stake in the world's most advanced AI-governed prediction platform"} />
+	<DaoHero
+		title={'Join the BigMarket IDO'}
+		subtitle={'Secure your stake in the world\'s most advanced AI-enabled prediction platform<br/><br/><i><span class="text-primary">This is a work in progress - the final version will include feedback from early contributors via proposal voting.</span></i>'}
+	/>
 
 	<!-- Main Content -->
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="grid gap-8 lg:grid-cols-2">
+		<div class="grid gap-8 lg:grid-cols-1">
 			<!-- Left Column: Info -->
 			<div class="space-y-6">
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-3 gap-4">
 					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
 						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 						<div class="relative">
@@ -43,12 +56,23 @@
 						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 						<div class="relative">
 							<p class="text-indigo-200/70 text-sm">Initial Price</p>
-							<p class="mt-2 text-3xl font-bold text-white">$0.05</p>
+							<p class="mt-2 text-3xl font-bold text-white">$0.05 ({fiatPerStx} STX)</p>
 							<p class="mt-1 text-sm text-purple-400">USD per BIG</p>
 						</div>
 					</div>
-				</div>
 
+					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+						<div class="relative">
+							<p class="text-indigo-200/70 text-sm">Open Proposals</p>
+							<p class="mt-2 text-3xl font-bold text-white">3</p>
+							<p class="mt-1 text-sm text-purple-400">Coming Soon!</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-2 gap-4">
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
 					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
 					<div class="relative">
@@ -92,12 +116,12 @@
 								<span class="font-semibold text-purple-400">60%</span>
 							</div>
 							<div class="flex justify-between">
-								<span class="text-indigo-200/70">Team & Council</span>
-								<span class="font-semibold text-purple-400">25%</span>
+								<span class="text-indigo-200/70">Operations</span>
+								<span class="font-semibold text-purple-400">15%</span>
 							</div>
 							<div class="flex justify-between">
 								<span class="text-indigo-200/70">Treasury</span>
-								<span class="font-semibold text-purple-400">15%</span>
+								<span class="font-semibold text-purple-400">25%</span>
 							</div>
 						</div>
 					</div>
@@ -106,7 +130,7 @@
 
 			<!-- Right Column: Purchase Card -->
 			<div>
-				<TokenSaleV3 />
+				<TokenSaleV3 {fiatPerStx} />
 			</div>
 		</div>
 	</div>

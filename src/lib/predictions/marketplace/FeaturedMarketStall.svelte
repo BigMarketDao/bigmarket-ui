@@ -14,12 +14,12 @@
 	let marketStakes: PredictionMarketStakeEvent[];
 	let totalPoolMicro = 0;
 	let inited = false;
-	let sip10Data: Sip10Data;
+	let sip10Data: Sip10Data = getMarketToken(market.marketData.token);
 	let payouts: any;
+	$: payouts = calculatePayoutCategorical(convertFiatToNative(sip10Data, 100, $selectedCurrency.code), sip10Data.decimals, undefined, market.marketData);
 
 	onMount(async () => {
 		marketStakes = await fetchMarketStakes(market.marketId, market.marketType);
-		sip10Data = getMarketToken(market.marketData.token);
 		totalPoolMicro = totalPoolSum(market.marketData.stakes);
 		stakeAmountHome.set(totalPoolMicro);
 		const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
@@ -28,6 +28,7 @@
 	});
 </script>
 
+<!-- <div class=" rounded-xl border border-purple-900/20 p-8 shadow-lg"> -->
 <div class=" rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
 	<div class=" inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 
@@ -56,7 +57,7 @@
 
 				<!-- Header with Logo and Title -->
 				<div class="flex items-center gap-5">
-					<div class="h-[150px] w-[150px] overflow-hidden rounded-lg border border-purple-900/20 bg-[#151B2D]">
+					<div class=" border border-purple-900/20 bg-[#151B2D]">
 						<LogoContainerSmall logo={market.unhashedData.logo} />
 					</div>
 					<div class="flex flex-col justify-center">

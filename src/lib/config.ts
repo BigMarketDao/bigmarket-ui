@@ -38,7 +38,7 @@ export const config: { [key: string]: Config } = {
 		VITE_STACKS_EXPLORER: 'https://explorer.hiro.so',
 		VITE_BRIDGE_API: 'https://api.stx.eco/bridge-api',
 		VITE_SUI_API: 'http://localhost:9001',
-		VITE_MEMPOOL_API: 'https://mempool.space/testnet/api',
+		VITE_MEMPOOL_API: 'https://beta.sbtc-mempool.tech/api/proxy', //0bbc856394ffdab7e69e0b2b8ddb1fa7e901974cd89b90a64349b48b643c7e9c
 		VITE_POLL_PAYMENT_USTX: 50000000
 	},
 	mainnet: {

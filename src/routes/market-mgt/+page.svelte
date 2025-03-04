@@ -110,7 +110,7 @@
 					<div class="relative">
 						<p class="text-indigo-200/70 text-sm">AI Markets</p>
 						<p class="mt-2 text-3xl font-bold text-white">Prompt</p>
-						<p class="mt-1 text-sm text-purple-400"><a href="/market-mgt/prompt" class="link link-primary z-50">Try free!</a></p>
+						<p class="mt-1 text-sm text-purple-400"><a href="/market-mgt/prompt" class="link link-primary z-50" on:click|preventDefault={() => window.location.reload()}>Coming soon!</a></p>
 					</div>
 				</div>
 			</div>

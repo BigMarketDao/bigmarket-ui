@@ -17,7 +17,7 @@
 	let errorMessage: string | undefined;
 	let txId: string;
 	let stacksHeight = 0;
-	let resolverAI = true;
+	let resolverAI = false;
 
 	const resolveMarket = async (outcome: string | number) => {
 		if (!isLoggedIn()) {

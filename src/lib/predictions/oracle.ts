@@ -1,7 +1,6 @@
 import { getConfig } from '$stores/store_helpers';
-import { sessionStore } from '$stores/stores';
 import { callContractReadOnly, type PollVoteEvent } from '@mijoco/stx_helpers/dist/index';
-import { Cl, cvToJSON, serializeCV } from '@stacks/transactions';
+import { Cl, serializeCV } from '@stacks/transactions';
 
 export async function readPythEvents(): Promise<Array<PollVoteEvent> | []> {
 	const path = `${getConfig().VITE_BIGMARKET_API}/oracle/pyth/events`;

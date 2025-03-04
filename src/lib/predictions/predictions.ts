@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { openStructuredDataSignatureRequestPopup, showContractCall, type SignatureData } from '@stacks/connect';
 import { appDetails } from '$lib/config';
-import { PostConditionMode, principalCV, serializeCV, uintCV, type ClarityValue, type ListCV, type TupleCV, type TupleData } from '@stacks/transactions';
+import { PostConditionMode, type ClarityValue, type ListCV, type TupleCV, type TupleData } from '@stacks/transactions';
 import { domain, domainCV, getStxAddress, getStxNetwork } from '../stacks/stacks-connect';
 import {
 	type PollVoteMessage,

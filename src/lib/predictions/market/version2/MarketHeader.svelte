@@ -9,7 +9,7 @@
 </script>
 
 <!-- Market Header -->
-<div class="card bg-neutral shadow-xl">
+<div class="card z-10 bg-neutral shadow-xl" style="position:static;">
 	<div class="card-body">
 		<div class="flex flex-col items-start gap-6 sm:flex-row">
 			<!-- Avatar Container -->
@@ -17,7 +17,7 @@
 				<div>
 					<!-- <div class="max-w-18 h-18 flex rounded-xl bg-primary/10 p-4 text-center"> -->
 					<!-- <Rocket class="text-primary h-12 w-12 text-center" /> -->
-					<LogoContainerSmall logo={market.unhashedData.logo} width={150} height={150} />
+					<LogoContainerSmall logo={market.unhashedData.logo} />
 				</div>
 			</div>
 

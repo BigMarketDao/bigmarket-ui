@@ -78,7 +78,7 @@
 			<p class="mt-2 text-gray-900">Connected: {walletAddress}</p>
 		{:else}
 			<div class="flex w-full justify-between gap-x-3">
-				<button class="mt-2 w-full rounded-md bg-bitcoinorange px-4 py-2 text-black" on:click={loginStacks}> Stacks </button>
+				<button class="mt-2 w-full rounded-md bg-bitcoinorange px-4 py-2 text-black" on:click={loginStacks}> Bitcoin </button>
 				<button disabled class="mt-2 w-full rounded-md bg-gray-600 px-4 py-2 text-white" on:click={loginStacks}><StopCircle class="inline" /> Phantom </button>
 				<button disabled class="mt-2 w-full rounded-md bg-gray-600 px-4 py-2 text-white" on:click={loginStacks}><StopCircle class="inline" /> Meta Mask </button>
 			</div>

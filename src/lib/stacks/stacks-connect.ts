@@ -3,8 +3,6 @@ import { storedStacksWallet } from '$stores/wallet';
 import { getConfig, getSession } from '$stores/store_helpers';
 import { ChainId, STACKS_DEVNET, STACKS_MAINNET, STACKS_TESTNET } from '@stacks/network';
 import { stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
-import { getBalanceAtHeight, getTokenBalances } from '@mijoco/stx_helpers/dist/index';
-import { isSTX } from '$lib/predictions/predictions';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 const userSession = new UserSession({ appConfig });
@@ -85,12 +83,27 @@ export function isLoggedIn() {
 }
 
 export function getStxAddress() {
-	if (!isLoggedIn()) return;
-	const ud = userSession.loadUserData();
-	if (getConfig().VITE_NETWORK === 'testnet' || getConfig().VITE_NETWORK === 'devnet') {
-		return ud.profile.stxAddress.testnet;
-	}
-	return ud.profile.stxAddress.mainnet;
+	if (!isLoggedIn()) return '';
+	const sess = getSession();
+	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.stacks?.address || '';
+}
+
+export function getStxBalance() {
+	if (!isLoggedIn()) return 0;
+	const sess = getSession();
+	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.stacks?.amount || 0;
+}
+
+export function getBtcAddress() {
+	if (!isLoggedIn()) return '';
+	const sess = getSession();
+	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.cardinal?.address || '';
+}
+
+export function getBtcBalance() {
+	if (!isLoggedIn()) return 0;
+	const sess = getSession();
+	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.cardinal?.amount || 0;
 }
 
 export function getStxNetwork() {

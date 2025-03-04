@@ -29,11 +29,11 @@
 </script>
 
 <!-- <div class=" rounded-xl border border-purple-900/20 p-8 shadow-lg"> -->
-<div class=" rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
+<div class="static rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
 	<div class=" inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 
 	<div class=" z-10">
-		<div class="grid grid-cols-1 gap-8 lg:grid-cols-5">
+		<div class="grid grid-cols-1 gap-8 md:gap-x-20 lg:grid-cols-5">
 			<!-- Left Column: Content (3/5 width) -->
 			<div class="flex flex-col space-y-6 lg:col-span-3">
 				<!-- Market Stats Icons - Positioned above title -->
@@ -103,7 +103,7 @@
 			</div>
 
 			<!-- Right Panel (2/5 width) - Chart -->
-			<div class="w-full lg:col-span-2">
+			<div class=" mt-20 w-full lg:col-span-2">
 				<div class="scale-85 h-auto origin-top-right transform">
 					<StakeChart {market} title={''} />
 				</div>

@@ -1,43 +1,39 @@
-import { bufferCV, Cl, listCV, serializeCV, tupleCV, uintCV } from '@stacks/transactions';
-import type { SegwitData } from './generate_segwit_proofs';
-import { callContractReadOnly } from '@mijoco/stx_helpers/dist/index';
+import { bufferCV, Cl, cvToJSON, deserializeCV, serializeCV } from '@stacks/transactions';
 import { getConfig } from '$stores/store_helpers';
 import { sha256 } from '@noble/hashes/sha256';
 import { hex } from '@scure/base';
-
-export async function fetch80ByteBlockHeader(mempoolUrl: string, hash: string): Promise<string | undefined> {
-	try {
-		const url = `${mempoolUrl}/block/${hash}/raw`;
-		// raw binary block data
-		const response = await fetch(url);
-		const rawData = new Uint8Array(await response.arrayBuffer()); // Correctly handle binary data
-		// Extract the first 80 bytes (block header)
-		const blockHeader = rawData.slice(0, 80);
-		return hex.encode(blockHeader);
-	} catch (error) {
-		console.error('Error: fetch80ByteBlockHeader:', error);
-	}
-}
-
-export const contract = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.clarity-bitcoin-lib-v5';
+import type { SegwitData } from './proof-types';
 
 const getStacksApi = () => {
 	return getConfig().VITE_STACKS_API;
 };
 
+const getParams = (contract: string, functionName: string, functionArgs: Array<string>) => {
+	return {
+		contractAddress: contract.split('.')[0],
+		contractName: contract.split('.')[1],
+		functionName,
+		functionArgs
+	};
+};
+
+export const verifyMerkleCoinbaseProof = async (proof: SegwitData) => {
+	const functionArgs = [
+		`0x${serializeCV(Cl.bufferFromHex(proof.txId0Reversed))}`,
+		`0x${serializeCV(Cl.bufferFromHex(proof.merkleRoot))}`,
+		`0x${serializeCV(Cl.tuple({ 'tx-index': Cl.uint(0), hashes: Cl.list(proof.cproof.map((o) => Cl.bufferFromHex(o))), 'tree-depth': Cl.uint(proof.treeDepth) }))}`
+	];
+	const result = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'verify-merkle-proof', functionArgs));
+	return result.value.value;
+};
+
 export const verifyMerkleProof = async (proof: SegwitData) => {
 	const functionArgs = [
 		`0x${serializeCV(Cl.bufferFromHex(proof.txIdReversed))}`,
-		`0x${serializeCV(Cl.bufferFromHex(proof.witnessMerkleRoot))}`,
+		`0x${serializeCV(Cl.bufferFromHex(proof.merkleRoot))}`,
 		`0x${serializeCV(Cl.tuple({ 'tx-index': Cl.uint(proof.txIndex), hashes: Cl.list(proof.wproof.map((o) => Cl.bufferFromHex(o))), 'tree-depth': Cl.uint(proof.treeDepth) }))}`
 	];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'verify-merkle-proof',
-		functionArgs
-	};
-	const result = await callContractReadOnly(getStacksApi(), params);
+	const result = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'verify-merkle-proof', functionArgs));
 	return result.value.value;
 };
 
@@ -51,19 +47,16 @@ export const wasSegwitTxMinedCompact = async (proof: SegwitData) => {
 		`0x${serializeCV(Cl.list(proof.wproof.map((o) => Cl.bufferFromHex(o))))}`,
 		`0x${serializeCV(Cl.bufferFromHex(proof.witnessMerkleRoot))}`,
 		`0x${serializeCV(Cl.bufferFromHex(proof.witnessReservedValue))}`,
-		`0x${serializeCV(Cl.bufferFromHex(proof.wctxHex))}`,
+		`0x${serializeCV(Cl.bufferFromHex(proof.ctxHex))}`,
 		`0x${serializeCV(Cl.list(proof.cproof.map((o) => Cl.bufferFromHex(o))))}`
 	];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'was-segwit-tx-mined-compact',
-		functionArgs
-	};
-
-	const result = await callContractReadOnly(getStacksApi(), params);
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'was-segwit-tx-mined-compact', functionArgs));
+	let result = response.value?.value || response.value;
+	if (!result.success) {
+		return { mined: false, Result: result, success: result.success };
+	}
 	console.log('wasTxMinedCompact: ', result);
-	return result.value?.value || result.value;
+	return { mined: result.success, Result: result, success: result.success };
 };
 
 export const wasTxMinedCompact = async (proof: SegwitData) => {
@@ -77,74 +70,76 @@ export const wasTxMinedCompact = async (proof: SegwitData) => {
 		`0x${serializeCV(bufferCV(hex.decode(proof.header)))}`,
 		`0x${serializeCV(Cl.tuple({ 'tx-index': Cl.uint(proof.txIndex), 'tree-depth': Cl.uint(proof.treeDepth), hashes: Cl.list(proof.wproof.map((o) => Cl.bufferFromHex(o))) }))}`
 	];
-
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'was-tx-mined-compact',
-		functionArgs
-	};
-
-	const result = await callContractReadOnly(getStacksApi(), params);
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'was-tx-mined-compact', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	if (!response.success) {
+		return { mined: false, Result: result, success: response.success };
+	}
 	console.log('wasTxMinedCompact: ', result);
-	let contractTxid = (result.value?.value || result.value) as string;
-	contractTxid = contractTxid.substring(2);
-	return { mined: contractTxid === proof.txId, 'Contract txid': contractTxid, success: result.success };
+	result = result.substring(2);
+	return { mined: result === proof.txId, Result: result, success: response.success };
 };
 
 export const verifyBlockHeader = async (proof: SegwitData) => {
 	const functionArgs = [`0x${serializeCV(bufferCV(hex.decode(proof.header)))}`, `0x${serializeCV(Cl.uint(proof.height))}`];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'verify-block-header',
-		functionArgs
-	};
-	const result = await callContractReadOnly(getStacksApi(), params);
-	console.log('verify-block-header: ', result);
-	return result.value?.value || result.value;
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'verify-block-header', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
 };
 export const getBcHHash = async (proof: SegwitData) => {
 	const functionArgs = [`0x${serializeCV(Cl.uint(proof.height))}`];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'get-bc-h-hash',
-		functionArgs
-	};
-	const result = await callContractReadOnly(getStacksApi(), params);
-	return result.value?.value || result.value;
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'get-bc-h-hash', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
 };
 export const parseBlockHeader = async (proof: SegwitData) => {
 	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(proof.header))}`];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'parse-block-header',
-		functionArgs
-	};
-	const result = await callContractReadOnly(getStacksApi(), params);
-	return result.value?.value || result.value;
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'parse-block-header', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
 };
 export const parseTx = async (proof: SegwitData) => {
 	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(proof.txHex))}`];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'parse-tx',
-		functionArgs
-	};
-	const result = await callContractReadOnly(getStacksApi(), params);
-	return result.value?.value || result.value;
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'parse-tx', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
 };
 export const parseWTx = async (proof: SegwitData) => {
 	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(proof.wtxHex))}`, `0x${serializeCV(Cl.bool(true))}`];
-	const params = {
-		contractAddress: contract.split('.')[0],
-		contractName: contract.split('.')[1],
-		functionName: 'parse-wtx',
-		functionArgs
-	};
-	const result = await callContractReadOnly(getStacksApi(), params);
-	return result.value?.value || result.value;
+	const response = await callContractReadOnly(getStacksApi(), getParams(proof.contract, 'parse-wtx', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
 };
+
+async function callContractReadOnly(stacksApi: string, data: any) {
+	let url = `${stacksApi}/v2/contracts/call-read/${data.contractAddress}/${data.contractName}/${data.functionName}`;
+	if (data.tip) {
+		url += '?tip=' + data.tip;
+	}
+	let val;
+	try {
+		console.log('callContractReadOnly: url: ', url);
+		const hiroApi1 = 'ae4ecb7b39e8fbc0326091ddac461bc6';
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'x-hiro-api-key': hiroApi1
+			},
+			body: JSON.stringify({
+				arguments: data.functionArgs,
+				sender: data.contractAddress
+			})
+		});
+		val = await response.json();
+	} catch (err) {
+		console.error('callContractReadOnly4: ', err);
+	}
+	try {
+		const result = cvToJSON(deserializeCV(val.result));
+		return result;
+	} catch (err: any) {
+		console.error('Error: callContractReadOnly: ', val);
+		return val;
+	}
+}

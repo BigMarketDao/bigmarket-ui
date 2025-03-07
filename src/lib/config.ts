@@ -15,6 +15,7 @@ export interface Config {
 	VITE_STACKS_EXPLORER: string;
 	VITE_MEMPOOL_API: string;
 	VITE_BITCOIN_WALLET: string;
+	VITE_CLARITY_BITCOIN: string;
 }
 
 export const config: { [key: string]: Config } = {
@@ -29,7 +30,8 @@ export const config: { [key: string]: Config } = {
 		VITE_STACKS_EXPLORER: 'http://localhost:8000',
 		VITE_MEMPOOL_API: 'http://localhost:8001',
 		VITE_POLL_PAYMENT_USTX: 50000000,
-		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
+		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme',
+		VITE_CLARITY_BITCOIN: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.clarity-bitcoin-lib-v5'
 	},
 	testnet: {
 		VITE_PUBLIC_APP_NAME: 'BigMarket',
@@ -42,7 +44,8 @@ export const config: { [key: string]: Config } = {
 		VITE_SUI_API: 'http://localhost:9001',
 		VITE_MEMPOOL_API: 'https://beta.sbtc-mempool.tech/api/proxy', //0bbc856394ffdab7e69e0b2b8ddb1fa7e901974cd89b90a64349b48b643c7e9c
 		VITE_POLL_PAYMENT_USTX: 50000000,
-		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
+		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme',
+		VITE_CLARITY_BITCOIN: 'ST31A25YBK50KFJ2QS0EQK9FNXEQJD4PR0828789R.clarity-bitcoin-lib-v5'
 	},
 	mainnet: {
 		VITE_PUBLIC_APP_NAME: 'BigMarket',
@@ -55,6 +58,7 @@ export const config: { [key: string]: Config } = {
 		VITE_SUI_API: 'http://localhost:9001',
 		VITE_MEMPOOL_API: 'https://mempool.space/api',
 		VITE_POLL_PAYMENT_USTX: 50000000,
-		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
+		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme',
+		VITE_CLARITY_BITCOIN: 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.clarity-bitcoin-lib-v5'
 	}
 };

@@ -1,50 +1,15 @@
-// see https://medium.com/coinmonks/merkle-tree-a-simple-explanation-and-implementation-48903442bc08#:~:text=The%20use%20of%20Merkle%20Tree,block%20or%20the%20whole%20blockchain.
+import { getConfig } from '$stores/store_helpers';
+import type { TransactionOutput } from '@scure/btc-signer/psbt';
 import { hex } from '@scure/base';
+import * as btc from '@scure/btc-signer';
+import type { SegwitData, TxForClarityBitcoin } from './proof-types';
 import { concatBytes } from '@stacks/common';
 import { sha256 } from '@noble/hashes/sha256';
-import type { TxMinedParameters } from './generate_segwit_proofs';
 
 const LEFT = 'left';
 const RIGHT = 'right';
 
-/**
- *
- * @param txIdNormal
- * @param txHex
- * @param block
- * @returns
- */
-export function getParametersForProof(txIdNormal: string, block: any): TxMinedParameters {
-	// coinmonks...
-	const txs = block.txs as string[];
-	const txIndex = txs.findIndex((t: any) => t === txIdNormal);
-	const reversedTxIds = block.reversedTxIds;
-	const mt = generateMerkleTree(reversedTxIds);
-	const wproof = generateMerkleProof(reversedTxIds[txIndex], reversedTxIds)?.map((o) => o.hash) || [];
-	const cproof = generateMerkleProof(reversedTxIds[0], reversedTxIds)?.map((o) => o.hash) || [];
-	if (!wproof) return {} as TxMinedParameters;
-	wproof.splice(0, 1);
-	cproof.splice(0, 1);
-	//console.log('merkleTree: ', mt);
-	//console.log('Coinmonks tree: ', tree)
-	console.log('Coinmonks proof: ', wproof);
-
-	const merkleRoot = generateMerkleRoot(reversedTxIds);
-
-	const parameters: TxMinedParameters = {
-		merkleRoot,
-		wproof,
-		cproof,
-		height: block.height,
-		txIndex,
-		headerHex: headerHex(block),
-		txIdR: txIdNormal,
-		treeDepth: mt.length - 1
-	};
-	return parameters;
-}
-
-export function headerHex(block: any) {
+function headerHex(block: any) {
 	const headerHex =
 		hex.encode(hex.decode(block.version.toString(16).padStart(8, '0')).reverse()) +
 		hex.encode(hex.decode(block.previousblockhash).reverse()) +
@@ -55,18 +20,18 @@ export function headerHex(block: any) {
 	return headerHex;
 }
 
-export const doubleSha = (valueToBeHashed: string): Uint8Array => {
-	return sha256(sha256(hex.decode(valueToBeHashed))) as Uint8Array;
-};
+// export const doubleSha = (valueToBeHashed: string): Uint8Array => {
+// 	return sha256(sha256(hex.decode(valueToBeHashed))) as Uint8Array;
+// };
 
-export const hashPairReverse = (a: string, b: string): string => {
-	const bytes = concatBytes(hex.decode(a).reverse(), hex.decode(b).reverse());
-	const hashedBytes = sha256(sha256(bytes));
-	const pair = hex.encode(hashedBytes.reverse());
-	return pair;
-};
+// export const hashPairReverse = (a: string, b: string): string => {
+// 	const bytes = concatBytes(hex.decode(a).reverse(), hex.decode(b).reverse());
+// 	const hashedBytes = sha256(sha256(bytes));
+// 	const pair = hex.encode(hashedBytes.reverse());
+// 	return pair;
+// };
 
-export const hashPair = (a: string, b: string): string => {
+const hashPair = (a: string, b: string): string => {
 	const bytes = concatBytes(hex.decode(a), hex.decode(b));
 	const hashedBytes = sha256(sha256(bytes));
 	const pair = hex.encode(hashedBytes);
@@ -93,7 +58,7 @@ export function ensureEven(hashes: Array<string>) {
  * @param {Array<Array<string>>} merkleTree
  * @returns {string} direction
  */
-export function getLeafNodeDirectionInMerkleTree(hash: string, merkleTree: Array<Array<string>>) {
+function getLeafNodeDirectionInMerkleTree(hash: string, merkleTree: Array<Array<string>>) {
 	const hashIndex = merkleTree[0].findIndex((h: string) => h === hash);
 	return hashIndex % 2 === 0 ? LEFT : RIGHT;
 }
@@ -105,7 +70,7 @@ export function getLeafNodeDirectionInMerkleTree(hash: string, merkleTree: Array
  * @param {Array<string>} hashes
  * @returns merkleRoot
  */
-export function generateMerkleRoot(hashes: Array<string>): any {
+function generateMerkleRoot(hashes: Array<string>): any {
 	if (!hashes || hashes.length == 0) {
 		return '';
 	}
@@ -136,7 +101,7 @@ export function generateMerkleRoot(hashes: Array<string>): any {
  * @param {Array<string>} hashes
  * @returns {Array<Array<string>>} merkleTree
  */
-export function generateMerkleTree(hashes: Array<string>) {
+function generateMerkleTree(hashes: Array<string>) {
 	if (!hashes || hashes.length === 0) {
 		return [];
 	}
@@ -189,7 +154,7 @@ export function generateMerkleTree(hashes: Array<string>) {
  * @param {Array<string>} hashes
  * @returns {Array<node>} merkleProof
  */
-export function generateMerkleProof(hash: string, hashes: Array<string>) {
+function generateMerkleProof(hash: string, hashes: Array<string>) {
 	if (!hash || !hashes || hashes.length === 0) {
 		return null;
 	}
@@ -213,4 +178,87 @@ export function generateMerkleProof(hash: string, hashes: Array<string>) {
 		hashIndex = Math.floor(hashIndex / 2);
 	}
 	return merkleProof;
+}
+
+export function coinbaseWitness(parsedCTx: btc.Transaction) {
+	let witnessReservedValue: string = '00000000000000000000000000000000';
+	let witnessMerkleRoot: string = '00000000000000000000000000000000';
+	for (let i = 0; i < parsedCTx.outputsLength; i++) {
+		const output: TransactionOutput = parsedCTx.getOutput(i);
+		if (output.script && output.script[0] === 0x6a) {
+			// OP_RETURN check
+			if (hex.encode(output.script).startsWith('6a24aa21a9ed')) {
+				// OP_RETURN + Witness Commitment Tag
+				witnessMerkleRoot = hex.encode(output.script.slice(10, 74)); // Extract witness-merkle-root (32 bytes after tag)
+			}
+			const extractedData = hex.encode(output.script.slice(1)); // OP_RETURN data
+			witnessReservedValue = ensure32Bytes(extractedData);
+			break; // Stop after finding the first OP_RETURN
+		}
+	}
+	return { witnessReservedValue, witnessMerkleRoot };
+}
+
+export function ensure32Bytes(hexStr: string) {
+	const clean = hexStr.startsWith('0x') ? hexStr.slice(2) : hexStr;
+	if (clean.length < 64) {
+		return clean.padEnd(64, '0'); // Pad if too short
+	}
+	return clean.slice(0, 64); // Trim if too long
+}
+
+export function extractProofInfo(tx: TxForClarityBitcoin): SegwitData {
+	let segwitData: SegwitData = {} as SegwitData;
+	try {
+		const txs = tx.block.txs;
+		const reversedTxIds = tx.block.reversedTxIds;
+		const txIndex = txs.findIndex((t: string) => t === tx.txId);
+		if (txIndex === -1) throw new Error('Transaction not found in block!');
+
+		const wproof = generateMerkleProof(reversedTxIds[txIndex], reversedTxIds)?.map((o) => o.hash) || [];
+		wproof.splice(0, 1);
+
+		const cproof = generateMerkleProof(reversedTxIds[0], reversedTxIds)?.map((o) => o.hash) || [];
+		cproof.splice(0, 1);
+
+		const merkleRoot = generateMerkleRoot(reversedTxIds);
+		const merkleRootLE = hex.encode(hex.decode(tx.block.merkle_root).reverse());
+
+		if (merkleRootLE !== merkleRoot) throw new Error('extractProofInfo: merkleRoot: ' + merkleRootLE);
+
+		const maxDepth = Math.max(wproof.length, cproof.length);
+
+		// Pad both proofs if needed
+		// while (wproof.length < maxDepth) {
+		// 	//wproof.push('0000000000000000000000000000000000000000000000000000000000000000'); // 32-byte zero hash
+		// }
+
+		// while (cproof.length < maxDepth) {
+		// 	//cproof.push('0000000000000000000000000000000000000000000000000000000000000000'); // 32-byte zero hash
+		// }
+
+		segwitData = {
+			contract: getConfig().VITE_CLARITY_BITCOIN,
+			txId: tx.txId,
+			txId0Reversed: tx.block.reversedTxIds[0],
+			txIdReversed: tx.block.reversedTxIds[txIndex],
+			height: Number(tx.block.height),
+			txHex: tx.hex,
+			wtxHex: tx.whex,
+			header: tx.block.header,
+			txIndex: txIndex,
+			treeDepth: maxDepth,
+			wproof: wproof,
+			merkleRoot: merkleRoot,
+			witnessReservedValue: tx.witnessReservedValue,
+			witnessMerkleRoot: tx.witnessMerkleRoot,
+			wctxHex: tx.cwhex,
+			ctxHex: tx.chex,
+			cproof: cproof
+		};
+		console.log('Test data generated successfully:', segwitData);
+	} catch (error) {
+		console.error('Error generating test data:', error);
+	}
+	return segwitData;
 }

@@ -26,7 +26,7 @@
 	onMount(async () => {
 		sip10Data = getMarketToken(market.marketData.token);
 		const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
-		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData);
+		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData, $selectedCurrency);
 		totalPool = totalPoolSum(market.marketData.stakes);
 	});
 </script>

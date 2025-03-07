@@ -29,6 +29,7 @@ import {
 } from '@mijoco/stx_helpers/dist/index';
 import { getConfig, getDaoConfig, getSelectedCurrency, getSession } from '$stores/store_helpers';
 import { fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
+import type { Currency } from '$stores/stores';
 
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,8 +62,9 @@ export type Payout = {
 	fiat: string;
 	cryptoMicro: number;
 	crypto: string;
+	btc: string;
 };
-export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData): Array<Payout> {
+export function calculatePayoutCategorical(amount: number, decimals: number, userStake: UserStake | undefined, marketData: MarketData, currency: Currency): Array<Payout> {
 	const mult = Number(`1e${decimals}`);
 	const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const numCategories = marketData.categories.length;
@@ -94,10 +96,12 @@ export function calculatePayoutCategorical(amount: number, decimals: number, use
 		}
 		const crypto = parseFloat(fmtMicroToStxNumber(stakeInMicro, decimals).toFixed(decimals));
 		const cryptoCurr = decimals === 8 ? ' BTC' : ' STX';
+		const amountFiat = convertCryptoToFiat(decimals === 6, crypto, currency);
 		const amounts = {
-			fiat: convertCryptoToFiat(decimals === 6, crypto),
+			fiat: amountFiat,
 			cryptoMicro: stakeInMicro,
-			crypto: crypto.toString() + cryptoCurr
+			crypto: crypto.toString() + cryptoCurr,
+			btc: convertFiatToBitcoin(convertCryptoToFiatNumber(currency, decimals === 6, crypto), currency).toString() + ' BTC'
 		};
 		payouts.push(amounts);
 	}
@@ -106,6 +110,14 @@ export function calculatePayoutCategorical(amount: number, decimals: number, use
 }
 //5_0963_0144.72421664
 // my tot = 3_9200_0000
+export function convertFiatToBitcoin(amountFiat: number, currency: Currency): number {
+	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const sess = getSession();
+	const rate = sess.exchangeRates.find((c) => c.currency === currency.code);
+	if (!rate) return 0;
+	let amountNative = amountFiat / rate.fifteen;
+	return parseFloat(amountNative.toFixed(btcToken.decimals)); //fmtStxMicro(amountNative, sip10Data.decimals);
+}
 export function convertFiatToNative(sip10Data: Sip10Data, amountFiat: number, currency: string): number {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const sess = getSession();
@@ -116,10 +128,20 @@ export function convertFiatToNative(sip10Data: Sip10Data, amountFiat: number, cu
 	else amountNative = amountFiat / rate.fifteen;
 	return parseFloat(amountNative.toFixed(sip10Data.decimals)); //fmtStxMicro(amountNative, sip10Data.decimals);
 }
-export function convertCryptoToFiat(stacks: boolean, amountNative: number): string {
+export function convertSip10ToBtc(sip10Data: Sip10Data, amount: number): number {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const sess = getSession();
-	const selectedCurrency = getSelectedCurrency();
+	const currency = getSelectedCurrency();
+	const rate = sess.exchangeRates.find((c) => c.currency === currency.code);
+	if (!rate) return 0;
+	let amountNative = 0;
+	if (sip10Data.symbol === 'STX') amountNative = amount * rate.stxToBtc;
+	else if (sip10Data.symbol.toLowerCase() === 'sbtc') amountNative = amount;
+	return parseFloat(amountNative.toFixed(sip10Data.decimals)); //fmtStxMicro(amountNative, sip10Data.decimals);
+}
+export function convertCryptoToFiat(stacks: boolean, amountNative: number, selectedCurrency: Currency): string {
+	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
+	const sess = getSession();
 	const rate = sess.exchangeRates.find((c) => c.currency === selectedCurrency.code);
 	if (!rate) return '0.00';
 	let amountFiat = 0;
@@ -127,16 +149,7 @@ export function convertCryptoToFiat(stacks: boolean, amountNative: number): stri
 	else amountFiat = amountNative * rate.fifteen;
 	return selectedCurrency.symbol + parseFloat(amountFiat.toFixed(2)).toLocaleString() + ' ' + selectedCurrency.code; //fmtStxMicro(amountNative, sip10Data.decimals);
 }
-export function convertCryptoToFiatNumber(
-	selectedCurrency: {
-		code: string;
-		name: string;
-		flag: string;
-		symbol: string;
-	},
-	stacks: boolean,
-	amountNative: number
-): number {
+export function convertCryptoToFiatNumber(selectedCurrency: Currency, stacks: boolean, amountNative: number): number {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const sess = getSession();
 	const rate = sess.exchangeRates.find((c) => c.currency === selectedCurrency.code);
@@ -175,6 +188,15 @@ const defToken: Sip10Data = {
 	symbol: 'BIG',
 	name: 'BitcoinDAO Governance Token',
 	decimals: 6,
+	balance: 0,
+	tokenUri: '',
+	totalSupply: 0
+};
+
+export const btcToken: Sip10Data = {
+	symbol: 'BTC',
+	name: 'bitcoin',
+	decimals: 8,
 	balance: 0,
 	tokenUri: '',
 	totalSupply: 0
@@ -222,6 +244,12 @@ export async function getMarketCategories(): Promise<Array<MarketCategory>> {
 }
 
 export function getMarketToken(marketTokenContract: string): Sip10Data {
+	const sess = getSession();
+	const token = sess.tokens.find((t) => t.token === marketTokenContract);
+	return token?.sip10Data || defToken;
+}
+
+export function getBitcoinToken(marketTokenContract: string): Sip10Data {
 	const sess = getSession();
 	const token = sess.tokens.find((t) => t.token === marketTokenContract);
 	return token?.sip10Data || defToken;

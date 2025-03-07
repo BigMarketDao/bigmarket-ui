@@ -4,6 +4,7 @@
 	import { convertCryptoToFiat, isSTX } from '$lib/predictions/predictions';
 	import { fmtMicroToStx, fmtMicroToStxFormatted, fmtMicroToStxNumber, truncate } from '$lib/utils';
 	import { getResolutionMessage } from '../market-states';
+	import { selectedCurrency } from '$stores/stores';
 
 	export let markets: Array<PredictionMarketCreateEvent> = [];
 	export let leaderBoard: LeaderBoard;
@@ -41,7 +42,7 @@
 							</div>
 							<div class="mb-3 flex items-center justify-between">
 								<span class="text-xs text-gray-300">{truncate(prediction.voter)}</span>
-								<span class="text-xs text-white">{convertCryptoToFiat(isSTX(getMarket(prediction.marketId, prediction.marketType).marketData.token), fmtMicroToStxNumber(prediction.amount))}</span>
+								<span class="text-xs text-white">{convertCryptoToFiat(isSTX(getMarket(prediction.marketId, prediction.marketType).marketData.token), fmtMicroToStxNumber(prediction.amount), $selectedCurrency)}</span>
 							</div>
 						{/each}
 					</div>

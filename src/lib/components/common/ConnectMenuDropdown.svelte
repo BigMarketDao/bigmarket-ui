@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { fmtMicroToStx, truncate } from '$lib/utils';
 	import { onDestroy, onMount } from 'svelte';
-	import { Bitcoin, Blocks, User } from 'lucide-svelte';
+	import { User } from 'lucide-svelte';
 	import { isLoggedIn, logUserOut, getStxAddress, getBtcAddress, getStxBalance, getBtcBalance } from '$lib/stacks/stacks-connect';
+	import { bitcoinMode } from '$stores/stores';
 
 	export let connectWallet;
 	let isOpen = false;
 	let dropdownRef: HTMLElement | null = null;
-	let showStacksAddress = false;
+	let showStacksAddress = true;
 
 	const logout = async () => {
 		logUserOut();
@@ -16,6 +17,7 @@
 	// Toggle between Stacks and Bitcoin addresses
 	function toggleAddress() {
 		showStacksAddress = !showStacksAddress;
+		bitcoinMode.set(!showStacksAddress);
 	}
 
 	// Click outside to close dropdown

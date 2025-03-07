@@ -5,6 +5,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import SlotModal from './SlotModal.svelte';
 	import OnRamp from '../onramps/OnRamp.svelte';
+	import { bitcoinMode } from '$stores/stores';
 
 	let isOpen = false;
 	let showModal = false;
@@ -42,7 +43,7 @@
 	});
 </script>
 
-<header class="fixed left-0 right-0 top-0 z-[999] h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
+<header class="relative left-0 right-0 top-0 z-[999] h-20 border-b border-purple-900/20 bg-[#0A0A1A]/80 backdrop-blur-lg" bind:this={dropdownRef}>
 	<nav class="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 		<!-- Logo -->
 		<a href="/" class="flex items-center">
@@ -92,6 +93,11 @@
 
 <!-- Spacer to account for fixed header -->
 <div class="h-20"></div>
+{#if $bitcoinMode}
+	<div class=" flex h-20 max-w-7xl justify-center text-center">
+		<p class="text-center font-inter font-bold text-primary">Buidl hackathon: <a class="text-blue-800 hover:underline" href="/proofs">bitcoin transactions test page</a></p>
+	</div>
+{/if}
 
 {#if showModal}
 	<SlotModal onClose={() => closeModal()}>

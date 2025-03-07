@@ -14,6 +14,7 @@ export interface Config {
 	VITE_STACKS_API: string;
 	VITE_STACKS_EXPLORER: string;
 	VITE_MEMPOOL_API: string;
+	VITE_BITCOIN_WALLET: string;
 }
 
 export const config: { [key: string]: Config } = {
@@ -27,7 +28,8 @@ export const config: { [key: string]: Config } = {
 		VITE_STACKS_API: 'http://localhost:3999',
 		VITE_STACKS_EXPLORER: 'http://localhost:8000',
 		VITE_MEMPOOL_API: 'http://localhost:8001',
-		VITE_POLL_PAYMENT_USTX: 50000000
+		VITE_POLL_PAYMENT_USTX: 50000000,
+		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
 	},
 	testnet: {
 		VITE_PUBLIC_APP_NAME: 'BigMarket',
@@ -39,7 +41,8 @@ export const config: { [key: string]: Config } = {
 		VITE_BRIDGE_API: 'https://api.stx.eco/bridge-api',
 		VITE_SUI_API: 'http://localhost:9001',
 		VITE_MEMPOOL_API: 'https://beta.sbtc-mempool.tech/api/proxy', //0bbc856394ffdab7e69e0b2b8ddb1fa7e901974cd89b90a64349b48b643c7e9c
-		VITE_POLL_PAYMENT_USTX: 50000000
+		VITE_POLL_PAYMENT_USTX: 50000000,
+		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
 	},
 	mainnet: {
 		VITE_PUBLIC_APP_NAME: 'BigMarket',
@@ -51,6 +54,7 @@ export const config: { [key: string]: Config } = {
 		VITE_BRIDGE_API: 'https://api.stx.eco/bridge-api',
 		VITE_SUI_API: 'http://localhost:9001',
 		VITE_MEMPOOL_API: 'https://mempool.space/api',
-		VITE_POLL_PAYMENT_USTX: 50000000
+		VITE_POLL_PAYMENT_USTX: 50000000,
+		VITE_BITCOIN_WALLET: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
 	}
 };

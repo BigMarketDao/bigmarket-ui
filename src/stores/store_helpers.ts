@@ -19,7 +19,13 @@ export function getSession(): BigMarketSessionStore {
 	return get(sessionStore);
 }
 
-export function getSelectedCurrency(): { code: string; name: string; flag: string; symbol: string } {
+export type Currency = {
+	code: string;
+	name: string;
+	flag: string;
+	symbol: string;
+};
+export function getSelectedCurrency(): Currency {
 	return get(selectedCurrency);
 }
 

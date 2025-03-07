@@ -41,8 +41,8 @@
 	},
 	"dependencies": {
 		"@2toad/profanity": "^3.1.1",
-		"@mijoco/btc_helpers": "^0.0.14",
-		"@mijoco/stx_helpers": "^0.6.84",
+		"@mijoco/btc_helpers": "^0.0.18",
+		"@mijoco/stx_helpers": "^0.6.87",
 		"@mysten/dapp-kit": "^0.14.43",
 		"@mysten/sui": "^1.17.0",
 		"@mysten/wallet-standard": "^0.13.19",

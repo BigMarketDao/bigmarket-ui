@@ -2,7 +2,7 @@
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 	import type { Payout } from '$lib/predictions/predictions';
 	import { mapToMinMaxStrings } from '$lib/utils';
-	import { sessionStore } from '$stores/stores';
+	import { bitcoinMode, sessionStore } from '$stores/stores';
 	import type { PredictionMarketCreateEvent, ScalarMarketDataItem } from '@mijoco/stx_helpers';
 	import { TrendingUp } from 'lucide-svelte';
 
@@ -39,7 +39,13 @@
 				</div>
 				{#if payouts}
 					<div class="text-xs opacity-50">
-						for $100 stake is {payouts[index].crypto} / {payouts[index].fiat}
+						for $100 stake is
+						{#if $bitcoinMode}
+							{payouts[index].btc}
+						{:else}
+							{payouts[index].crypto}
+						{/if}
+						/ {payouts[index].fiat}
 					</div>
 				{/if}
 			</div>

@@ -16,14 +16,14 @@
 	let inited = false;
 	let sip10Data: Sip10Data = getMarketToken(market.marketData.token);
 	let payouts: any;
-	$: payouts = calculatePayoutCategorical(convertFiatToNative(sip10Data, 100, $selectedCurrency.code), sip10Data.decimals, undefined, market.marketData);
+	$: payouts = calculatePayoutCategorical(convertFiatToNative(sip10Data, 100, $selectedCurrency.code), sip10Data.decimals, undefined, market.marketData, $selectedCurrency);
 
 	onMount(async () => {
 		marketStakes = await fetchMarketStakes(market.marketId, market.marketType);
 		totalPoolMicro = totalPoolSum(market.marketData.stakes);
 		stakeAmountHome.set(totalPoolMicro);
 		const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
-		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData);
+		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData, $selectedCurrency);
 		inited = true;
 	});
 </script>

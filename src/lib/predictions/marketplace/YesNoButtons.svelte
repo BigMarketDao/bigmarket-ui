@@ -11,13 +11,13 @@
 	let payouts: Array<Payout>;
 	let sip10Data = getMarketToken(market.marketData.token);
 
-	$: payouts = calculatePayoutCategorical(convertFiatToNative(sip10Data, 100, $selectedCurrency.code), sip10Data.decimals, undefined, market.marketData);
+	$: payouts = calculatePayoutCategorical(convertFiatToNative(sip10Data, 100, $selectedCurrency.code), sip10Data.decimals, undefined, market.marketData, $selectedCurrency);
 
 	onMount(async () => {
 		sip10Data = getMarketToken(market.marketData.token);
 		amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
 		stakeAmount.set(parseFloat(fmtMicroToStx(amount)));
-		if (market.marketData.categories.length === 2) payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData);
+		if (market.marketData.categories.length === 2) payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData, $selectedCurrency);
 	});
 </script>
 

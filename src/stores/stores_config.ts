@@ -12,18 +12,23 @@ export function switchConfig(env: string) {
 	configStore.set(config[env]);
 }
 
-export function setConfigByUrl(search: URLSearchParams, override?: string) {
-	if (override) {
-		switchConfig(override);
-		const currentUrl = new URL(window.location.href);
-		currentUrl.searchParams.set('chain', override);
-		window.history.replaceState({}, '', currentUrl.toString());
-		return;
+function validChain(search: URLSearchParams): boolean {
+	if (search.has('chain') && search.get('chain') != null) {
+		const chain = search.get('chain');
+		return chain === 'mainnet' || chain === 'testnet' || chain === 'devnet';
 	}
-	const newNetwork = search.get('chain');
-	if (newNetwork) {
+	return false;
+}
+export function setConfigByUrl(search: URLSearchParams, override?: string) {
+	if (validChain(search) && !override) {
+		const newNetwork = search.get('chain') || override || 'testnet';
 		switchConfig(newNetwork);
 	} else {
-		switchConfig('testnet');
+		const newNetwork = override || 'testnet';
+		switchConfig(newNetwork);
+		const currentUrl = new URL(window.location.href);
+		currentUrl.searchParams.set('chain', newNetwork);
+		window.history.replaceState({}, '', currentUrl.toString());
+		return;
 	}
 }

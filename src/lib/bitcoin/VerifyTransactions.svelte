@@ -6,9 +6,11 @@
 	import { bitcoinToSats } from '$lib/utils';
 	import { sessionStore } from '$stores/stores';
 	import { getConfig } from '$stores/store_helpers';
-	import { generateMerkleRoot, generateMerkleTree, getParametersForProof } from '$lib/merkle_utils';
-	import { callContractReadOnly, type PayloadType, type TxMinedParameters } from '@mijoco/stx_helpers/dist/index';
-	import { isCoordinator, isLoggedIn } from '$lib/stacks/stacks-connect';
+	import { generateMerkleRoot, generateMerkleTree, getParametersForProof } from '$lib/bitcoin/merkle_utils';
+	import { callContractReadOnly, type PayloadType } from '@mijoco/stx_helpers/dist/index';
+	import { explorerAddressUrl, isCoordinator, isLoggedIn } from '$lib/stacks/stacks-connect';
+	import { Button } from 'flowbite-svelte';
+	import type { TxMinedParameters } from './generate_segwit_proofs';
 	/**
 proofs = (
 0x268c873b99d12a8ea0c87e05de4ac98b16398217abc97f79b94bd9bea35a5ce6 
@@ -54,7 +56,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 
 	const getProofTuple = function () {
 		const entryList = [];
-		const merkleProofs = proofString ? proofString.split(' ') : parameters.proofElements.map(({ hash }) => hash);
+		const merkleProofs = proofString ? proofString.split(' ') : parameters.wproof;
 		for (let i = 0; i < merkleProofs.length; i++) {
 			const entry = merkleProofs[i];
 			const buffProof = bufferCV(hex.decode(entry));
@@ -70,7 +72,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 
 	const getProofsAsCV = function () {
 		const entryList = [];
-		const merkleProofs = proofString ? proofString.split(' ') : parameters.proofElements.map(({ hash }) => hash);
+		const merkleProofs = proofString ? proofString.split(' ') : parameters.wproof;
 		for (let i = 0; i < merkleProofs.length; i++) {
 			const entry = merkleProofs[i];
 			const buffProof = bufferCV(hex.decode(entry));
@@ -86,7 +88,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 			name: parameters.height,
 			txid: tx.txid,
 			header: parameters.headerHex,
-			proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.proofElements.map(({ hash }) => hash).join('<br/>'),
+			proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.wproof.join('<br/>'),
 			'tx-index': parameters.txIndex
 		};
 
@@ -148,7 +150,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 		contractParameters = {
 			'txid-reversed': hex.encode(hex.decode(tx.txid).reverse()),
 			'root-reversed': hex.encode(hex.decode(block.merkle_root).reverse()),
-			proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.proofElements.map(({ hash }) => hash).join('<br/>'),
+			proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.wproof.join('<br/>'),
 			'tx-index': parameters.txIndex
 		};
 
@@ -169,7 +171,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 	// 		amount: tx.vout[1].amount,
 	// 		txid: hex.encode(hex.decode(tx.txid)),
 	// 		stxAddress: prin,
-	// 		proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.proofElements.map(({ hash }) => hash).join('<br/>'),
+	// 		proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.wproof.map(({ hash }) => hash).join('<br/>'),
 	// 		'tx-index': parameters.txIndex
 	// 	};
 
@@ -184,7 +186,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 	// 		amount: tx.vout[1].amount,
 	// 		txid: hex.encode(hex.decode(tx.txid)),
 	// 		stxAddress: prin,
-	// 		proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.proofElements.map(({ hash }) => hash).join('<br/>'),
+	// 		proofs: proofString ? proofString.split(' ').join('<br/>') : parameters.wproof.map(({ hash }) => hash).join('<br/>'),
 	// 		'tx-index': parameters.txIndex
 	// 	};
 
@@ -201,7 +203,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 		console.log('tx0-r: ' + txIds[0]);
 
 		try {
-			data = await payloadParseTransaction(tx.txid);
+			data = {} as PayloadType; //await payloadParseTransaction(tx.txid);
 			deposit = data.opcode === '3C';
 		} catch (err: any) {
 			console.log(err);
@@ -213,12 +215,12 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 		merkleTree = generateMerkleTree(txIds);
 		console.log('mr0: ' + block.merkle_root);
 		console.log('mrT: ' + mrT);
-		parameters = getParametersForProof(tx.txid, tx.hex, block);
-		proofs = parameters.proofElements;
-		blockHashCheck = block.hash === hex.encode(sha256(sha256(hex.decode(parameters.headerHex))).reverse());
+		parameters = getParametersForProof(tx.txid, block);
+		proofs = parameters.wproof;
+		blockHashCheck = block.id === hex.encode(sha256(sha256(hex.decode(parameters.headerHex))).reverse());
 		merkleRootCheck = block.merkle_root === mrT;
 
-		proofString = parameters.proofElements.map(({ hash }) => hash).join(' ');
+		proofString = parameters.wproof.join(' ');
 		amount = bitcoinToSats(tx.vout[1].value);
 		stxAddress = $sessionStore.keySets[getConfig().VITE_NETWORK].stxAddress;
 		answer = undefined;
@@ -239,7 +241,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 		<div class="pb-5">
 			<label for="transact-path">Block hash = reverse(sha(sha(header)))</label>
 			<div class={blockHashCheck ? 'bg-success-500 border-success-500 rounded px-4 py-2 text-white' : 'bg-error-600 rounded border-white px-4 py-2 text-white'}>
-				{block.hash}
+				{block.id}
 			</div>
 		</div>
 		<div class="pb-5">
@@ -259,7 +261,7 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 		<div class="rounded-lg border-gray-700 bg-gray-200 p-5 text-black">
 			<div class="text-2xl">Proof (space separated):</div>
 			<!--
-    {#each parameters.proofElements as node}
+    {#each parameters.wproof as node}
     <div class="">{node.direction} : {node.hash}</div>
     {/each}-->
 			<textarea rows="8" class="block w-full rounded-md border p-3 text-black" bind:value={proofString} />
@@ -288,13 +290,13 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 
 		<div class="my-5 flex items-baseline gap-x-5">
 			<div class="">
-				<Button darkScheme={false} label={'Was Tx Mined'} target={''} on:clicked={() => wasTxMined()} />
+				<Button class="btn btn-primary text-black" on:click={() => wasTxMined()}>Was Tx Mined</Button>
 			</div>
 			<div class="">
-				<Button darkScheme={false} label={'Verify Block Header'} target={''} on:clicked={() => verifyBlockHeader()} />
+				<Button class="btn btn-primary text-black" on:click={() => verifyBlockHeader()}>Verify Block Header</Button>
 			</div>
 			<div class="">
-				<Button darkScheme={false} label={'Verify Merkle Proof'} target={''} on:clicked={() => verifyMerkleProof()} />
+				<Button class="btn btn-primary text-black" on:click={() => verifyMerkleProof()}>Verify Merkle Proof</Button>
 			</div>
 		</div>
 		{#if answer}
@@ -308,19 +310,19 @@ txid=01d8467b25e1d415bf53427d4db86fe001590b280b604204f794c5ecfc923ed3
 					</div>
 				{/each}
 			</div>
-			{#if deposit}
+			<!-- {#if deposit}
 				<div class="my-5 flex items-baseline gap-x-5">
 					<div class="">
-						<Button darkScheme={false} label={'Mint'} target={''} on:clicked={() => mintTo()} />
+						<Button label={'Mint'} target={''} on:clicked={() => mintTo()} >Mint</Button>
 					</div>
 				</div>
 			{:else}
 				<div class="my-5 flex items-baseline gap-x-5">
 					<div class="">
-						<Button darkScheme={false} label={'Withdraw'} target={''} on:clicked={() => withdrawTo()} />
+						<Button label={'Withdraw'} target={''} on:clicked={() => withdrawTo()}>Withdraw</Button>
 					</div>
 				</div>
-			{/if}
+			{/if} -->
 		{/if}
 
 		{#if allowMint}

@@ -85,25 +85,25 @@ export function isLoggedIn() {
 export function getStxAddress() {
 	if (!isLoggedIn()) return '';
 	const sess = getSession();
-	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.stacks?.address || '';
+	return sess.keySets[getConfig().VITE_NETWORK]?.walletBalances?.stacks?.address || '';
 }
 
 export function getStxBalance() {
 	if (!isLoggedIn()) return 0;
 	const sess = getSession();
-	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.stacks?.amount || 0;
+	return sess.keySets[getConfig().VITE_NETWORK]?.walletBalances?.stacks?.amount || 0;
 }
 
 export function getBtcAddress() {
 	if (!isLoggedIn()) return '';
 	const sess = getSession();
-	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.cardinal?.address || '';
+	return sess.keySets[getConfig().VITE_NETWORK]?.walletBalances?.cardinal?.address || '';
 }
 
 export function getBtcBalance() {
 	if (!isLoggedIn()) return 0;
 	const sess = getSession();
-	return sess.keySets[getConfig().VITE_NETWORK].walletBalances?.cardinal?.amount || 0;
+	return sess.keySets[getConfig().VITE_NETWORK]?.walletBalances?.cardinal?.amount || 0;
 }
 
 export function getStxNetwork() {

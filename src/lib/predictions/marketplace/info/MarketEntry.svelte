@@ -14,21 +14,19 @@
 	export let market: PredictionMarketCreateEvent;
 	let payouts: Array<Payout>;
 	let sip10Data: any;
-	let totalPool: number;
+	let totalPool = totalPoolSum(market.marketData.stakes);
 	let totalPoolMicro: string;
+	sip10Data = getMarketToken(market.marketData.token);
+	const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
+	$: payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData, $selectedCurrency);
+	$: totalPoolMicro = convertCryptoToFiat(sip10Data.decimals === 6, fmtMicroToStxNumber(totalPoolSum(market.marketData.stakes), sip10Data.decimals), $selectedCurrency);
 
-	onMount(async () => {
-		sip10Data = getMarketToken(market.marketData.token);
-		const amount = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
-		payouts = calculatePayoutCategorical(amount, sip10Data.decimals, undefined, market.marketData);
-		totalPool = totalPoolSum(market.marketData.stakes);
-		totalPoolMicro = convertCryptoToFiat(sip10Data.decimals === 6, fmtMicroToStxNumber(totalPoolSum(market.marketData.stakes), sip10Data.decimals));
-	});
+	onMount(async () => {});
 </script>
 
 <div class="group relative overflow-hidden rounded-lg border border-purple-800/30 bg-gray-900/50 p-6 backdrop-blur-sm transition-all duration-300 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
 	<!-- Background Effects -->
-	<div class="bg-gradient-to-r absolute inset-0 from-purple-500/10 to-blue-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+	<div class="bg-gradient-to-r absolute inset-0 from-purple-500/10 to-blue-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
 	<div class="relative flex items-center gap-6">
 		<!-- Logo -->

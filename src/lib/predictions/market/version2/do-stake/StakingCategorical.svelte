@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Payout } from '$lib/predictions/predictions';
+	import { bitcoinMode } from '$stores/stores';
 	import { TrendingUp } from 'lucide-svelte';
 
 	export let categories: string[] = [];
@@ -25,7 +26,12 @@
 				</div>
 				{#if payouts}
 					<div class="text-xs opacity-50">
-						for $100 stake is {payouts[index].crypto} / {payouts[index].fiat}
+						for $100 stake is {#if $bitcoinMode}
+							{payouts[index].btc}
+						{:else}
+							{payouts[index].crypto}
+						{/if}
+						/ {payouts[index].fiat}
 					</div>
 				{/if}
 			</div>

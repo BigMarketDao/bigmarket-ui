@@ -1,61 +1,61 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { getConfig } from '$stores/store_helpers';
-	import { payloadParseTransaction } from '$lib/revealer_api';
+	import { onMount } from 'svelte';
+	import { getConfig } from '$stores/store_helpers';
+	import { payloadParseTransaction } from './tx';
 
-export let tx:any;
-let res:any;
-let error:string|undefined;
-let inited = false;
+	export let tx: any;
+	let res: any;
+	let error: string | undefined;
+	let inited = false;
 
-const getType = (opCode:string) => {
-  if (opCode.toUpperCase() === '3E') return 'withdrawal'
-  else if (opCode.toUpperCase() === '3C') return 'deposit'
-  else return 'unknown'
-}
+	const getType = (opCode: string) => {
+		if (opCode.toUpperCase() === '3E') return 'withdrawal';
+		else if (opCode.toUpperCase() === '3C') return 'deposit';
+		else return 'unknown';
+	};
 
-onMount(async () => {
-  res = payloadParseTransaction(tx.hex)
-  inited = true;
-})
-
+	onMount(async () => {
+		res = payloadParseTransaction(tx.hex);
+		inited = true;
+	});
 </script>
 
 {#if inited}
-<div class=" w-full">
-
-  {#if error}<p class="text-danger">{error}</p>{/if}
-  <div><h2 class="text-2xl mb-2 pb-2 border-b-2">sBTC Data</h2></div>
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Type</div>
-    <div class="w-4/5 justify-start">{getType(res.opcode)}</div>
-  </div>
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Amount (sats)</div>
-    <div class="w-4/5 justify-start">{res.amountSats}</div>
-  </div>
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Principle</div>
-    <div class="w-4/5 justify-start">{res.stacksAddress}{#if res.lengthOfCname > 0}.{res.cname}{/if}</div>
-  </div>
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Peg Wallet</div>
-    <div class="w-4/5 justify-start">{res.sbtcWallet}</div>
-  </div>
-  {#if res.opcode.toUpperCase() === '3C'}
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Principle Type</div>
-    <div class="w-4/5 justify-start">{res.prinType}</div>
-  </div>
-  {:else}
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Recipient</div>
-    <div class="w-4/5 justify-start">{res.spendingAddress}</div>
-  </div>
-  <div class="flex gap-x-5 justify-start">
-    <div class="w-1/5">Signature</div>
-    <div class="w-4/5 overflow-auto">{res.signature}</div>
-  </div>
-  {/if}
-</div>
+	<div class=" w-full">
+		{#if error}<p class="text-danger">{error}</p>{/if}
+		<div><h2 class="mb-2 border-b-2 pb-2 text-2xl">sBTC Data</h2></div>
+		<div class="flex justify-start gap-x-5">
+			<div class="w-1/5">Type</div>
+			<div class="w-4/5 justify-start">{getType(res.opcode)}</div>
+		</div>
+		<div class="flex justify-start gap-x-5">
+			<div class="w-1/5">Amount (sats)</div>
+			<div class="w-4/5 justify-start">{res.amountSats}</div>
+		</div>
+		<div class="flex justify-start gap-x-5">
+			<div class="w-1/5">Principle</div>
+			<div class="w-4/5 justify-start">
+				{res.stacksAddress}{#if res.lengthOfCname > 0}.{res.cname}{/if}
+			</div>
+		</div>
+		<div class="flex justify-start gap-x-5">
+			<div class="w-1/5">Peg Wallet</div>
+			<div class="w-4/5 justify-start">{res.sbtcWallet}</div>
+		</div>
+		{#if res.opcode.toUpperCase() === '3C'}
+			<div class="flex justify-start gap-x-5">
+				<div class="w-1/5">Principle Type</div>
+				<div class="w-4/5 justify-start">{res.prinType}</div>
+			</div>
+		{:else}
+			<div class="flex justify-start gap-x-5">
+				<div class="w-1/5">Recipient</div>
+				<div class="w-4/5 justify-start">{res.spendingAddress}</div>
+			</div>
+			<div class="flex justify-start gap-x-5">
+				<div class="w-1/5">Signature</div>
+				<div class="w-4/5 overflow-auto">{res.signature}</div>
+			</div>
+		{/if}
+	</div>
 {/if}

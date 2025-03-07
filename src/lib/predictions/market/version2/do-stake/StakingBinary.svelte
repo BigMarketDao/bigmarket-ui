@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Payout } from '$lib/predictions/predictions';
+	import { bitcoinMode } from '$stores/stores';
 	import { TrendingUp } from 'lucide-svelte';
 
 	export let doPrediction: (index: number) => void;
@@ -28,7 +29,12 @@
 			</div>
 			{#if payouts}
 				<div class="text-xs opacity-50">
-					for $100 stake is {payouts[1].crypto} / {payouts[1].fiat}
+					for $100 stake is {#if $bitcoinMode}
+						{payouts[1].btc}
+					{:else}
+						{payouts[1].crypto}
+					{/if}
+					/ {payouts[1].fiat}
 				</div>
 			{/if}
 		</div>
@@ -52,7 +58,12 @@
 			</div>
 			{#if payouts}
 				<div class="text-xs opacity-50">
-					for $100 stake is {payouts[0].crypto} / {payouts[0].fiat}
+					for $100 stake is {#if $bitcoinMode}
+						{payouts[0].btc}
+					{:else}
+						{payouts[0].crypto}
+					{/if}
+					/ {payouts[0].fiat}
 				</div>
 			{/if}
 		</div>

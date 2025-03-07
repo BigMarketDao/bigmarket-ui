@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, userStakeSum, type Payout } from '$lib/predictions/predictions';
-	import { explorerTxUrl, getAddressId, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
-	import { fmtMicroToStx, fmtStxMicro, mapToMinMaxStrings } from '$lib/utils';
+	import { btcToken, calculatePayoutCategorical, convertFiatToNative, convertSip10ToBtc, getMarketToken, userStakeSum, type Payout } from '$lib/predictions/predictions';
+	import { explorerBtcTxUrl, explorerTxUrl, getAddressId, getBtcAddress, getBtcBalance, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
+	import { fmtMicroToStx, fmtMicroToStxNumber, fmtStxMicro, mapToMinMaxStrings } from '$lib/utils';
 	import { getConfig } from '$stores/store_helpers';
-	import { selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
+	import { bitcoinMode, selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
 	import { fullBalanceInSip10Token, getStacksNetwork, isSTX, type PredictionMarketCreateEvent, type Sip10Data, type UserStake } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import StakingBinary from './do-stake/StakingBinary.svelte';
@@ -16,6 +16,7 @@
 	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
 	import AgentResolveMarket from './do-resolve/AgentResolveMarket.svelte';
 	import StakingCoolDown from './do-stake/StakingCoolDown.svelte';
+	import { buildAndSend, buildOpReturnStakeTransaction, FEE, sendBitcoin, signPSBT } from '$lib/bitcoin/tx';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake | undefined;
@@ -29,6 +30,8 @@
 	let successMessage: string | undefined;
 
 	let txId: string;
+	const hundredNative = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
+	$: payouts = calculatePayoutCategorical(hundredNative, sip10Data.decimals, userStake, market.marketData, $selectedCurrency);
 
 	const handleInput = () => {
 		errorMessage = undefined;
@@ -49,12 +52,23 @@
 			errorMessage = 'Amount exceeds your balance';
 			return;
 		}
-		if (amountToStake <= 0.00005) {
-			errorMessage = `Amount must be greater than 0.00005 ${sip10Data.symbol}`;
+		if (amountToStake <= 0) {
+			errorMessage = `Amount is required`;
 			return;
 		}
-		const mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
-		const microStxAmount = Math.round(parseFloat(String(amountToStake)) * mult);
+		let mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
+		let microStxAmount = Math.round(parseFloat(String(amountToStake)) * mult);
+		if ($bitcoinMode) {
+			//const result = await buildAndSend(amountToStake, false);
+			const result = await sendBitcoin(microStxAmount);
+			if (result.failed) {
+				errorMessage = result.message;
+			} else {
+				txId = result.message;
+			}
+			return;
+		}
+
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = market.votingContract.split('.')[1];
 		let functionName = 'predict-category';
@@ -113,8 +127,6 @@
 			const sum = userStake ? userStakeSum(userStake) : 0;
 			totalBalanceUstx = totalBalanceUstx - sum;
 			resolutionAgent = getStxAddress() === $sessionStore.daoOverview.contractData.resolutionAgent;
-			const hundredNative = convertFiatToNative(sip10Data, 100, $selectedCurrency.code);
-			payouts = calculatePayoutCategorical(hundredNative, sip10Data.decimals, userStake, market.marketData);
 		} else {
 			totalBalanceUstx = 0;
 		}
@@ -134,8 +146,12 @@
 					<label for="stake-input" class="label">
 						<span class="label-text">Stake Amount: <ExchangeRate {sip10Data} /> </span>
 						<span class={'+ label-text-alt ' + (typeof errorMessage !== 'string') ? 'text-danger' : ''}
-							>Balance: {fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)}
-							{sip10Data.symbol}
+							>Balance:
+							{#if $bitcoinMode}
+								{fmtMicroToStx(getBtcBalance() || 0, btcToken.decimals)} BTC
+							{:else}
+								{fmtMicroToStx(totalBalanceUstx, sip10Data.decimals)} {sip10Data.symbol}
+							{/if}
 
 							{#if sip10Data.symbol === 'BIG'}
 								<span class="label-text-alt mx-2">
@@ -152,7 +168,7 @@
 			{/if}
 			{#if txId}
 				<div class="mb-4 flex w-full justify-start gap-x-4">
-					<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerTxUrl(txId) + '" target="_blank">explorer!</a>'} />
+					<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerBtcTxUrl(txId) + '" target="_blank">' + txId + '</a>'} />
 				</div>
 			{/if}
 			{#if errorMessage}

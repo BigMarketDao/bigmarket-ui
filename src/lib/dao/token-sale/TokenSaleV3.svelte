@@ -65,7 +65,7 @@
 			return;
 		}
 		if (!amount || amount <= 0) {
-			errorMessage = `Amount must be greater than 0 ${sip10Data.symbol}`;
+			errorMessage = `Amount is required`;
 			return;
 		}
 		const mult = Number(`1e${govToken.decimals}`);

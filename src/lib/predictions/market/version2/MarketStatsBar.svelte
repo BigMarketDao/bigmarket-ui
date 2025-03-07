@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { dateOfResolution, isResolved, isResolving } from '$lib/predictions/market-states';
-	import { getMarketToken, totalPoolSum } from '$lib/predictions/predictions';
-	import { fmtMicroToStx, trimTrailingZeros } from '$lib/utils';
+	import { btcToken, convertSip10ToBtc, getMarketToken, totalPoolSum } from '$lib/predictions/predictions';
+	import { fmtMicroToStx, fmtMicroToStxNumber, trimTrailingZeros } from '$lib/utils';
+	import { bitcoinMode } from '$stores/stores';
 	import type { PredictionMarketCreateEvent, Sip10Data } from '@mijoco/stx_helpers';
 	import { Users, TrendingUp, Wallet } from 'lucide-svelte';
 
@@ -28,7 +29,11 @@
 			<Wallet class="h-8 w-8" />
 		</div>
 		<div class="stat-title">Total Staked</div>
-		<div class="stat-value text-secondary">{trimTrailingZeros(fmtMicroToStx(totalStaked, sip10Data.decimals))} {sip10Data.symbol}</div>
+		{#if $bitcoinMode}
+			<div class="stat-value text-secondary">{trimTrailingZeros(convertSip10ToBtc(sip10Data, fmtMicroToStxNumber(totalStaked, btcToken.decimals)))} {btcToken.symbol}</div>
+		{:else}
+			<div class="stat-value text-secondary">{trimTrailingZeros(fmtMicroToStx(totalStaked, sip10Data.decimals))} {sip10Data.symbol}</div>
+		{/if}
 	</div>
 
 	<div class="stat">

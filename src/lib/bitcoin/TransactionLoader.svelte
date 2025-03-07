@@ -3,9 +3,9 @@
 	import { onMount } from 'svelte';
 	import { Button } from 'flowbite-svelte';
 	import Banner from '$lib/components/ui/Banner.svelte';
-	import { fetchApiData } from './bitcoin';
 	import Bulletin from '$lib/components/ui/Bulletin.svelte';
-	import type { TxForClarityBitcoin } from './proof-types';
+	import { fetchApiData, type TxForClarityBitcoin } from 'clarity-bitcoin-client';
+	import { getConfig } from '$stores/store_helpers';
 
 	let tx: TxForClarityBitcoin;
 	let txId = 'f6f890ee8f0c4e2e139c6cb759902c7d58a607983e27c9b658d055691b996527'; // '28f1031eecb34a7be957e8f0d0ceeaa7d25a745edb2d3952727926b464f38bf5';
@@ -16,7 +16,7 @@
 	const fetchAndPrepare = async () => {
 		if (txId) {
 			ready = false;
-			tx = await fetchApiData(txId);
+			tx = await fetchApiData(getConfig().VITE_NETWORK, getConfig().VITE_MEMPOOL_API, txId);
 			ready = true;
 			componentKey++;
 		}

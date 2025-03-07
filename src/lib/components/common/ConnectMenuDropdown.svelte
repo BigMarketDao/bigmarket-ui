@@ -3,7 +3,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { User } from 'lucide-svelte';
 	import { isLoggedIn, logUserOut, getStxAddress, getBtcAddress, getStxBalance, getBtcBalance } from '$lib/stacks/stacks-connect';
-	import { bitcoinMode } from '$stores/stores';
+	import { bitcoinMode, isLocalhost } from '$stores/stores';
 
 	export let connectWallet;
 	let isOpen = false;
@@ -52,15 +52,17 @@
 		{#if isOpen}
 			<div class="absolute right-0 top-[50px] z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black text-white shadow-lg">
 				<!-- Address Toggle -->
-				<div class="flex items-center justify-between px-4 py-2">
-					<label class="relative inline-flex cursor-pointer items-center">
-						<input type="checkbox" class="peer sr-only" on:change={toggleAddress} />
-						<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
-					</label>
-					<span class="font-inter font-medium"
-						>{#if showStacksAddress}STX{:else}BTC{/if}</span
-					>
-				</div>
+				{#if !$isLocalhost}
+					<div class="flex items-center justify-between px-4 py-2">
+						<label class="relative inline-flex cursor-pointer items-center">
+							<input type="checkbox" class="peer sr-only" on:change={toggleAddress} />
+							<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
+						</label>
+						<span class="font-inter font-medium"
+							>{#if showStacksAddress}STX{:else}BTC{/if}</span
+						>
+					</div>
+				{/if}
 
 				<!-- Balance -->
 				<div class="flex justify-between px-4 py-2 transition hover:bg-gray-900">

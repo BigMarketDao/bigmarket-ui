@@ -1,6 +1,5 @@
 <script lang="ts">
 	import logo from '$lib/assets/BIGMARKET-logo-white.png';
-	import CurrencyDropdown from './CurrencyDropdown.svelte';
 	import ConnectMenuDropdown from './ConnectMenuDropdown.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import SlotModal from './SlotModal.svelte';

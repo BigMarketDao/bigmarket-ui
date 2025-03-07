@@ -2,14 +2,25 @@
 	import { onMount } from 'svelte';
 	import { explorerAddressUrl } from '$lib/stacks/stacks-connect';
 	import { Button } from 'flowbite-svelte';
-	import { extractProofInfo } from './proof';
-	import { getBcHHash, parseBlockHeader, parseTx, parseWTx, verifyBlockHeader, verifyMerkleCoinbaseProof, verifyMerkleProof, wasSegwitTxMinedCompact, wasTxMinedCompact } from './clarity-bitcoin';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { getConfig } from '$stores/store_helpers';
 	import Bulletin from '$lib/components/ui/Bulletin.svelte';
-	import type { SegwitData } from './proof-types';
+	import {
+		extractProofInfo,
+		getBcHHash,
+		parseBlockHeader,
+		parseTx,
+		parseWTx,
+		verifyBlockHeader,
+		verifyMerkleCoinbaseProof,
+		verifyMerkleProof,
+		wasSegwitTxMinedCompact,
+		wasTxMinedCompact,
+		type SegwitData,
+		type TxForClarityBitcoin
+	} from 'clarity-bitcoin-client';
 
-	export let tx: any;
+	export let tx: TxForClarityBitcoin;
 	let proof: SegwitData;
 	let inited = false;
 	let errorMessage: string | undefined;
@@ -19,52 +30,52 @@
 	let result: any;
 
 	const wasSegwitTxMined = async () => {
-		result = await wasSegwitTxMinedCompact(proof);
+		result = await wasSegwitTxMinedCompact(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Was Segwit Tx Mined';
 	};
 
 	const getBcH = async () => {
-		result = await getBcHHash(proof);
+		result = await getBcHHash(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Get Header hash';
 	};
 
 	const wasTxMined = async () => {
-		result = await wasTxMinedCompact(proof);
+		result = await wasTxMinedCompact(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Was Tx Mined';
 	};
 
 	const verifyBlock = async () => {
-		result = await verifyBlockHeader(proof);
+		result = await verifyBlockHeader(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Verify Block Header';
 	};
 
 	const verifyMerkleCoinbase = async () => {
-		result = await verifyMerkleCoinbaseProof(proof);
+		result = await verifyMerkleCoinbaseProof(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Verify Merkle';
 	};
 
 	const verifyMerkle = async () => {
-		result = await verifyMerkleProof(proof);
+		result = await verifyMerkleProof(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Verify Merkle';
 	};
 
 	const parseT = async () => {
-		result = await parseTx(proof);
+		result = await parseTx(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Parse Tx (no witness data)';
 	};
 
 	const parseWT = async () => {
-		result = await parseWTx(proof);
+		result = await parseWTx(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Parse Tx (with witness data)';
 	};
 
 	const parseBlockH = async () => {
-		result = await parseBlockHeader(proof);
+		result = await parseBlockHeader(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Parse Block Header';
 	};
 
 	onMount(async () => {
-		proof = await extractProofInfo(tx);
+		proof = await extractProofInfo(tx, getConfig().VITE_CLARITY_BITCOIN);
 		inited = true;
 	});
 </script>

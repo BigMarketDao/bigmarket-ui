@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount, onDestroy } from 'svelte';
-	import { sessionStore, type BigMarketSessionStore } from '../stores/stores';
+	import { isLocalhost, sessionStore, type BigMarketSessionStore } from '../stores/stores';
 	import { configStore, setConfigByUrl } from '../stores/stores_config';
 	import Header from '$lib/components/common/Header.svelte';
 	import Footer from '$lib/components/common/Footer.svelte';
@@ -23,6 +23,7 @@
 	});
 
 	setConfigByUrl(page.url.searchParams);
+	isLocalhost.set(window.location.hostname.indexOf('localhost') > -1);
 
 	const initApp = async () => {
 		if (!$sessionStore.keySets || !$sessionStore.keySets[$configStore.VITE_NETWORK]) await initAddresses(sessionStore);

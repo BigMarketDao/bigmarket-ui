@@ -59,6 +59,7 @@
 		"apexcharts": "^4.5.0",
 		"axios": "^1.7.9",
 		"carta-md": "^4.6.7",
+		"clarity-bitcoin-client": "^1.0.1",
 		"daisyui": "^4.12.23",
 		"date-fns": "^4.1.0",
 		"date-picker-svelte": "^2.15.1",

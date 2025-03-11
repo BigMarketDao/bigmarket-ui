@@ -1,8 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount, onDestroy } from 'svelte';
-	import { isLocalhost, sessionStore, type BigMarketSessionStore } from '../stores/stores';
-	import { configStore, setConfigByUrl } from '../stores/stores_config';
+	import { chain, isLocalhost, sessionStore, type BigMarketSessionStore } from '../stores/stores';
+	import { beforeNavigate, configStore, setConfigByUrl } from '../stores/stores_config';
 	import Header from '$lib/components/common/Header.svelte';
 	import Footer from '$lib/components/common/Footer.svelte';
 	import { initAddresses, initApplication } from '@mijoco/stx_helpers/dist/account';
@@ -22,8 +22,8 @@
 		unsubscribe3();
 	});
 
-	setConfigByUrl(page.url.searchParams);
-	isLocalhost.set(window.location.hostname.indexOf('localhost') > -1);
+	setConfigByUrl(page.url.searchParams, 'testnet');
+	isLocalhost.set(page.url.hostname.indexOf('localhost') > -1);
 
 	const initApp = async () => {
 		if (!$sessionStore.keySets || !$sessionStore.keySets[$configStore.VITE_NETWORK]) await initAddresses(sessionStore);
@@ -69,6 +69,9 @@
 
 	onMount(async () => {
 		await initApp();
+		window.addEventListener('popstate', (event) => {
+			beforeNavigate({ url: new URL(window.location.href) });
+		});
 		inited = true;
 	});
 </script>
@@ -77,7 +80,7 @@
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex min-h-screen flex-col">
 			<div class="border-b border-purple-900/20 backdrop-blur-sm"><Header /></div>
-			<div class="mb-10 grow">
+			<div class="grow">
 				{#if inited}
 					<slot />
 				{/if}

@@ -18,6 +18,25 @@ export default {
 					success: '#36d399',
 					warning: '#fbbd23',
 					error: '#f87272'
+				},
+				extend: {
+					fontFamily: {
+						inter: ['Inter', 'sans-serif']
+					},
+					boxShadow: {
+						'01': '-4px -4px 12px -2px rgba(249,115,22,0.6), 4px 4px 12px -2px rgba(253,198,11,0.6)',
+						'02': '4px 4px 12px -2px rgba(117,139,222,0.6), -4px -4px 12px -2px rgba(91,109,174,0.6)'
+					},
+					keyframes: {
+						slideinout: {
+							'0%, 100%': { transform: 'translate(0px)' },
+							'50%': { transform: 'translate(40px)' }
+						}
+					},
+					animation: {
+						spin: 'spin 1s linear infinite',
+						slideinout: 'slideinout 3s ease-in-out infinite'
+					}
 				}
 			}
 		]
@@ -204,6 +223,7 @@ export default {
 				}
 			},
 			animation: {
+				spin: 'spin 1s linear infinite',
 				slideinout: 'slideinout 3s ease-in-out infinite'
 			}
 		}

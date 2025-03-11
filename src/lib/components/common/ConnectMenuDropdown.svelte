@@ -52,7 +52,7 @@
 		{#if isOpen}
 			<div class="absolute right-0 top-[50px] z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black text-white shadow-lg">
 				<!-- Address Toggle -->
-				{#if !$isLocalhost}
+				{#if $isLocalhost}
 					<div class="flex items-center justify-between px-4 py-2">
 						<label class="relative inline-flex cursor-pointer items-center">
 							<input type="checkbox" class="peer sr-only" on:change={toggleAddress} />

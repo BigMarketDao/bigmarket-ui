@@ -8,6 +8,19 @@ export const xsbp = 700;
 
 export const urlRegex = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/[^\s]*)?$/i;
 
+export function splitMerkleProof(proofHex: string): string[] {
+	if (proofHex.length === 0) return [];
+	if (!proofHex || proofHex.length % 64 !== 0) {
+		throw new Error('Invalid proof length: must be a multiple of 64 hex chars (32 bytes per hash)');
+	}
+
+	const proofList: string[] = [];
+	for (let i = 0; i < proofHex.length; i += 64) {
+		proofList.push(proofHex.slice(i, i + 64)); // Extract 32-byte chunks (64 hex chars)
+	}
+	return proofList;
+}
+
 export function shuffleArray<T>(array: T[]): T[] {
 	const shuffled = [...array]; // Clone to avoid mutating the original
 	for (let i = shuffled.length - 1; i > 0; i--) {

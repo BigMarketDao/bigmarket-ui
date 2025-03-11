@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { config } from '$lib/config';
 import { switchDaoConfig } from './stores_config_dao';
-import { page } from '$app/state';
+import { chain } from './stores';
 
 const initialConfig = config.mainnet;
 
@@ -20,7 +20,7 @@ function validChain(search: URLSearchParams): boolean {
 	return false;
 }
 export function setConfigByUrl(search: URLSearchParams, override?: string) {
-	if (validChain(search) && !override) {
+	if (validChain(search)) {
 		const newNetwork = search.get('chain') || override || 'testnet';
 		switchConfig(newNetwork);
 	} else {
@@ -31,4 +31,13 @@ export function setConfigByUrl(search: URLSearchParams, override?: string) {
 		window.history.replaceState({}, '', currentUrl.toString());
 		return;
 	}
+}
+
+export function beforeNavigate(event: { url: URL }) {
+	chain.subscribe((currentChain: string) => {
+		if (!event.url.searchParams.get('chain')) {
+			event.url.searchParams.set('chain', currentChain);
+			window.history.replaceState({}, '', event.url.toString());
+		}
+	});
 }

@@ -1,3 +1,9 @@
+export const kenny = [
+	'https://github.com/kenrogers/bitcoin-tx-proof/blob/master/src/index.ts',
+	'https://github.com/kenrogers/bitcoin-tx-proof/blob/master/src/merkle.ts',
+	'https://github.com/kenrogers/bitcoin-tx-proof/blob/master/src/rpc.ts',
+	'https://github.com/kenrogers/bitcoin-tx-proof/blob/master/src/types.ts'
+];
 export const bigmarket_ai = [
 	'https://github.com/BigMarketDao/bigmarket-ai',
 	'https://github.com/BigMarketDao/bigmarket-ai/blob/main/server.py',

@@ -5,6 +5,7 @@
 	import SlotModal from './SlotModal.svelte';
 	import OnRamp from '../onramps/OnRamp.svelte';
 	import { bitcoinMode } from '$stores/stores';
+	import { page } from '$app/state';
 
 	let isOpen = false;
 	let showModal = false;
@@ -12,6 +13,7 @@
 	let dropdownRef: HTMLElement | null = null;
 	const dropdownId = 'header-dd';
 	const buttonId = 'header-button';
+	let showSpacer = page.route.id !== '/tools/proofs';
 
 	function toggleMenu() {
 		isOpen = !isOpen;
@@ -91,7 +93,9 @@
 </header>
 
 <!-- Spacer to account for fixed header -->
-<div class="h-20"></div>
+{#if showSpacer}
+	<div class="h-20"></div>
+{/if}
 {#if $bitcoinMode}
 	<div class=" flex h-20 max-w-7xl justify-center text-center">
 		<p class="text-center font-inter font-bold text-primary">Buidl hackathon: <a class="text-blue-800 hover:underline" href="/proofs">bitcoin transactions test page</a></p>

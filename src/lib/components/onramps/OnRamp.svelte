@@ -23,7 +23,7 @@
 
 	const loginStacks = async () => {
 		authenticate(function () {
-			typeof window !== 'undefined' ? window.location.reload() : '';
+			//typeof window !== 'undefined' ? window.location.reload() : '';
 		});
 	};
 

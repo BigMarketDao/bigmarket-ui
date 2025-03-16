@@ -12,6 +12,7 @@
 	import { fetchExchangeRates } from '$lib/stacks/rates';
 	import { fetchStacksInfo, type StacksInfo } from '@mijoco/stx_helpers/dist/index';
 	import { getConfig } from '$stores/store_helpers';
+	import { getWif } from '$lib/bitcoin/btc-proof';
 
 	const unsubscribe1 = sessionStore.subscribe(() => {});
 	const unsubscribe3 = configStore.subscribe(() => {});
@@ -22,7 +23,7 @@
 		unsubscribe3();
 	});
 
-	setConfigByUrl(page.url.searchParams, 'testnet');
+	setConfigByUrl(page.url.searchParams, 'devnet');
 	isLocalhost.set(page.url.hostname.indexOf('localhost') > -1);
 
 	const initApp = async () => {
@@ -69,6 +70,8 @@
 
 	onMount(async () => {
 		await initApp();
+		const pubkey = getWif();
+		console.log('pubkey: ' + pubkey);
 		window.addEventListener('popstate', (event) => {
 			beforeNavigate({ url: new URL(window.location.href) });
 		});

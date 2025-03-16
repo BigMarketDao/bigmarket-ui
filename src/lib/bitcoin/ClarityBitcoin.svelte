@@ -5,7 +5,21 @@
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import { getConfig } from '$stores/store_helpers';
 	import Bulletin from '$lib/components/ui/Bulletin.svelte';
-	import { wasSegwitTxMinedCompact, parseBlockHeader, getBcHHash, parseWTx, parseTx, verifyMerkleProof, verifyMerkleCoinbaseProof, verifyBlockHeader, wasCoinbaseTxMinedCompact, wasTxMinedCompact } from './btc-proof';
+	import {
+		wasSegwitTxMinedCompact,
+		parseBlockHeader,
+		getBcHHash,
+		parseWTx,
+		parseTx,
+		verifyMerkleProof,
+		verifyMerkleCoinbaseProof,
+		verifyBlockHeader,
+		wasCoinbaseTxMinedCompact,
+		wasTxMinedCompact,
+		readTxouts,
+		parseTxFromHex,
+		parseWTxFromHex
+	} from './btc-proof';
 	import type { TransactionProofSet } from './proof-types';
 
 	export let proof: TransactionProofSet;
@@ -14,6 +28,12 @@
 	let lastCall: string | undefined;
 	let showTree: boolean;
 	let result: any;
+	let userHex: string;
+
+	const readTxO = async () => {
+		result = await readTxouts(getConfig().VITE_STACKS_API, proof);
+		lastCall = 'Was Segwit Tx Mined';
+	};
 
 	const wasSegwitTxMined = async () => {
 		result = await wasSegwitTxMinedCompact(getConfig().VITE_STACKS_API, proof);
@@ -60,6 +80,16 @@
 		lastCall = 'Parse Tx (with witness data)';
 	};
 
+	const parseTFromHex = async () => {
+		result = await parseTxFromHex(getConfig().VITE_STACKS_API, proof, userHex);
+		lastCall = 'Parse Tx (no witness data)';
+	};
+
+	const parseWTFromHex = async () => {
+		result = await parseWTxFromHex(getConfig().VITE_STACKS_API, proof, userHex);
+		lastCall = 'Parse Tx (with witness data)';
+	};
+
 	const parseBlockH = async () => {
 		result = await parseBlockHeader(getConfig().VITE_STACKS_API, proof);
 		lastCall = 'Parse Block Header';
@@ -74,7 +104,7 @@
 	<div class=" w-full">
 		<div><p>Transaction found (details below)</p></div>
 		<div class="my-5 grid grid-cols-2 items-stretch gap-5 gap-x-5 text-sm md:grid-cols-3">
-			{#if proof.segwit}
+			{#if proof && proof.segwit}
 				<div class="flex w-full">
 					<Button class="btn w-full bg-green-700 text-sm text-black hover:bg-green-600" on:click={() => wasSegwitTxMined()}>Segwit Tx Mined</Button>
 				</div>
@@ -90,6 +120,9 @@
 				</div>
 			{/if}
 
+			<div class="w-full">
+				<Button class="btn btn-primary w-full text-sm text-black" on:click={() => readTxO()}>Read Outputs</Button>
+			</div>
 			<div class="w-full">
 				<Button class="btn btn-primary w-full text-sm text-black" on:click={() => wasCoinbaseTxMined()}>CB Mined</Button>
 			</div>
@@ -124,6 +157,14 @@
 		<div class="pb-5">
 			<label for="transact-path">header</label>
 			<input type="text" class="block w-full rounded-md border p-3 text-sm text-black" bind:value={proof.header} />
+		</div>
+		<div class="pb-5">
+			<label for="transact-path">tx hex</label>
+			<textarea bind:value={userHex} rows="8" class="block w-full rounded-md border p-3 text-sm text-black">{proof?.txHex}</textarea>
+			<div class="my-2 flex gap-x-3">
+				<Button class="btn btn-primary text-sm text-black" on:click={() => parseTFromHex()}>Parse as Legacy</Button>
+				<Button class="btn btn-primary text-sm text-black" on:click={() => parseWTFromHex()}>Parse as Segwit</Button>
+			</div>
 		</div>
 		<div class="pb-5">
 			<label for="transact-path">height</label>

@@ -7,6 +7,7 @@ export interface DaoConfig {
 	VITE_DAO_MARKET_GATING: string;
 	VITE_DAO_MARKET_PREDICTING: string;
 	VITE_DAO_MARKET_SCALAR: string;
+	VITE_DAO_MARKET_BITCOIN: string;
 	VITE_DAO_TREASURY: string;
 	VITE_DAO_GOVERNANCE_TOKEN: string;
 	VITE_DAO_TOKEN_SALE: string;
@@ -28,6 +29,7 @@ export const config_dao: { [key: string]: DaoConfig } = {
 		VITE_DAO_MARKET_GATING: 'bme022-0-market-gating',
 		VITE_DAO_MARKET_PREDICTING: 'bme023-0-market-predicting',
 		VITE_DAO_MARKET_SCALAR: 'bme023-0-market-scalar',
+		VITE_DAO_MARKET_BITCOIN: 'bme023-0-market-bitcoin',
 		VITE_DAO_GOVERNANCE_TOKEN: 'bme000-0-governance-token',
 		VITE_DAO_TOKEN_SALE: 'bme010-0-token-sale',
 		VITE_DAO_TREASURY: 'bme006-0-treasury'
@@ -44,6 +46,7 @@ export const config_dao: { [key: string]: DaoConfig } = {
 		VITE_DAO_MARKET_GATING: 'bme022-0-market-gating',
 		VITE_DAO_MARKET_PREDICTING: 'bme023-0-market-predicting',
 		VITE_DAO_MARKET_SCALAR: 'bme023-0-market-scalar',
+		VITE_DAO_MARKET_BITCOIN: 'bme023-0-market-bitcoin',
 		VITE_DAO_GOVERNANCE_TOKEN: 'bme000-0-governance-token',
 		VITE_DAO_TOKEN_SALE: 'bme010-0-token-sale',
 		VITE_DAO_TREASURY: 'bme006-0-treasury'
@@ -60,6 +63,7 @@ export const config_dao: { [key: string]: DaoConfig } = {
 		VITE_DAO_MARKET_GATING: 'bme022-0-market-gating',
 		VITE_DAO_MARKET_PREDICTING: 'bme023-0-market-predicting',
 		VITE_DAO_MARKET_SCALAR: 'bme023-0-market-scalar',
+		VITE_DAO_MARKET_BITCOIN: 'bme023-0-market-bitcoin',
 		VITE_DAO_GOVERNANCE_TOKEN: 'bme000-0-governance-token',
 		VITE_DAO_TOKEN_SALE: 'bme010-0-token-sale',
 		VITE_DAO_TREASURY: 'bme006-0-treasury'

@@ -135,7 +135,7 @@ export const isDisputeRunning = (market: PredictionMarketCreateEvent) => {
 export const isStaking = (market: PredictionMarketCreateEvent) => {
 	const sess = getSession();
 	if (market.marketData.resolutionState === ResolutionState.RESOLUTION_OPEN) {
-		if (market.marketType == 1) return true;
+		if (market.marketType == 1 || market.marketType == 3) return true;
 		else {
 			const current = sess.stacksInfo.burn_block_height;
 			const start = market.marketData.marketStart || 0;

@@ -50,7 +50,7 @@
 		</button>
 
 		{#if isOpen}
-			<div class="absolute right-0 top-[50px] z-50 mt-2 w-48 rounded-md border border-gray-300 bg-black text-white shadow-lg">
+			<div class="absolute right-0 top-[50px] z-50 mt-2 min-w-80 rounded-md border border-gray-300 bg-black text-white shadow-lg">
 				<!-- Address Toggle -->
 				{#if $isLocalhost}
 					<div class="flex items-center justify-between px-4 py-2">

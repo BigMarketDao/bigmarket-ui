@@ -16,7 +16,10 @@ export async function getProofDataRecent(index: number): Promise<{ proof: Transa
 	return res;
 }
 export async function getProofData(txid: string): Promise<{ proof: TransactionProofSet; data: ProofRequest }> {
-	let path = `${getConfig().VITE_BIGMARKET_API}/clarity-bitcoin/tx/${txid}/proof`;
+	let path = `https://api.bigmarket.ai/bigmarket-api/clarity-bitcoin/tx/${txid}/proof`;
+	if (getConfig().VITE_NETWORK === 'devnet') {
+		path = `${getConfig().VITE_BIGMARKET_API}/clarity-bitcoin/tx/${txid}/proof`;
+	}
 	const response = await fetch(path);
 	if (response.ok) {
 		return await response.json();
@@ -35,3 +38,10 @@ export async function getBtcProof(txId: string, height: number): Promise<TxProof
 	const res = await response.json();
 	return res;
 }
+export async function buildAndSendTx(marketId: number, outcomeIndex: number, stxAddress: string, amountSats: number): Promise<any> {
+	let path = `${getConfig().VITE_BIGMARKET_API}/clarity-bitcoin/send-prediction/${marketId}/${outcomeIndex}/${stxAddress}/${amountSats}`;
+	const response = await fetch(path);
+	const res = await response.json();
+	return res;
+}
+('/send-prediction/:marketId/:outcomeIndex/:stxAddress/:amountSats');

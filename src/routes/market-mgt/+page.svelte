@@ -23,18 +23,18 @@
 	};
 
 	examplePoll = {
-		name: '$WELSH to 0.001 USD by block 3,614,769',
+		name: 'Will Tesla publicly announce concerns about trade tariffs by 2025-04-15?',
 		category: 'meme',
-		description: 'Is it going to happen? ',
+		description: "This market predicts whether Tesla will issue a public statement or announcement expressing concerns about the impact of Donald Trump's trade tariffs on its business by 2025-04-15.",
 		criterion: {
 			resolvesAt: new Date().getTime(),
-			sources: [],
-			criteria: 'The market will be resolved initially by the DAO core team. Any user with a stake in the market can dispute, disputes are resolved via BigMarketDAO community oracle. See terms for details.'
+			sources: ['BBC News', "Elon Musk's Twitter/X account", 'Tesla Press Releases'],
+			criteria: "The market resolves to 'Yes' if Tesla releases an official statement, press release, or public comment (via CEO Elon Musk or other executives) expressing concerns about trade tariffs by 2025-04-15. Otherwise, it resolves to 'No'."
 		},
 		token: '',
 		priceFeedId: 'STX/USD/0',
 		treasury: getStxAddress(),
-		logo: 'https://pbs.twimg.com/profile_images/1648994389799346176/_X8oyw9I_400x400.jpg',
+		logo: 'https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/01ef/live/2045d160-00c1-11f0-8b2a-c7cde80a6cf3.jpg.webp',
 		social: {
 			twitter: {
 				projectHandle: 'Stacks'

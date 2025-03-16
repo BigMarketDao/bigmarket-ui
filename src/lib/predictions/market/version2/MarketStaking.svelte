@@ -3,7 +3,7 @@
 	import { explorerBtcTxUrl, explorerTxUrl, getAddressId, getBtcAddress, getBtcBalance, getStxAddress, isLoggedIn } from '$lib/stacks/stacks-connect';
 	import { fmtMicroToStx, fmtMicroToStxNumber, fmtStxMicro, mapToMinMaxStrings } from '$lib/utils';
 	import { getConfig } from '$stores/store_helpers';
-	import { bitcoinMode, selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
+	import { bitcoinMode, bitcoinTxid, selectedCurrency, sessionStore, stakeAmount } from '$stores/stores';
 	import { fullBalanceInSip10Token, getStacksNetwork, isSTX, type PredictionMarketCreateEvent, type Sip10Data, type UserStake } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import StakingBinary from './do-stake/StakingBinary.svelte';
@@ -16,7 +16,8 @@
 	import ExchangeRate from '$lib/components/common/ExchangeRate.svelte';
 	import AgentResolveMarket from './do-resolve/AgentResolveMarket.svelte';
 	import StakingCoolDown from './do-stake/StakingCoolDown.svelte';
-	import { buildAndSend, buildOpReturnStakeTransaction, FEE, sendBitcoin, signPSBT } from '$lib/bitcoin/tx';
+	import { buildAndSend } from '$lib/bitcoin/tx';
+	import { goto } from '$app/navigation';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake | undefined;
@@ -47,6 +48,21 @@
 			errorMessage = 'Please connect your wallet';
 			return;
 		}
+		let mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
+		let microStxAmount = Math.round(parseFloat(String(amountToStake)) * mult);
+		if ($bitcoinMode) {
+			const result = await buildAndSend(market.marketId, index, amountToStake, true);
+			//const result = await sendBitcoin(microStxAmount);
+			if (result.failed) {
+				errorMessage = result.message;
+			} else {
+				bitcoinTxid.set(result.message);
+				txId = result.message;
+				//goto('/tools/proofs?chain=devnet');
+			}
+			return;
+		}
+
 		console.log(amountToStake);
 		if (fmtStxMicro(amountToStake, sip10Data.decimals) > totalBalanceUstx) {
 			errorMessage = 'Amount exceeds your balance';
@@ -56,19 +72,6 @@
 			errorMessage = `Amount is required`;
 			return;
 		}
-		let mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
-		let microStxAmount = Math.round(parseFloat(String(amountToStake)) * mult);
-		if ($bitcoinMode) {
-			//const result = await buildAndSend(amountToStake, false);
-			const result = await sendBitcoin(microStxAmount);
-			if (result.failed) {
-				errorMessage = result.message;
-			} else {
-				txId = result.message;
-			}
-			return;
-		}
-
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = market.votingContract.split('.')[1];
 		let functionName = 'predict-category';
@@ -139,7 +142,12 @@
 		{#if market.marketType === 2 && isCooling(market)}
 			<StakingCoolDown {payouts} {market} />
 		{:else}
-			<h2 class="card-title mb-6 text-2xl">Place Your Stake</h2>
+			<h2 class="card-title mb-6 text-2xl">Place Your Stake Now</h2>
+			{#if txId}
+				<div class="mb-4 flex w-full justify-start gap-x-4">
+					<Banner bannerType={'info'} message={'Thanks for staking with bitcoin at BigMarket!'} />
+				</div>
+			{/if}
 
 			{#if isStaking(market)}
 				<div class="form-control">
@@ -162,13 +170,14 @@
 					</label>
 					<div class="join">
 						<input id="stake-input" type="number" placeholder="Enter amount (e.g., 0.04)" bind:value={amountToStake} on:keyup={() => handleInput()} class={' input join-item input-bordered flex-1 '} />
-						<span class={'btn join-item no-animation border border-none'}>{sip10Data.symbol}</span>
+						<span class={'btn join-item no-animation border border-none'}>
+							{#if $bitcoinMode}
+								BTC
+							{:else}
+								{sip10Data.symbol}
+							{/if}
+						</span>
 					</div>
-				</div>
-			{/if}
-			{#if txId}
-				<div class="mb-4 flex w-full justify-start gap-x-4">
-					<Banner bannerType={'info'} message={'your request is being processed. See <a href="' + explorerBtcTxUrl(txId) + '" target="_blank">' + txId + '</a>'} />
 				</div>
 			{/if}
 			{#if errorMessage}

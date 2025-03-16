@@ -13,38 +13,23 @@
 	import { splitMerkleProof } from '$lib/utils';
 	import { k1, m1 } from './test';
 	import { RefreshCwIcon } from 'lucide-svelte';
+	import { explorerAddressUrl } from '$lib/stacks/stacks-connect';
+	import { bitcoinTxid, isLocalhost } from '$stores/stores';
+	import AgentProxyStaking from './AgentProxyStaking.svelte';
+	import { page } from '$app/state';
 
 	let tx: ProofGenerationData;
 	let proof: TransactionProofSet;
 	let recentTransaction: RpcTransaction;
-	//0: "9fb3ab2efe81d0f7ccdbde780a857af5669d923d4479745a2e486c0dedf12f1f"
-	//1: "f6f890ee8f0c4e2e139c6cb759902c7d58a607983e27c9b658d055691b996527"
-	//2: "8b6c4cde19532cd65e44a06cd3fd58af71d0b42e5597e49da27247e238ae2b73
 
-	let txId: string; //'f6f890ee8f0c4e2e139c6cb759902c7d58a607983e27c9b658d055691b996527'; // '28f1031eecb34a7be957e8f0d0ceeaa7d25a745edb2d3952727926b464f38bf5';
+	let txId: string = '0623fabce0c9d2e20e1f23c697b45839363d23f5d771a31c9cb678ffa82566bc'; // '28f1031eecb34a7be957e8f0d0ceeaa7d25a745edb2d3952727926b464f38bf5';
 	let errorMessage: string | undefined;
 	let ready = false;
+	let showPredicitionContract = false;
 
-	const convert = (proof1: TxProofResult, proof2: TransactionProofSet): TransactionProofSet => {
-		return {
-			contract: getConfig().VITE_CLARITY_BITCOIN,
-			wproof: splitMerkleProof(proof1.witnessMerkleProof),
-			cproof: splitMerkleProof(proof1.coinbaseMerkleProof),
-			txId: proof2.txId,
-			txIdReversed: proof2.txIdReversed,
-			txId0Reversed: proof2.txId0Reversed,
-			height: proof1.blockHeight,
-			txHex: proof1.transaction,
-			header: proof1.blockHeader,
-			txIndex: proof1.txIndex,
-			treeDepth: proof1.merkleProofDepth,
-			merkleRoot: proof1.witnessMerkleProof.split(' ')[0],
-			witnessMerkleRoot: proof1.witnessMerkleProof.split(' ')[0],
-			witnessReservedValue: proof1.witnessReservedValue,
-			ctxHex: proof1.coinbaseTransaction,
-			segwit: proof2.segwit
-		};
-	};
+	function toggleContract() {
+		showPredicitionContract = !showPredicitionContract;
+	}
 
 	const fetchAndPrepare = async () => {
 		if (txId) {
@@ -75,7 +60,7 @@
 		return proof1;
 	};
 
-	const recentTx = async () => {
+	const getProofFromCore = async () => {
 		try {
 			if (!txId) {
 				errorMessage = 'please enter a recent (less than 3 days) old bitcoin txid';
@@ -109,28 +94,46 @@
 	};
 
 	onMount(async () => {
+		if ($bitcoinTxid) {
+			txId = $bitcoinTxid.txid || $bitcoinTxid;
+			await getProofFromCore();
+		}
 		ready = true;
 	});
 </script>
 
-<div class="flex w-full flex-col">
-	<div class="mb-5 flex text-2xl">
-		Lookup transaction
-		<Bulletin message={'Enter a bitcoin txid for merkle proof information'} trigger={'marketCounter'}>
-			<span slot="title">{''}</span>
-		</Bulletin>
+<div class="min:h-screen flex w-full flex-col gap-y-1">
+	<div class="mb-5 flex flex-col gap-y-5">
+		<p class="flex text-2xl">
+			Merklise transaction
+			<Bulletin message={'Enter a bitcoin txid for merkle proof information'} trigger={'marketCounter'}>
+				<span slot="title">{''}</span>
+			</Bulletin>
+		</p>
+		<div>
+			<p>Bitcoin mainnet only - the node is pruned (currently to 500 blocks).</p>
+			<p>Works with the <a class="text-bloodorange hover:underline" href={explorerAddressUrl('SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.clarity-bitcoin-lib-v5')} target="_blank">clarity-bitcoin-v5</a> contract</p>
+		</div>
 	</div>
-	<div class="pb-5">
-		<input type="text" placeholder="Enter bitcoin transaction id" class="block w-full rounded-md border p-3 text-black" bind:value={txId} />
-	</div>
-	<div class="flex gap-x-5">
-		<!-- <div class="">
-			<Button class="btn btn-primary text-black" target={''} on:click={() => fetchAndPrepare()}>Lookup Transaction</Button>
-		</div> -->
 
+	<div class="flex gap-x-5">
+		<div class="grow">
+			<input type="text" placeholder="Enter recent bitcoin mainnet transaction id" class="block w-full rounded-md border p-3 text-black" bind:value={txId} />
+		</div>
+		{#if $isLocalhost}
+			<div class="flex items-center justify-start gap-x-5">
+				<label class="relative inline-flex cursor-pointer items-center">
+					<input type="checkbox" class="peer sr-only" on:change={toggleContract} />
+					<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
+				</label>
+				<span class="ps-2 font-inter font-medium"
+					>{#if showPredicitionContract}CB{:else}BM{/if}</span
+				>
+			</div>
+		{/if}
 		<div class="">
 			{#if ready}
-				<Button class="btn btn-primary text-black" target={''} on:click={() => recentTx()}>Recent Transaction</Button>
+				<Button class="btn btn-primary text-black" target={''} on:click={() => getProofFromCore()}>Load Transaction</Button>
 			{:else}
 				<RefreshCwIcon className="animate-spin" />
 			{/if}
@@ -141,7 +144,12 @@
 	{/if}
 
 	<div class="">
-		{#if ready}
+		{#if proof}
+			{#if showPredicitionContract}
+				<div class="my-5">
+					<AgentProxyStaking {proof} />
+				</div>
+			{/if}
 			<ClarityBitcoin {proof} />
 		{/if}
 	</div>

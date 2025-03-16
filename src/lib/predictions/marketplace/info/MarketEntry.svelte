@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ArrowRightAltOutline } from 'flowbite-svelte-icons';
-	import { type MarketData, type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
+	import { type PredictionMarketCreateEvent } from '@mijoco/stx_helpers/dist/index';
 	import { onMount } from 'svelte';
 	import LogoContainer from '../LogoContainer.svelte';
 	import { calculatePayoutCategorical, convertCryptoToFiat, convertFiatToNative, getMarketToken, totalPoolSum } from '../../predictions';
 	import { selectedCurrency } from '$stores/stores';
 	import type { Payout } from '../../predictions';
-	import { Users, TrendingUp, Clock } from 'lucide-svelte';
-	import { fmtMicroToStx, fmtMicroToStxNumber } from '$lib/utils';
+	import { TrendingUp } from 'lucide-svelte';
+	import { fmtMicroToStxNumber } from '$lib/utils';
 	import { getResolutionMessage } from '$lib/predictions/market-states';
 
 	export let market: PredictionMarketCreateEvent;

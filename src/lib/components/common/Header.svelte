@@ -13,7 +13,7 @@
 	let dropdownRef: HTMLElement | null = null;
 	const dropdownId = 'header-dd';
 	const buttonId = 'header-button';
-	let showSpacer = page.route.id !== '/tools/proofs';
+	let proofPage = page.route.id !== '/tools/proofs';
 
 	function toggleMenu() {
 		isOpen = !isOpen;
@@ -53,9 +53,11 @@
 
 		<!-- Desktop Nav -->
 		<div class="hidden items-center gap-8 md:flex">
-			<!-- <a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a> -->
-			<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">BigMarket IDO</a>
-			<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
+			{#if proofPage}
+				<!-- <a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a> -->
+				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">BigMarket IDO</a>
+				<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
+			{/if}
 			<div class=" flex items-center gap-4">
 				<ConnectMenuDropdown {connectWallet} />
 				<!-- <CurrencyDropdown /> -->
@@ -80,9 +82,11 @@
 	{#if isOpen}
 		<div id="header-dd" class=" left-0 right-0 top-20 z-[999] border-b border-purple-900/20 bg-[#0A0A1A]/95 bg-black backdrop-blur-lg md:hidden">
 			<div class="mx-auto flex max-w-7xl flex-col gap-6 p-6">
-				<!-- <a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a> -->
-				<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">BigMarket IDO</a>
-				<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
+				{#if proofPage}
+					<!-- <a href="/docs" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">HOW IT WORKS</a> -->
+					<a href="/dao/token-sale" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">BigMarket IDO</a>
+					<a href="/market-mgt" class="text-indigo-200/70 text-sm font-medium transition-colors hover:text-purple-400">CREATE</a>
+				{/if}
 				<div class="flex flex-col gap-4">
 					<ConnectMenuDropdown {connectWallet} />
 					<!-- <CurrencyDropdown /> -->
@@ -93,12 +97,12 @@
 </header>
 
 <!-- Spacer to account for fixed header -->
-{#if showSpacer}
+{#if proofPage}
 	<div class="h-20"></div>
 {/if}
 {#if $bitcoinMode}
 	<div class=" flex h-20 max-w-7xl justify-center text-center">
-		<p class="text-center font-inter font-bold text-primary">Buidl hackathon: <a class="text-blue-800 hover:underline" href="/proofs">bitcoin transactions test page</a></p>
+		<p class="text-center font-inter font-bold text-primary">Buidl hackathon: <a class="text-blue-800 hover:underline" href="/tools/proofs">bitcoin transactions test page</a></p>
 	</div>
 {/if}
 

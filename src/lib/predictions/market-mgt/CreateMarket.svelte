@@ -4,14 +4,14 @@
 	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
 	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, marketDataToTupleCV, type Criterion, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
-	import { getClarityProofForCreateMarket, postCreatePollMessage, signCreateMarketRequest } from '$lib/predictions/predictions';
+	import { getClarityProofForCreateMarket, getSbtcTokenContract, postCreatePollMessage, signCreateMarketRequest } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { hexToBytes } from '@stacks/common';
 	import Banner from '$lib/components/ui/Banner.svelte';
 	import TokenSelection from './TokenSelection.svelte';
 	import { Cl, Pc } from '@stacks/transactions-v6';
-	import { aiMarket, sessionStore } from '$stores/stores';
+	import { aiMarket, bitcoinMode, sessionStore } from '$stores/stores';
 	import CategorySelection from './CategorySelection.svelte';
 	import MarkdownCreator from '$lib/components/ui/MarkdownCreator.svelte';
 	import MarketTypeSelection from './MarketTypeSelection.svelte';
@@ -22,6 +22,7 @@
 	export let examplePoll: StoredOpinionPoll;
 	export let onPollSubmit;
 	let inited = false;
+	$: isBitcoinMarket = $bitcoinMode;
 
 	let merkelRoot: string | undefined;
 	let contractIds: Array<string> | undefined;
@@ -72,10 +73,18 @@
 		let proof = $sessionStore.daoOverview.contractData.creationGated ? await getClarityProofForCreateMarket() : Cl.list([]);
 		if (examplePoll.marketType === 2) {
 			const cats = listCV(examplePoll.marketTypeDataScalar!.map((o) => tupleCV({ min: uintCV(o.min), max: uintCV(o.max) })));
-			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV(examplePoll.priceFeedId!)];
+			if (isBitcoinMarket) {
+				return [cats, marketFeeCV, metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV(examplePoll.priceFeedId!)];
+			} else {
+				return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV(examplePoll.priceFeedId!)];
+			}
 		} else {
 			const cats = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));
-			return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury)];
+			if (isBitcoinMarket) {
+				return [cats, marketFeeCV, metadataHash, proof, Cl.principal(examplePoll.treasury)];
+			} else {
+				return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury)];
+			}
 		}
 	};
 
@@ -92,8 +101,12 @@
 		console.log('post profanity: ' + template.logo);
 
 		if (!token) {
-			errorMessage = 'Please select a token';
-			return;
+			if (isBitcoinMarket) {
+				token = getSbtcTokenContract($sessionStore.tokens);
+			} else {
+				errorMessage = 'Please select a token';
+				return;
+			}
 		}
 		examplePoll.token = token;
 		if (!category) {
@@ -168,7 +181,6 @@
 			}
 		});
 	};
-
 	const confirmPoll = async (dataHash: string) => {
 		let contractName = getDaoConfig().VITE_DAO_MARKET_PREDICTING;
 
@@ -187,9 +199,15 @@
 			}
 			contractName = getDaoConfig().VITE_DAO_MARKET_SCALAR;
 		}
+		if (isBitcoinMarket) {
+			contractName = getDaoConfig().VITE_DAO_MARKET_BITCOIN;
+		}
 		const ra = $sessionStore?.daoOverview?.contractData?.resolutionAgent || '';
 		const postConditions = [];
-		if (ra !== getStxAddress()) postConditions.push(Pc.principal(getStxAddress()).willSendEq($sessionStore.daoOverview.contractData.marketCreateFee).ustx());
+		let marketCreateFee = $sessionStore.daoOverview.contractData.marketCreateFee;
+		if (isBitcoinMarket) marketCreateFee = marketCreateFee / 100;
+		if (ra !== getStxAddress()) postConditions.push(Pc.principal(getStxAddress()).willSendEq(marketCreateFee).ustx());
+
 		await openContractCall({
 			network: getStacksNetwork($configStore.VITE_NETWORK),
 			postConditions,
@@ -225,7 +243,11 @@
 
 <div class="py-6">
 	<!-- Page Heading -->
-	<h1 class="mb-6 border-b-2 border-gray-200 pb-2 text-2xl font-bold text-gray-800">Create a New Prediction Market</h1>
+	{#if isBitcoinMarket}
+		<h1 class="mb-6 border-b-2 border-bitcoinorange pb-2 text-2xl font-bold text-gray-800">Create a New Bitcoin Market</h1>
+	{:else}
+		<h1 class="mb-6 border-b-2 border-gray-200 pb-2 text-2xl font-bold text-gray-800">Create a New Prediction Market</h1>
+	{/if}
 
 	{#if inited}
 		<div class="mx-auto max-w-3xl space-y-6">
@@ -287,7 +309,9 @@
 			</div>
 			<MarketTypeSelection bind:priceFeedId bind:marketType={template.marketType} bind:marketTypeDataCategorical={template.marketTypeDataCategorical!} bind:marketTypeDataScalar={template.marketTypeDataScalar} />
 			<CriteriaSelection bind:criteria marketType={template.marketType} />
-			<TokenSelection currentToken={token} onSelectToken={handleSelectToken} />
+			{#if !isBitcoinMarket}
+				<TokenSelection currentToken={token} onSelectToken={handleSelectToken} />
+			{/if}
 			<CategorySelection categoryName={category} onSelectCategory={handleSelectCategory} />
 
 			<!-- <div class="rounded-md border shadow-md">

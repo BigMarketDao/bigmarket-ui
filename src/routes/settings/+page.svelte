@@ -172,7 +172,8 @@
 					contracts={[
 						{ contract: getDaoConfig().VITE_DAO_TREASURY, balances: treasuryBalances },
 						{ contract: getDaoConfig().VITE_DAO_MARKET_SCALAR, balances: scalarBalances },
-						{ contract: getDaoConfig().VITE_DAO_MARKET_PREDICTING, balances: contractBalances }
+						{ contract: getDaoConfig().VITE_DAO_MARKET_PREDICTING, balances: contractBalances },
+						{ contract: getDaoConfig().VITE_DAO_MARKET_BITCOIN, balances: contractBalances }
 					]}
 				/>
 			</div>

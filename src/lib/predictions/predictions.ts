@@ -260,6 +260,11 @@ export function getGovernanceToken(tokens: Array<TokenPermissionEvent>): Sip10Da
 	return token?.sip10Data || defToken;
 }
 
+export function getSbtcTokenContract(tokens: Array<TokenPermissionEvent>): string {
+	const token = tokens.find((t) => t.token.toLowerCase().indexOf('sbtc') > -1);
+	return token?.token || '';
+}
+
 export function getStxToken(tokenEventss: Array<TokenPermissionEvent>): Sip10Data {
 	const token = tokenEventss.find((t) => t.sip10Data?.symbol === 'STX');
 	return token?.sip10Data || defToken;

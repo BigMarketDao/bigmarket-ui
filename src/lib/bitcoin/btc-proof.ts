@@ -1,7 +1,9 @@
 import { bufferCV, Cl, cvToJSON, deserializeCV, serializeCV } from '@stacks/transactions';
 import { sha256 } from '@noble/hashes/sha256';
-import { hex } from '@scure/base';
+import { createBase58check, hex } from '@scure/base';
 import type { TransactionProofSet } from './proof-types';
+import * as btc from '@scure/btc-signer';
+import { schnorr, secp256k1 } from '@noble/curves/secp256k1';
 
 const getParams = (contract: string, functionName: string, functionArgs: Array<string>) => {
 	return {
@@ -104,14 +106,22 @@ export const wasTxMinedCompact = async (stacksApi: string, proof: TransactionPro
 export const verifyBlockHeader = async (stacksApi: string, proof: TransactionProofSet) => {
 	const functionArgs = [`0x${serializeCV(bufferCV(hex.decode(proof.header)))}`, `0x${serializeCV(Cl.uint(proof.height))}`];
 	const response = await callContractReadOnly(stacksApi, getParams(proof.contract!, 'verify-block-header', functionArgs));
-	let result = (response.value?.value || response.value) as string;
+	let result = String(response.value?.value || response.value);
+	if (!result && !response.value) return response.type;
+	return result;
+};
+export const readTxouts = async (stacksApi: string, proof: TransactionProofSet) => {
+	const functionArgs = [`0x${serializeCV(Cl.tuple({ txbuff: Cl.bufferFromHex(proof.txHex), index: Cl.uint(1) }))}`];
+	const response = await callContractReadOnly(stacksApi, getParams(proof.contract!, 'read-txouts', functionArgs));
+	if (!response.value) return response.type;
+	let result = response.value?.value || response.value;
 	return result;
 };
 export const getBcHHash = async (stacksApi: string, proof: TransactionProofSet) => {
 	const functionArgs = [`0x${serializeCV(Cl.uint(proof.height))}`];
 	const response = await callContractReadOnly(stacksApi, getParams(proof.contract!, 'get-bc-h-hash', functionArgs));
-	let result = (response.value?.value || response.value) as string;
-	return result;
+	if (!response.value) return response.type;
+	return { result: response.value, success: response.success };
 };
 export const parseBlockHeader = async (stacksApi: string, proof: TransactionProofSet) => {
 	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(proof.header))}`];
@@ -127,6 +137,19 @@ export const parseTx = async (stacksApi: string, proof: TransactionProofSet) => 
 };
 export const parseWTx = async (stacksApi: string, proof: TransactionProofSet) => {
 	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(proof.txHex))}`, `0x${serializeCV(Cl.bool(true))}`];
+	const response = await callContractReadOnly(stacksApi, getParams(proof.contract!, 'parse-wtx', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
+};
+
+export const parseTxFromHex = async (stacksApi: string, proof: TransactionProofSet, txHex: string) => {
+	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(txHex))}`];
+	const response = await callContractReadOnly(stacksApi, getParams(proof.contract!, 'parse-tx', functionArgs));
+	let result = (response.value?.value || response.value) as string;
+	return result;
+};
+export const parseWTxFromHex = async (stacksApi: string, proof: TransactionProofSet, txHex: string) => {
+	const functionArgs = [`0x${serializeCV(Cl.bufferFromHex(txHex))}`, `0x${serializeCV(Cl.bool(true))}`];
 	const response = await callContractReadOnly(stacksApi, getParams(proof.contract!, 'parse-wtx', functionArgs));
 	let result = (response.value?.value || response.value) as string;
 	return result;
@@ -186,4 +209,18 @@ function replaceMerkleRootLE(blockHeaderHex: string, merkleRootHex: string): str
 	const modifiedHeaderHex = blockHeaderHex.slice(0, 72) + merkleRootLE + blockHeaderHex.slice(136);
 
 	return modifiedHeaderHex;
+}
+
+export function getWif() {
+	// Stacks private key (remove last byte "01" if it exists)
+	const wif = 'L19bUpcNHxbkyJ9inUvAu1MxCkxYgePQpG8uTPb1MS9LT6tqrmZ2';
+
+	// Decode WIF to get the raw private key
+	const privateKey = btc.WIF().decode(wif);
+
+	// Derive the compressed public key
+	const publicKey = schnorr.getPublicKey(privateKey);
+
+	console.log('Public Key:', hex.encode(publicKey));
+	return hex.encode(publicKey);
 }

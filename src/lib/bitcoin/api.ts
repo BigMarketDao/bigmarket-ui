@@ -15,10 +15,13 @@ export async function getProofDataRecent(index: number): Promise<{ proof: Transa
 	const res = await response.json();
 	return res;
 }
-export async function getProofData(txid: string): Promise<{ proof: TransactionProofSet; data: ProofRequest }> {
+export async function getProofData(txid: string, useSbtcTest: boolean): Promise<{ proof: TransactionProofSet; data: ProofRequest }> {
 	let path = `https://api.bigmarket.ai/bigmarket-api/clarity-bitcoin/tx/${txid}/proof`;
 	if (getConfig().VITE_NETWORK === 'devnet') {
 		path = `${getConfig().VITE_BIGMARKET_API}/clarity-bitcoin/tx/${txid}/proof`;
+	}
+	if (useSbtcTest) {
+		path = `${getConfig().VITE_BIGMARKET_API}/clarity-bitcoin/tx/${txid}/proof/sbtc-testnet`;
 	}
 	const response = await fetch(path);
 	if (response.ok) {

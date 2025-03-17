@@ -22,7 +22,11 @@
 	onMount(async () => {
 		const marketId = Number(page.params.slug);
 		const marketType = Number(page.params.marketType);
-		if (marketType === 3) bitcoinMode.set(true);
+		if (marketType === 3) {
+			bitcoinMode.set(true);
+		} else {
+			bitcoinMode.set(false);
+		}
 		if (marketId >= 0) {
 			market = await getPredictionMarket(marketId, marketType);
 			marketStakes = await fetchMarketStakes(marketId, marketType);

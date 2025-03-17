@@ -70,7 +70,7 @@
 			//return recentTxFromFile();
 			ready = false;
 			//const result = await getProofDataRecent(2);
-			const result = await getProofData(txId);
+			const result = await getProofData(txId, false);
 			proof = result.proof;
 			proof.contract = getConfig().VITE_CLARITY_BITCOIN;
 			txId = result.data.txid;

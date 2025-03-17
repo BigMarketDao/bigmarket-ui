@@ -13,6 +13,7 @@
 	import MarketVoting from '$lib/predictions/market/version2/MarketVoting.svelte';
 	import MarketClaiming from '$lib/predictions/market/version2/MarketClaiming.svelte';
 	import { getStxAddress } from '$lib/stacks/stacks-connect';
+	import { bitcoinMode } from '$stores/stores';
 
 	let market: PredictionMarketCreateEvent;
 	let marketStakes: Array<PredictionMarketStakeEvent> = [];
@@ -21,7 +22,7 @@
 	onMount(async () => {
 		const marketId = Number(page.params.slug);
 		const marketType = Number(page.params.marketType);
-
+		if (marketType === 3) bitcoinMode.set(true);
 		if (marketId >= 0) {
 			market = await getPredictionMarket(marketId, marketType);
 			marketStakes = await fetchMarketStakes(marketId, marketType);

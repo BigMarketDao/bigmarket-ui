@@ -100,12 +100,12 @@
 {#if proofPage}
 	<div class="h-20"></div>
 {/if}
-{#if $bitcoinMode}
+<!-- {#if $bitcoinMode}
 	<div class=" flex h-20 max-w-7xl justify-center text-center">
 		<p class="text-center font-inter font-bold text-primary">Buidl hackathon: <a class="text-blue-800 hover:underline" href="/tools/proofs">bitcoin transactions test page</a></p>
 	</div>
 {/if}
-
+ -->
 {#if showModal}
 	<SlotModal onClose={() => closeModal()}>
 		<div class="z-50" slot="modalBody">

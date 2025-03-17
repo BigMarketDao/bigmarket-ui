@@ -22,7 +22,7 @@
 	let proof: TransactionProofSet;
 	let recentTransaction: RpcTransaction;
 
-	let txId: string = '0623fabce0c9d2e20e1f23c697b45839363d23f5d771a31c9cb678ffa82566bc'; // '28f1031eecb34a7be957e8f0d0ceeaa7d25a745edb2d3952727926b464f38bf5';
+	let txId: string = '7b82f879ce99cb862e95239e4c2c88aece36dbe62c1b027c82d659bd513430a9'; // '28f1031eecb34a7be957e8f0d0ceeaa7d25a745edb2d3952727926b464f38bf5';
 	let errorMessage: string | undefined;
 	let ready = false;
 	let showPredicitionContract = false;
@@ -63,7 +63,7 @@
 	const getProofFromCore = async () => {
 		try {
 			if (!txId) {
-				errorMessage = 'please enter a recent (less than 3 days) old bitcoin txid';
+				errorMessage = `Recent mainnet transactions only - check <a href="${getConfig().VITE_MEMPOOL_API}" target="_blank">mempool</a>`;
 				return;
 			}
 			errorMessage = undefined;
@@ -77,7 +77,7 @@
 			console.log(result.proof);
 			//getBtcProofInner(result);
 		} catch (error: any) {
-			errorMessage = error.message;
+			errorMessage = `Recent mainnet transactions only - check <a href="https://mempool.space/tx/7b82f879ce99cb862e95239e4c2c88aece36dbe62c1b027c82d659bd513430a9" target="_blank">mempool</a>`;
 		}
 		ready = true;
 	};
@@ -94,10 +94,10 @@
 	};
 
 	onMount(async () => {
-		if ($bitcoinTxid) {
-			txId = $bitcoinTxid.txid || $bitcoinTxid;
-			await getProofFromCore();
-		}
+		// if ($bitcoinTxid) {
+		// 	txId = $bitcoinTxid.txid || $bitcoinTxid;
+		// 	await getProofFromCore();
+		// }
 		ready = true;
 	});
 </script>
@@ -120,17 +120,6 @@
 		<div class="grow">
 			<input type="text" placeholder="Enter recent bitcoin mainnet transaction id" class="block w-full rounded-md border p-3 text-black" bind:value={txId} />
 		</div>
-		{#if $isLocalhost}
-			<div class="flex items-center justify-start gap-x-5">
-				<label class="relative inline-flex cursor-pointer items-center">
-					<input type="checkbox" class="peer sr-only" on:change={toggleContract} />
-					<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
-				</label>
-				<span class="ps-2 font-inter font-medium"
-					>{#if showPredicitionContract}CB{:else}BM{/if}</span
-				>
-			</div>
-		{/if}
 		<div class="">
 			{#if ready}
 				<Button class="btn btn-primary text-black" target={''} on:click={() => getProofFromCore()}>Load Transaction</Button>
@@ -139,6 +128,17 @@
 			{/if}
 		</div>
 	</div>
+	{#if $isLocalhost && proof}
+		<div class="mt-4 flex items-start justify-start gap-x-5">
+			<label class="relative inline-flex cursor-pointer items-center">
+				<input type="checkbox" class="peer sr-only" on:change={toggleContract} />
+				<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
+			</label>
+			<span class="ps-2 font-inter font-medium"
+				>{#if !showPredicitionContract}Clarity-Bitcoin Contract{:else}Prediction Market Contract{/if}</span
+			>
+		</div>
+	{/if}
 	{#if errorMessage}
 		<div class="my-5"><Banner bannerType="info" message={errorMessage}></Banner></div>
 	{/if}

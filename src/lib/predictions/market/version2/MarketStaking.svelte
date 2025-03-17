@@ -48,6 +48,14 @@
 			errorMessage = 'Please connect your wallet';
 			return;
 		}
+		if (amountToStake <= 0) {
+			errorMessage = `Amount is required`;
+			return;
+		}
+		if (getConfig().VITE_NETWORK !== 'devnet' && fmtStxMicro(amountToStake, sip10Data.decimals) > totalBalanceUstx) {
+			errorMessage = 'Amount exceeds your balance';
+			return;
+		}
 		let mult = isSTX(market.marketData.token) ? 1_000_000 : Number(`1e${sip10Data.decimals}`);
 		let microStxAmount = Math.round(parseFloat(String(amountToStake)) * mult);
 		if ($bitcoinMode) {
@@ -60,18 +68,12 @@
 				txId = result.message;
 				//goto('/tools/proofs?chain=devnet');
 			}
+			errorMessage = 'Amount exceeds your balance';
+
 			return;
 		}
 
 		console.log(amountToStake);
-		if (fmtStxMicro(amountToStake, sip10Data.decimals) > totalBalanceUstx) {
-			errorMessage = 'Amount exceeds your balance';
-			return;
-		}
-		if (amountToStake <= 0) {
-			errorMessage = `Amount is required`;
-			return;
-		}
 		const contractAddress = market.votingContract.split('.')[0];
 		const contractName = market.votingContract.split('.')[1];
 		let functionName = 'predict-category';
@@ -143,9 +145,13 @@
 			<StakingCoolDown {payouts} {market} />
 		{:else}
 			<h2 class="card-title mb-6 text-2xl">Place Your Stake Now</h2>
-			{#if txId}
+			{#if $bitcoinMode && txId}
 				<div class="mb-4 flex w-full justify-start gap-x-4">
-					<Banner bannerType={'info'} message={'Thanks for staking with bitcoin at BigMarket!'} />
+					<Banner bannerType={'info'} message={`Thanks for staking with bitcoin at BigMarket! <a href=${explorerBtcTxUrl(txId)} target="_blank">View bitcoin transaction</a>`} />
+				</div>
+			{:else if txId}
+				<div class="mb-4 flex w-full justify-start gap-x-4">
+					<Banner bannerType={'info'} message={`Thanks for staking with bitcoin at BigMarket! <a href=${explorerTxUrl(txId)} target="_blank">View on explorer</a>`} />
 				</div>
 			{/if}
 

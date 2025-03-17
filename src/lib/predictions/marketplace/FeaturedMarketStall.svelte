@@ -58,11 +58,11 @@
 				<!-- Header with Logo and Title -->
 				<div class="flex items-center gap-5">
 					<div class=" border border-purple-900/20 bg-[#151B2D]">
-						<LogoContainerSmall logo={market.unhashedData.logo} />
+						<a href={`/market/${market.marketId}/${market.marketType}`}> <LogoContainerSmall logo={market.unhashedData.logo} /></a>
 					</div>
 					<div class="flex flex-col justify-center">
 						<h2 class="text-3xl font-bold leading-tight text-white lg:text-4xl">
-							{market.unhashedData.name}
+							<a href={`/market/${market.marketId}/${market.marketType}`}>{market.unhashedData.name}</a>
 						</h2>
 						<p class="text-indigo-200/70 mt-2 line-clamp-2 text-lg">
 							{market.unhashedData.description}

@@ -9,6 +9,7 @@
 	let isOpen = false;
 	let dropdownRef: HTMLElement | null = null;
 	let showStacksAddress = true;
+	$: showStacksAddress = !$bitcoinMode;
 
 	const logout = async () => {
 		logUserOut();
@@ -52,17 +53,15 @@
 		{#if isOpen}
 			<div class="absolute right-0 top-[50px] z-50 mt-2 min-w-80 rounded-md border border-gray-300 bg-black text-white shadow-lg">
 				<!-- Address Toggle -->
-				{#if $isLocalhost}
-					<div class="flex items-center justify-between px-4 py-2">
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input type="checkbox" class="peer sr-only" on:change={toggleAddress} />
-							<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
-						</label>
-						<span class="font-inter font-medium"
-							>{#if showStacksAddress}STX{:else}BTC{/if}</span
-						>
-					</div>
-				{/if}
+				<div class="flex items-center justify-between px-4 py-2">
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input type="checkbox" class="peer sr-only" on:change={toggleAddress} />
+						<div class="peer h-5 w-9 rounded-full bg-blue-600 after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-gray-600 peer-checked:after:translate-x-4"></div>
+					</label>
+					<span class="font-inter font-medium"
+						>{#if showStacksAddress}STX{:else}BTC{/if}</span
+					>
+				</div>
 
 				<!-- Balance -->
 				<div class="flex justify-between px-4 py-2 transition hover:bg-gray-900">

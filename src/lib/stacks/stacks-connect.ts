@@ -68,10 +68,11 @@ export async function authenticate(callback: any) {
 			name: 'My App',
 			icon: window?.location?.origin || '' + '/my-app-logo.svg'
 		},
-		redirectTo: '/',
+		//redirectTo: '/',
 		onFinish: () => {
 			let userData = userSession.loadUserData();
 			storedStacksWallet.set(userData);
+			window.location.reload();
 			if (callback) callback();
 		},
 		userSession

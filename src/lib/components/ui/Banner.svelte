@@ -32,19 +32,19 @@
 {#if ready}
 	<div class="flex w-full rounded-md px-4 py-3 text-base text-black {bannerClassList}">
 		<div class="flex gap-2">
-			<div class="justify-start">
+			<div class="flex justify-start gap-x-2">
 				{#if bannerType === 'warning'}
-					<Icon src={ExclamationCircle} class="inline-block h-5 w-5 text-black" aria-hidden="true" />
+					<Icon src={ExclamationCircle} class="relative top-[2px] inline-block h-5 w-5 text-black" aria-hidden="true" />
 				{:else if bannerType === 'danger'}
-					<Icon src={XCircle} class="inline-block h-5 w-5 text-black" aria-hidden="true" />
+					<Icon src={XCircle} class="relative top-[2px] inline-block h-5 w-5 text-black" aria-hidden="true" />
 				{:else if bannerType === 'success'}
-					<Icon src={CheckCircle} class="inline-block h-5 w-5 text-white" aria-hidden="true" />
+					<Icon src={CheckCircle} class="relative top-[2px] inline-block h-5 w-5 text-white" aria-hidden="true" />
 				{:else if bannerType === 'waiting'}
 					<Spinner color="blue" class="mb-0.5 inline-block h-4 w-4" aria-hidden="true" />
 				{:else if bannerType === 'checking'}
-					<Icon src={Wifi} class="inline-block h-5 w-5 text-black" aria-hidden="true" />
+					<Icon src={Wifi} class="relative top-[2px] inline-block h-5 w-5 text-black" aria-hidden="true" />
 				{:else}
-					<Icon src={InformationCircle} class="inline-block h-5 w-5 text-black" aria-hidden="true" />
+					<Icon src={InformationCircle} class="relative top-[2px] inline-block h-5 w-5 text-black" aria-hidden="true" />
 				{/if}
 				<slot name="message">{@html message}</slot>
 			</div>

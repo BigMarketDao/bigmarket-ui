@@ -1,7 +1,7 @@
 import { getConfig, getSession } from '$stores/store_helpers';
 import { fetchTransactionHex, fetchUtxoSet, addInputs, type UTXO, inputAmt, REGTEST_NETWORK } from '@mijoco/btc_helpers/dist/index';
 import * as btc from '@scure/btc-signer';
-import { hex } from '@scure/base';
+import { base64, hex } from '@scure/base';
 import { getBtcAddress, getBtcBalance, getStxAddress } from '$lib/stacks/stacks-connect';
 import { Cl } from '@stacks/transactions';
 import axios from 'axios';
@@ -22,7 +22,7 @@ export async function buildAndSend(marketId: number, outcomeIndex: number, amoun
 		return { failed: true, message: 'Amount exceeds your balance' };
 	}
 	const userPublicKey = getSession().keySets[getConfig().VITE_NETWORK].btcPubkeySegwit0!;
-	const { transaction, txFee } = await buildOpReturnStakeTransaction(marketId, outcomeIndex, getConfig().VITE_MEMPOOL_API, getConfig().VITE_NETWORK, getStxAddress(), microStxAmount, userPublicKey, getBtcAddress());
+	const { transaction, txFee } = await buildOpReturnStakeTransaction(marketId, outcomeIndex, getConfig().VITE_MEMPOOL_API, getConfig().VITE_NETWORK, getStxAddress(), amountBtc, userPublicKey, getBtcAddress());
 	const txId = await signPSBT(transaction, broadcast);
 	return { failed: false, message: txId, transaction };
 }
@@ -81,7 +81,8 @@ export const signPSBT = async (transaction: btc.Transaction, broadcast: boolean)
 		// account?: number;
 		broadcast
 	};
-	console.log('Unsigned PSBT:', transaction.toPSBT());
+	console.log('Unsigned PSBT:', hex.encode(transaction.toPSBT()));
+	console.log('Unsigned PSBT:', base64.encode(transaction.toPSBT()));
 
 	const response = await (window as any).LeatherProvider.request('signPsbt', requestParams);
 	console.log('Unsigned response:', response.result.hex);
@@ -111,8 +112,8 @@ export async function buildOpReturnStakeTransaction(
 	outcomeIndex: number,
 	mempoolApi: string,
 	network: string,
-	stacksRecipient: string,
-	amountSats: number,
+	stxAddress: string,
+	amountBtc: number,
 	paymentPublicKey: string,
 	paymentAddress: string
 ): Promise<{ transaction: btc.Transaction; txFee: number }> {
@@ -127,29 +128,54 @@ export async function buildOpReturnStakeTransaction(
 		console.error('=============================================================== ');
 		throw new Error('Unable to lookup UTXOs for address this could be a network failure or rate limiting by remote service: ' + paymentAddress);
 	}
-	//console.log('buildOpReturnDepositTransaction: utxos:', utxos)
-
+	// Create a new Bitcoin transaction (SegWit enabled)
 	const transaction = new btc.Transaction({
 		allowUnknownInputs: true,
 		allowUnknownOutputs: true
 	});
-	const txFee = FEE; //estimateActualFee(transaction, fees.feeInfo) * feeMultiplier;
-	// no reveal fee for op_return
-	addInputs(network, amountSats, txFee, transaction, false, utxos, paymentPublicKey);
+	// Serialize OP_RETURN Data
+	const mult = 100_000_000;
+	const amountSats = Math.round(amountBtc * 100_000_000);
 
-	const data = `0x${Cl.serialize(Cl.tuple({ idx: Cl.uint(outcomeIndex), amt: Cl.uint(amountSats), id: Cl.uint(marketId), addr: Cl.principal(stacksRecipient) }))}`;
-	// const magicBuf = typeof net === 'object' && (net.bech32 === 'tb' || net.bech32 === 'bcrt') ? hex.decode(MAGIC_BYTES_TESTNET) : hex.decode(MAGIC_BYTES_MAINNET);
-	// const opCodeBuf = hex.decode(STAKE_OPCODE);
+	const data = Cl.serialize(
+		Cl.tuple({
+			o: Cl.uint(outcomeIndex),
+			i: Cl.uint(marketId),
+			p: Cl.principal(stxAddress)
+		})
+	);
+	console.log('buildMockBitcoinSegwitTransaction: encodedData length: ' + data.length);
+	console.log('buildMockBitcoinSegwitTransaction: encodedData length: ' + hex.decode(data).length);
+	console.log('buildMockBitcoinSegwitTransaction: encodedData: ' + data);
 
-	console.log('buildOpReturnStakeTransaction: ', data);
 	transaction.addOutput({
-		// script: btc.Script.encode(['RETURN', concatBytes(opCodeBuf, hex.decode(data))]),
 		script: btc.Script.encode(['RETURN', hex.decode(data)]),
 		amount: BigInt(0)
 	});
-	transaction.addOutputAddress(getConfig().VITE_BITCOIN_WALLET, BigInt(amountSats), net);
-	const changeAmount = inputAmt(transaction) - (amountSats + txFee);
-	if (changeAmount > 0) transaction.addOutputAddress(paymentAddress, BigInt(changeAmount), net);
+
+	//const amountSats = BigInt(Math.round(amountBtc * 100_000_000));
+	transaction.addOutputAddress(getRpcParams().wallet, BigInt(amountSats), REGTEST_NETWORK); // ✅ Market wallet address (SegWit)
+	const totalInput = BigInt(utxos.reduce((acc: number, utxo: { value: number }) => acc + utxo.value, 0));
+	console.log('buildMockBitcoinSegwitTransaction: input amount: ', amountBtc);
+	console.log('buildMockBitcoinSegwitTransaction: input totalInput: ', totalInput);
+
+	const txFee = 0.0001;
+	const feeSats = BigInt(Math.round(txFee * 100_000_000));
+	const totalOutputSats = BigInt(amountSats) + feeSats;
+	const changeAmountSats = totalInput - totalOutputSats;
+	if (changeAmountSats > 0) transaction.addOutputAddress(paymentAddress, BigInt(changeAmountSats), REGTEST_NETWORK);
+
+	utxos.forEach((utxo: any) => {
+		transaction.addInput({
+			txid: utxo.txid,
+			index: utxo.vout,
+			witnessUtxo: {
+				script: hex.decode(utxo.scriptPubKey),
+				amount: BigInt(utxo.value)
+			}
+		});
+		console.log('buildMockBitcoinSegwitTransaction: input utxo: ', utxo);
+	});
 	return {
 		transaction,
 		txFee: txFee
@@ -158,44 +184,6 @@ export async function buildOpReturnStakeTransaction(
 	// b64PSBT: base64.encode(transaction.toPSBT()),
 }
 
-// async function callBitcoinRPC(method: string, params: Array<any>) {
-// 	const response = await fetch(BITCOIN_RPC_URL, {
-// 		method: 'POST',
-// 		headers: {
-// 			'Content-Type': 'application/json',
-// 			Authorization: 'Basic ' + btoa(`${RPC_USER}:${RPC_PASSWORD}`)
-// 		},
-// 		body: JSON.stringify({
-// 			jsonrpc: '1.0',
-// 			id: 'svelte',
-// 			method,
-// 			params
-// 		})
-// 	});
-
-// 	return response.json();
-// }
-// export async function bitcoinRPC(method: string, params: Array<any>, rpcParams: any) {
-// 	try {
-// 		const response = await axios.post(
-// 			`${rpcParams.rpcHost}:${rpcParams.rpcPort}`,
-// 			{
-// 				jsonrpc: '1.0',
-// 				id: 'bitcoin-rpc',
-// 				method: method,
-// 				params: params
-// 			},
-// 			{
-// 				auth: { username: rpcParams.rpcUser, password: rpcParams.rpcPass },
-// 				headers: { 'Content-Type': 'application/json' }
-// 			}
-// 		);
-// 		return response.data.result;
-// 	} catch (error: any) {
-// 		console.error(`RPC Error: ${method}`, error.response?.data || error.message);
-// 		return null;
-// 	}
-// }
 async function bitcoinRPC(method: string, params: Array<any>, rpcParams: any) {
 	try {
 		const response = await fetch('http://127.0.0.1:18445', {
@@ -225,63 +213,6 @@ export function getRpcParams() {
 		rpcPort: '18445',
 		rpcPass: 'devnet',
 		rpcUser: 'devnet',
-		wallet: 'bcrt1q79kacjqvu8jsgggs088nsr666d7d89wsgn5uve'
+		wallet: 'bcrt1q4zymxl8934vvle2ppzw0j6tkwz3d7qw4f0esme'
 	};
 }
-
-// export async function buildRegtestBitcoinSegwitTransaction(marketId: number, outcomeIndex: number, stxAddress: string, amountSats: number): Promise<string> {
-// 	// Define a SegWit-compatible UTXO (mocked)
-// 	const response = await bitcoinRPC('listunspent', [], getRpcParams());
-// 	const utxos = response;
-
-// 	// Create a new Bitcoin transaction (SegWit enabled)
-// 	const transaction = new btc.Transaction({
-// 		allowUnknownInputs: true,
-// 		allowUnknownOutputs: true
-// 	});
-// 	// Serialize OP_RETURN Data
-// 	const data = Cl.serialize(
-// 		Cl.tuple({
-// 			idx: Cl.uint(outcomeIndex),
-// 			amt: Cl.uint(amountSats),
-// 			id: Cl.uint(marketId),
-// 			addr: Cl.principal(stxAddress)
-// 		})
-// 	);
-// 	//const encodedData = hex.encode(data);
-// 	console.log('buildMockBitcoinSegwitTransaction: encodedData: ' + data);
-
-// 	// const OP_RETURN_PREFIX = new Uint8Array([0x6e]); // ✅ Correctly represents `0x6E` as a byte
-// 	// const finalScript = concatBytes(OP_RETURN_PREFIX, hex.decode(encodedData));
-
-// 	transaction.addOutput({
-// 		script: btc.Script.encode(['RETURN', hex.decode(data)]),
-// 		amount: BigInt(0)
-// 	});
-
-// 	// transaction.addOutputAddress(getRpcParams().wallet, BigInt(amountSats), REGTEST_NETWORK); // ✅ Market wallet address (SegWit)
-// 	// const totalInput = utxos.reduce((acc: number, utxo: { amount: number }) => acc + utxo.amount, 0);
-// 	// const totalOutput = amountSats + 0.0001; // Adding fees (example)
-// 	// const changeAmount = totalInput - totalOutput;
-// 	// if (changeAmount > 0) transaction.addOutputAddress(utxos[0].address, BigInt(changeAmount), REGTEST_NETWORK);
-
-// 	// // const privateKey: Signer = secp256k1.utils.randomPrivateKey();
-// 	// // const publicKey = secp256k1.getPublicKey(privateKey, true); // ✅ Derive compressed public key
-// 	// // const pubKeyHash = ripemd160(sha256(publicKey));
-// 	// // 4️⃣ Construct the SegWit `scriptPubKey` (0x00 | 0x14 | pubKeyHash)
-// 	// // const scriptPubKey = hex.encode(new Uint8Array([0x00, 0x14, ...pubKeyHash]));
-// 	// utxos.forEach((utxo: any) => {
-// 	// 	transaction.addInput({
-// 	// 		txid: utxo.txid,
-// 	// 		index: utxo.vout
-// 	// 	});
-// 	// });
-
-// 	// // transaction.signIdx(privateKey, 0);
-// 	// // transaction.finalize();
-// 	// console.log('buildMockBitcoinSegwitTransaction: signed: ' + hex.encode(transaction.toBytes(true, true)));
-// 	// const signedTx = await bitcoinRPC('signrawtransactionwithwallet', [hex.encode(transaction.toBytes(true, true))], getRpcParams());
-// 	// const result = await bitcoinRPC('sendrawtransaction', [signedTx], getRpcParams());
-// 	// console.log('buildMockBitcoinSegwitTransaction: broadcast result: ' + result);
-// 	return 'signedTx';
-// }

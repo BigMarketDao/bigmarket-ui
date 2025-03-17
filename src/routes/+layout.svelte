@@ -23,7 +23,7 @@
 		unsubscribe3();
 	});
 
-	setConfigByUrl(page.url.searchParams, 'devnet');
+	setConfigByUrl(page.url.searchParams, 'testnet');
 	isLocalhost.set(page.url.hostname.indexOf('localhost') > -1);
 
 	const initApp = async () => {

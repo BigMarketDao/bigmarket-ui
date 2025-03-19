@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-	<title>BigMarket Token Sale</title>
+	<title>BigMarket - IDO Token Sale Antonio 1</title>
 	<meta name="description" content="DAO Governance tokens to participate in BigMarket prediction markets on Bitcoin" />
 </svelte:head>
 

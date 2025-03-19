@@ -31,6 +31,7 @@ import { getConfig, getDaoConfig, getSelectedCurrency, getSession } from '$store
 import { fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
 import type { Currency } from '$stores/stores';
 
+export const DAI_MULTIPLIER = 100000000;
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function validEmail(email: string) {

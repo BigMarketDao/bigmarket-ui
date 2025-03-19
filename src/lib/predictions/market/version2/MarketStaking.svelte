@@ -18,6 +18,7 @@
 	import StakingCoolDown from './do-stake/StakingCoolDown.svelte';
 	import { buildAndSend } from '$lib/bitcoin/tx';
 	import { goto } from '$app/navigation';
+	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
 
 	export let market: PredictionMarketCreateEvent;
 	export let userStake: UserStake | undefined;
@@ -143,6 +144,9 @@
 	<div class="card-body">
 		{#if market.marketType === 2 && isCooling(market)}
 			<StakingCoolDown {payouts} {market} />
+		{:else if isPostCooling(market)}
+			<h2 class="card-title mb-6 text-2xl">Market closed</h2>
+			<p>Market will be resolved shortly</p>
 		{:else}
 			<h2 class="card-title mb-6 text-2xl">Place Your Stake Now</h2>
 			{#if $bitcoinMode && txId}
@@ -194,10 +198,16 @@
 			{#if market.marketType === 2}
 				{#if isStaking(market)}
 					<StakingScalar {doPrediction} {payouts} {market} />
-				{:else}
+				{:else if isCooling(market)}
 					<p>
 						Cool down is in progress. The outcome is determined at the height of the first stacks block after the cool cool down expires <a href="/docs" class="font-medium text-red-600">see the docs</a> for more information.
 					</p>
+					<div class="mt-0">
+						<BlockHeightProgressBar
+							startBurnHeight={(market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0)}
+							stopBurnHeight={(market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0) + (market.marketData.coolDownPeriod || 0)}
+						/>
+					</div>
 				{/if}
 			{:else if market.marketData.categories.length === 2}
 				<StakingBinary {doPrediction} {payouts} />

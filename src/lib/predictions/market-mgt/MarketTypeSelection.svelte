@@ -115,16 +115,18 @@
 				<button class="bg-warning-500 hover:bg-warning-600 mt-2 rounded-md py-2 text-white" on:click={addRange}> + Add Range </button>
 				<div class="">
 					<h3 class="text-lg font-semibold text-white">Trading Pair</h3>
-					<p class="text-sm text-gray-600">See <a href="https://docs.diadata.org/use-nexus-product/how-to-dia-nexus-oracles/access-the-oracle/stacks-price-oracles">supported by dia-oracle</a>.</p>
-					<p class="text-sm text-gray-600">Choose one of below for now.</p>
+					<p class="text-sm text-gray-600">See <a href="https://www.pyth.network/price-feeds">supported by pyth-oracle</a>.</p>
+					<!-- <p class="text-sm text-gray-600">See <a href="https://docs.diadata.org/use-nexus-product/how-to-dia-nexus-oracles/access-the-oracle/stacks-price-oracles">supported by dia-oracle</a>.</p> -->
+					<!-- <p class="text-sm text-gray-600">Choose one of below for now.</p> -->
+
 					<div class="mx-auto text-white shadow-md">
 						<div class="mb-2">
 							<select id="market-type" bind:value={priceFeedId} class="h-10 w-full rounded-md border-gray-300 px-4 py-3 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500">
 								<option value="" disabled selected>-- Select a Trading Pair --</option>
-								<option value="STX/USD/0">STX/USD/0</option>
-								<option value="STX/USD/1">STX/USD/1</option>
-								<option value="STX/USD/2">STX/USD/2</option>
-								<option value="STX/USD/3">STX/USD/3</option>
+								<option value="0xec7a775f46379b5e943c3526b1c8d54cd49749176b0b98e02dde68d1bd335c17">STX/USD</option>
+								<option value="0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43">BTC/USD</option>
+								<option value="0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d">SOL/USD</option>
+								<option value="0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace">ETH/USD</option>
 							</select>
 						</div>
 					</div>

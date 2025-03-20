@@ -114,7 +114,7 @@
 
 	onMount(async () => {
 		resolutionVote = await fetchResolutionVote(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], getDaoConfig().VITE_DAO_MARKET_VOTING);
-		marketVotes = await fetchMarketsVotes(market.marketId);
+		marketVotes = await fetchMarketsVotes(market.marketId, market.marketType, market.votingContract);
 		sip10Data = getGovernanceToken($sessionStore.tokens);
 
 		if (isLoggedIn()) {

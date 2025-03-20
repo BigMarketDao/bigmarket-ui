@@ -4,7 +4,7 @@
 	import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, someCV, stringAsciiCV, tupleCV, uintCV } from '@stacks/transactions';
 	import { dataHashSip18, getStacksNetwork, MARKET_BINARY_OPTION, marketDataToTupleCV, type Criterion, type OpinionPoll, type ScalarMarketDataItem, type StoredOpinionPoll } from '@mijoco/stx_helpers/dist/index';
 	import { openContractCall, type SignatureData } from '@stacks/connect';
-	import { DAI_MULTIPLIER, getClarityProofForCreateMarket, getSbtcTokenContract, postCreatePollMessage, signCreateMarketRequest } from '$lib/predictions/predictions';
+	import { getClarityProofForCreateMarket, getSbtcTokenContract, postCreatePollMessage, ORACLE_MULTIPLIER, signCreateMarketRequest } from '$lib/predictions/predictions';
 	import { domain, explorerTxUrl, getStxAddress, isLoggedIn, loginStacksFromHeader } from '$lib/stacks/stacks-connect';
 	import { getConfig, getDaoConfig } from '$stores/store_helpers';
 	import { hexToBytes } from '@stacks/common';
@@ -28,7 +28,7 @@
 	let contractIds: Array<string> | undefined;
 	let token: string = examplePoll.token;
 	let category: string = examplePoll.category;
-	let priceFeedId: string = examplePoll.priceFeedId || 'STX/USD';
+	let priceFeedId: string;
 	let criteria: Criterion = examplePoll.criterion;
 	let featured = examplePoll.featured;
 
@@ -72,11 +72,11 @@
 		const metadataHash = bufferCV(hexToBytes(dataHash)); // Assumes the hash is a string of 32 bytes in hex format
 		let proof = $sessionStore.daoOverview.contractData.creationGated ? await getClarityProofForCreateMarket() : Cl.list([]);
 		if (examplePoll.marketType === 2) {
-			const cats = listCV(examplePoll.marketTypeDataScalar!.map((o) => tupleCV({ min: uintCV(o.min * DAI_MULTIPLIER), max: uintCV(o.max * DAI_MULTIPLIER) })));
+			const cats = listCV(examplePoll.marketTypeDataScalar!.map((o) => tupleCV({ min: uintCV(o.min * ORACLE_MULTIPLIER), max: uintCV(o.max * ORACLE_MULTIPLIER) })));
 			if (isBitcoinMarket) {
 				return [cats, marketFeeCV, metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV(examplePoll.priceFeedId!)];
 			} else {
-				return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), stringAsciiCV(examplePoll.priceFeedId!)];
+				return [cats, marketFeeCV, contractPrincipalCV(examplePoll.token.split('.')[0], examplePoll.token.split('.')[1]), metadataHash, proof, Cl.principal(examplePoll.treasury), noneCV(), noneCV(), Cl.bufferFromHex(examplePoll.priceFeedId!)];
 			}
 		} else {
 			const cats = listCV(examplePoll.marketTypeDataCategorical!.map((o) => stringAsciiCV(o.label)));

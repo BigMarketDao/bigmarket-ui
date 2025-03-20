@@ -34,7 +34,8 @@
 		let functionName = 'resolve-market';
 		let functionArgs = [uintCV(market.marketId), stringAsciiCV(outcome as string)];
 		if (market.marketType === 2) {
-			functionArgs = [uintCV(market.marketId), uintCV(stacksHeight)];
+			//functionArgs = [uintCV(market.marketId), uintCV(stacksHeight)]; // height needed with dia
+			functionArgs = [uintCV(market.marketId)]; // height not needed with pyth
 		}
 
 		await showContractCall({

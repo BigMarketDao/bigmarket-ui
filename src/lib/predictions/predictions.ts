@@ -31,7 +31,9 @@ import { getConfig, getDaoConfig, getSelectedCurrency, getSession } from '$store
 import { fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
 import type { Currency } from '$stores/stores';
 
-export const DAI_MULTIPLIER = 100000000;
+const DAI_MULTIPLIER = 100000000;
+const PYTH_MULTIPLIER = 100000000;
+export const ORACLE_MULTIPLIER = PYTH_MULTIPLIER;
 export const devFundAddress = 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP';
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function validEmail(email: string) {
@@ -329,8 +331,8 @@ export async function fetchMarketClaims(marketId: number, marketType: number): P
 	return res;
 }
 
-export async function fetchMarketsVotes(marketId: number): Promise<Array<PollVoteEvent>> {
-	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/votes/${marketId}`;
+export async function fetchMarketsVotes(marketId: number, marketType: number, contract: string): Promise<Array<PollVoteEvent>> {
+	const path = `${getConfig().VITE_BIGMARKET_API}/pm/markets/votes/${marketId}/${marketType}/${contract}`;
 	const response = await fetch(path);
 	if (response.status === 404) return [];
 	const res = await response.json();

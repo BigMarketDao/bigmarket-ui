@@ -71,9 +71,8 @@
 	onMount(async () => {
 		sip10Data = getMarketToken(market.marketData.token);
 		console.log('CW: marketData.outcome: ' + market.marketData.outcome);
-		console.log('CW: userStake: ', userStake.stakes);
 		console.log('CW: marketData: ', market.marketData);
-		staked = userStake.stakes[market.marketData.outcome!];
+		staked = userStake?.stakes[market.marketData.outcome!] || 0;
 		const princ = Math.floor((10000 * staked) / 9800);
 		devFee = princ - staked;
 		totalPool = totalPoolSum(market.marketData.stakes);

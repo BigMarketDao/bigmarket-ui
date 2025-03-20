@@ -1,8 +1,7 @@
 <script lang="ts">
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
-	import { DAI_MULTIPLIER, type Payout } from '$lib/predictions/predictions';
-	import { mapToMinMaxStrings } from '$lib/utils';
-	import { bitcoinMode, sessionStore } from '$stores/stores';
+	import { ORACLE_MULTIPLIER, type Payout } from '$lib/predictions/predictions';
+	import { bitcoinMode } from '$stores/stores';
 	import type { PredictionMarketCreateEvent, ScalarMarketDataItem } from '@mijoco/stx_helpers';
 	import { TrendingUp } from 'lucide-svelte';
 
@@ -22,11 +21,11 @@
 		<div class="flex flex-col gap-2">
 			<button on:click={() => doPrediction(index)} class="btn btn-primary {selectedCategory === index ? 'btn-active' : ''}">
 				{#if index === 0}
-					x &lt {category.max / DAI_MULTIPLIER}
+					x &lt {category.max / ORACLE_MULTIPLIER}
 				{:else if index === categories.length - 1}
-					{category.min / DAI_MULTIPLIER} &ge; x
+					{category.min / ORACLE_MULTIPLIER} &ge; x
 				{:else}
-					{category.min / DAI_MULTIPLIER} &ge; x &lt {category.max / DAI_MULTIPLIER}
+					{category.min / ORACLE_MULTIPLIER} &ge; x &lt {category.max / ORACLE_MULTIPLIER}
 				{/if}
 			</button>
 			<div class="card bg-base-200 p-4">

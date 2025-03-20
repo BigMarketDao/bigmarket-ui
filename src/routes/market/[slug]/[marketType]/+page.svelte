@@ -29,6 +29,10 @@
 		}
 		if (marketId >= 0) {
 			market = await getPredictionMarket(marketId, marketType);
+			if (!market) {
+				goto('/');
+				return;
+			}
 			marketStakes = await fetchMarketStakes(marketId, marketType);
 			userStake = (await fetchUserStake(getConfig().VITE_STACKS_API, market.marketId, market.votingContract.split('.')[0], market.votingContract.split('.')[1], getStxAddress())) || ({} as UserStake);
 			console.log('getPredictionMarket: ', market);

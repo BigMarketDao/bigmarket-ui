@@ -6,7 +6,7 @@
 	import MarketCard from './info/MarketCard.svelte';
 	import FilteredMarketView from './FilteredMarketView.svelte';
 	import LeaderBoardDisplay from '../leader-board/LeaderBoardDisplay.svelte';
-	import { shuffleArray } from '$lib/utils';
+	import { fmtAmount, shuffleArray } from '$lib/utils';
 
 	export let markets: Array<PredictionMarketCreateEvent> = [];
 	export let leaderBoard: LeaderBoard;
@@ -38,6 +38,7 @@
 
 	onMount(async () => {
 		filteredMarkets = markets;
+		fmtAmount(0);
 	});
 </script>
 
@@ -65,7 +66,7 @@
 	<!-- Ending Soon Section -->
 	<section>
 		<h2 class="mb-6 text-2xl font-bold text-white">Ending Soon</h2>
-		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		<div class="grid gap-y-6 sm:grid-cols-1 lg:grid-cols-3">
 			{#each endingSoonMarkets as market}
 				<MarketCard {market} />
 			{/each}

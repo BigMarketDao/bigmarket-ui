@@ -22,7 +22,7 @@
 		<div class="flex flex-col gap-2">
 			<button on:click={() => doPrediction(index)} class="btn btn-primary {selectedCategory === index ? 'btn-active' : ''}">
 				{#if index === 0}
-					x &lt {formatFiat(category.max / ORACLE_MULTIPLIER)}
+					x &lt <span class="text-bitcoinorange">{formatFiat(category.max / ORACLE_MULTIPLIER)}</span>
 				{:else if index === categories.length - 1}
 					<span class="text-bitcoinorange">{formatFiat(category.min / ORACLE_MULTIPLIER)}</span> &ge; x
 				{:else}

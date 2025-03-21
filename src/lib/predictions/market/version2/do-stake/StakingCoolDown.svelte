@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BlockHeightProgressBar from '$lib/components/common/BlockHeightProgressBar.svelte';
-	import type { Payout } from '$lib/predictions/predictions';
+	import { ORACLE_MULTIPLIER, type Payout } from '$lib/predictions/predictions';
+	import { formatFiat } from '$lib/utils';
 	import type { PredictionMarketCreateEvent, ScalarMarketDataItem } from '@mijoco/stx_helpers';
 	import { TrendingUp } from 'lucide-svelte';
 
@@ -24,7 +25,7 @@
 	{#each categories as category, index}
 		<div class="flex flex-col gap-2">
 			<button class="btn-gray-600 btn">
-				{category.min} &ge; x &lt {category.max}
+				<span class="text-bitcoinorange">{formatFiat(category.min / ORACLE_MULTIPLIER)}</span> &ge; x &lt <span class="text-bitcoinorange">{formatFiat(category.max / ORACLE_MULTIPLIER)}</span>
 			</button>
 			<div class="card bg-base-200 p-4">
 				<div class="text-sm opacity-70">Potential Return</div>

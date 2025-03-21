@@ -2,11 +2,12 @@
 	import { goto } from '$app/navigation';
 	import { ArrowRightAltOutline } from 'flowbite-svelte-icons';
 	import type { PredictionMarketCreateEvent, ScalarMarketDataItem } from '@mijoco/stx_helpers/dist/index';
-	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, totalPoolSum } from '../../predictions';
+	import { calculatePayoutCategorical, convertFiatToNative, getMarketToken, ORACLE_MULTIPLIER, totalPoolSum } from '../../predictions';
 	import { selectedCurrency } from '$stores/stores';
 	import { onMount } from 'svelte';
 	import type { Payout } from '../../predictions';
 	import { Users, TrendingUp } from 'lucide-svelte';
+	import { formatFiat } from '$lib/utils';
 
 	export let market: PredictionMarketCreateEvent;
 	let payouts: Array<Payout>;
@@ -95,7 +96,7 @@
 				<div class="space-y-2">
 					{#each getScalarCats() as category, i}
 						<button on:click={() => goto(`/market/${market.marketId}/${market.marketType}`)} class="hover:bg-indigo-900/30 flex w-full items-center justify-between rounded-lg bg-[#1A2438] p-3 transition-colors">
-							<span class="text-indigo-200">{category.min} - {category.max}</span>
+							<span class="text-indigo-200">{formatFiat(category.min / ORACLE_MULTIPLIER)} - {formatFiat(category.max / ORACLE_MULTIPLIER)}</span>
 							<span class="font-bold text-purple-400">{payouts[i].fiat}</span>
 						</button>
 					{/each}

@@ -28,7 +28,7 @@ import {
 	type LeaderBoard
 } from '@mijoco/stx_helpers/dist/index';
 import { getConfig, getDaoConfig, getSelectedCurrency, getSession } from '$stores/store_helpers';
-import { fmtMicroToStxNumber, fmtStxMicro } from '$lib/utils';
+import { fmtMicroToStxNumber, fmtStxMicro, formatFiat } from '$lib/utils';
 import type { Currency } from '$stores/stores';
 
 const DAI_MULTIPLIER = 100000000;
@@ -71,6 +71,7 @@ export function calculatePayoutCategorical(amount: number, decimals: number, use
 	const mult = Number(`1e${decimals}`);
 	const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);
 	const numCategories = marketData.categories.length;
+	const marketType = marketData.coolDownPeriod && marketData.coolDownPeriod > 0 ? 2 : 1;
 
 	const userStakes = [];
 
@@ -150,7 +151,7 @@ export function convertCryptoToFiat(stacks: boolean, amountNative: number, selec
 	let amountFiat = 0;
 	if (stacks) amountFiat = rate.stxToBtc * amountNative * rate.fifteen;
 	else amountFiat = amountNative * rate.fifteen;
-	return selectedCurrency.symbol + parseFloat(amountFiat.toFixed(2)).toLocaleString() + ' ' + selectedCurrency.code; //fmtStxMicro(amountNative, sip10Data.decimals);
+	return formatFiat(amountFiat); //fmtStxMicro(amountNative, sip10Data.decimals);
 }
 export function convertCryptoToFiatNumber(selectedCurrency: Currency, stacks: boolean, amountNative: number): number {
 	// const microAmount = fmtStxMicro(amount, decimals); //Math.round(amount * mult);

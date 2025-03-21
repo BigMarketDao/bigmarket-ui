@@ -1,6 +1,8 @@
-import { getSession } from '$stores/store_helpers';
+import { getSelectedCurrency, getSession } from '$stores/store_helpers';
 import { type ExchangeRate, type ScalarMarketDataItem, type Sip10Data } from '@mijoco/stx_helpers/dist/index';
 import { DateTime } from 'luxon';
+import { ORACLE_MULTIPLIER } from './predictions/predictions';
+import { selectedCurrency } from '$stores/stores';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.';
 export const smbp = 900;
@@ -54,6 +56,31 @@ export const formatter = new Intl.NumberFormat('en-US', {
 
 const btcPrecision = 100000000;
 const stxPrecision = 1000000;
+const currencyToLocale: Record<string, string> = {
+	USD: 'en-US',
+	EUR: 'de-DE',
+	GBP: 'en-GB',
+	JPY: 'ja-JP',
+	AUD: 'en-AU',
+	CAD: 'en-CA',
+	CHF: 'de-CH',
+	CNY: 'zh-CN',
+	INR: 'en-IN'
+	// add more as needed
+};
+
+export function formatFiat(raw: number): string {
+	const value = raw;
+	const c = getSelectedCurrency();
+	const locale = currencyToLocale[c.code] || 'en-US';
+	return value.toLocaleString(locale, {
+		style: 'currency',
+		currency: c.code,
+		currencyDisplay: 'code', // shows "USD 1,234.56"
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
+}
 
 export function bitcoinToSats(amountBtc: number) {
 	return Math.round(amountBtc * btcPrecision);

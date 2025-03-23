@@ -26,10 +26,10 @@
 				<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between">
 					<div>
 						<h1 class="card-title mb-2 text-3xl">{market.unhashedData.name}</h1>
-						<p class="mb-4 text-lg text-base-content/70">{market.unhashedData.description}</p>
+						<p class="mb-4 text-lg text-base-content/70">{@html market.unhashedData.description}</p>
 					</div>
 					<div class="badge badge-success gap-2 p-4 sm:ml-4 sm:self-start">
-						{getMarketStatus(market.marketData.resolutionState)}
+						{@html getMarketStatus(market.marketData.resolutionState)}
 					</div>
 				</div>
 
@@ -37,7 +37,7 @@
 				<div class="divider">Resolution Criteria</div>
 
 				<ul class="list-inside list-disc space-y-2 text-base-content/70">
-					{market.unhashedData.criterion?.criteria || 'Resolution criteria coming soon'}
+					{@html market.unhashedData.criterion?.criteria || 'Resolution criteria coming soon'}
 				</ul>
 			</div>
 		</div>

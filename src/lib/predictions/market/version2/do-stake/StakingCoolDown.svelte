@@ -36,7 +36,7 @@
 	{#each categories as category, index}
 		<div class="flex flex-col gap-2">
 			<button class="btn-gray-600 btn">
-				<span class="text-bitcoinorange">{formatFiat(category.min / ORACLE_MULTIPLIER)}</span> &ge; x &lt <span class="text-bitcoinorange">{formatFiat(category.max / ORACLE_MULTIPLIER)}</span>
+				<span class="text-white">{formatFiat(category.min / ORACLE_MULTIPLIER)}</span> &ge; <span class="text-white">x</span> &lt <span class="text-white">{formatFiat(category.max / ORACLE_MULTIPLIER)}</span>
 			</button>
 			<div class="card bg-base-200 p-4">
 				<div class="text-sm opacity-70">Potential Return</div>

@@ -1,7 +1,7 @@
 import { getSession } from '$stores/store_helpers';
 import { ResolutionState, type PredictionMarketCreateEvent, type ScalarMarketDataItem, type UserStake } from '@mijoco/stx_helpers/dist/index';
-import { userStakeSum } from './predictions';
-import { estimateBitcoinBlockTime, fmtNumber } from '$lib/utils';
+import { ORACLE_MULTIPLIER, userStakeSum } from './predictions';
+import { estimateBitcoinBlockTime, fmtNumber, formatFiat } from '$lib/utils';
 import { DateTime } from 'luxon';
 
 export const getMarketStatus = (resolutionState: number) => {
@@ -124,6 +124,22 @@ export const isDisputable = (market: PredictionMarketCreateEvent) => {
 	return false;
 };
 
+export const isFinalisable = (market: PredictionMarketCreateEvent) => {
+	if (market.marketData.resolutionState === ResolutionState.RESOLUTION_RESOLVING) {
+		const sess = getSession();
+		const current = sess.stacksInfo.burn_block_height;
+		const resWindow = sess.daoOverview.contractData.disputeWindowLength;
+		if (market.marketType === 1) {
+			const resBurnHeight = market.marketData.resolutionBurnHeight || 0;
+			return current >= resBurnHeight + resWindow;
+		} else if (market.marketType === 2) {
+			const endCooling = coolDownBlock(market);
+			return current > endCooling + resWindow;
+		}
+	}
+	return false;
+};
+
 export const isDisputeRunning = (market: PredictionMarketCreateEvent) => {
 	const sess = getSession();
 	if (market.marketData.resolutionState === ResolutionState.RESOLUTION_DISPUTED) {
@@ -185,5 +201,5 @@ export const getOutcomeMessage = (market: PredictionMarketCreateEvent) => {
 		return `Outcome is <span class="font-medium text-primary">${market.marketData.categories[market.marketData.outcome!]}</span>`;
 	}
 	const cats = market.marketData.categories as ScalarMarketDataItem[];
-	return `Outcome is ${market.marketData.priceOutcome || 0} - value between <span class="font-medium text-primary">${cats[market.marketData.outcome!].min} and ${cats[market.marketData.outcome!].max}</span>`;
+	return `Outcome is ${market.marketData.priceOutcome!} - value between <span class="font-medium text-primary">${formatFiat(cats[market.marketData.outcome!].min / ORACLE_MULTIPLIER, false)} and ${formatFiat(cats[market.marketData.outcome!].max / ORACLE_MULTIPLIER, false)}</span>`;
 };

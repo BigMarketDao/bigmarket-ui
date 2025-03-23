@@ -234,7 +234,7 @@
 			template.marketType = examplePoll.outcomes?.length === 2 ? 0 : 1;
 			template.marketTypeDataCategorical = [];
 			for (const o of examplePoll.outcomes) {
-				template.marketTypeDataCategorical.push({ label: o });
+				template.marketTypeDataCategorical.push({ label: o as string });
 			}
 		}
 		inited = true;

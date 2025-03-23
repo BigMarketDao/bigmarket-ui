@@ -32,6 +32,13 @@ export function shuffleArray<T>(array: T[]): T[] {
 	return shuffled;
 }
 
+export function mapToMinMaxStringsFormatted(data: Array<string | ScalarMarketDataItem>): string[] {
+	if (typeof data[0] === 'string') {
+		return data as string[]; // Directly return if already an array of strings
+	}
+	return (data as { min: number; max: number }[]).map((item) => `${formatFiat(item.min / ORACLE_MULTIPLIER, false)} -> ${formatFiat(item.max / ORACLE_MULTIPLIER, true)}`);
+}
+
 export function mapToMinMaxStrings(data: Array<string | ScalarMarketDataItem>): string[] {
 	if (typeof data[0] === 'string') {
 		return data as string[]; // Directly return if already an array of strings
@@ -69,17 +76,24 @@ const currencyToLocale: Record<string, string> = {
 	// add more as needed
 };
 
-export function formatFiat(raw: number): string {
+export function formatFiat(raw: number, bare?: boolean): string {
 	const value = raw;
 	const c = getSelectedCurrency();
 	const locale = currencyToLocale[c.code] || 'en-US';
-	return value.toLocaleString(locale, {
-		style: 'currency',
-		currency: c.code,
-		currencyDisplay: 'code', // shows "USD 1,234.56"
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2
-	});
+	if (bare) {
+		return value.toLocaleString(locale, {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		});
+	} else {
+		return value.toLocaleString(locale, {
+			style: 'currency',
+			currency: c.code,
+			currencyDisplay: 'code', // shows "USD 1,234.56"
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		});
+	}
 }
 
 export function bitcoinToSats(amountBtc: number) {

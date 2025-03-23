@@ -35,12 +35,12 @@
 	<div class="h-2.5 w-full rounded-full bg-gray-700">
 		<div class={`h-2.5 rounded-full text-primary ${state}`} style="width: {progress}%"></div>
 	</div>
-	<div class="relative top-[-10px] flex w-full justify-between font-inter text-[8px] font-light">
+	<div class="relative top-[-10px] flex w-full justify-between font-inter text-[12px] font-light">
 		<span>{fmtNumber(startBurnHeight)}</span>
 		<span>{fmtNumber(stopBurnHeight)}</span>
 	</div>
 	{#if stopBurnHeight >= currentBurnHeight}
-		<div class="relative top-[-30px] w-full text-center font-inter text-[10px] font-semibold">
+		<div class="relative top-[-30px] w-full text-center font-inter text-[14px] font-semibold">
 			<Countdown endBlock={stopBurnHeight - currentBurnHeight} scaleFactor={1} />
 		</div>
 	{/if}

@@ -149,15 +149,6 @@
 			<p>Market will be resolved shortly</p>
 		{:else}
 			<h2 class="card-title mb-6 text-2xl">Place Your Stake Now</h2>
-			{#if $bitcoinMode && txId}
-				<div class="mb-4 flex w-full justify-start gap-x-4">
-					<Banner bannerType={'info'} message={`Thanks for staking with bitcoin at BigMarket! <a href=${explorerBtcTxUrl(txId)} target="_blank">View bitcoin transaction</a>`} />
-				</div>
-			{:else if txId}
-				<div class="mb-4 flex w-full justify-start gap-x-4">
-					<Banner bannerType={'info'} message={`Thanks for staking with bitcoin at BigMarket! <a href=${explorerTxUrl(txId)} target="_blank">View on explorer</a>`} />
-				</div>
-			{/if}
 
 			{#if isStaking(market)}
 				<div class="form-control">
@@ -190,17 +181,26 @@
 					</div>
 				</div>
 			{/if}
-			{#if errorMessage}
-				<div class="mb-4 flex w-full justify-start gap-x-4">
+			{#if $bitcoinMode && txId}
+				<div class="my-4 flex w-full justify-start gap-x-4">
+					<Banner bannerType={'info'} message={`Thanks for staking with bitcoin at BigMarket! <a href=${explorerBtcTxUrl(txId)} target="_blank">View bitcoin transaction</a>`} />
+				</div>
+			{:else if txId}
+				<div class="my-4 flex w-full justify-start gap-x-4">
+					<Banner bannerType={'info'} message={`Thanks for staking with bitcoin at BigMarket! <a href=${explorerTxUrl(txId)} target="_blank">View on explorer</a>`} />
+				</div>
+			{:else if errorMessage}
+				<div class="my-4 flex w-full justify-start gap-x-4">
 					<Banner bannerType={'info'} message={errorMessage} />
 				</div>
 			{/if}
+
 			{#if market.marketType === 2}
 				{#if isStaking(market)}
 					<StakingScalar {doPrediction} {payouts} {market} />
 				{:else if isCooling(market)}
 					<p>
-						Cool down is in progress. The outcome is determined at the height of the first stacks block after the cool cool down expires <a href="/docs" class="font-medium text-red-600">see the docs</a> for more information.
+						Cool down is in progress. The outcome is determined at the height of the first stacks block after the cool cool down expires <a href="/docs" class="font-medium text-primary">see the docs</a> for more information.
 					</p>
 					<div class="mt-0">
 						<BlockHeightProgressBar

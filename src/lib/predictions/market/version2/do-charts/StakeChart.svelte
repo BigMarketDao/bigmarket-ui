@@ -5,11 +5,13 @@
 	import { convertCryptoToFiatNumber, fetchMarketStakes, getMarketToken } from '$lib/predictions/predictions';
 	import { chart } from 'svelte-apexcharts';
 	import { selectedCurrency, type Currency } from '$stores/stores';
+	import { page } from '$app/state';
 	let options: any;
 
 	export let market: PredictionMarketCreateEvent;
 	export let title: string;
 	let marketStakes: Array<PredictionMarketStakeEvent> = [];
+	let homepage = page.route.id === '/';
 
 	let sip10Data: Sip10Data;
 	let series: { name: string; data: number[] }[] = [];
@@ -49,15 +51,17 @@
 
 			options = {
 				legend: {
+					show: !homepage, // Hide or show the legend based on this variable
 					position: 'bottom', // Positions: "top", "bottom", "left", "right"
 					fontSize: '12px',
 					fontWeight: 'bold',
 					fontFamily: 'Arial, sans-serif',
 					markers: {
-						width: 12, // Size of the color marker
-						height: 12,
+						width: 6, // Size of the color marker
+						height: 6,
 						radius: 12,
-						offsetX: -5
+						offsetX: -5,
+						size: 5
 					},
 					labels: {
 						colors: '#fff', // Change text color

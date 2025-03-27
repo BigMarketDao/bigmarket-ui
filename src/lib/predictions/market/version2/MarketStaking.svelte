@@ -69,7 +69,7 @@
 				txId = result.message;
 				//goto('/tools/proofs?chain=devnet');
 			}
-			errorMessage = 'Amount exceeds your balance';
+			errorMessage = 'Amount exceeds your balance in current wallet';
 
 			return;
 		}

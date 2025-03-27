@@ -79,7 +79,7 @@
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 					<div class="">
 						<p class="text-indigo-200/70 text-sm">Creation Fee</p>
 						<p class="mt-2 text-3xl font-bold text-white">{fmtMicroToStx($sessionStore.daoOverview.contractData.marketCreateFee)} STX</p>
@@ -88,7 +88,7 @@
 				</div>
 
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 					<div class="">
 						<p class="text-indigo-200/70 text-sm">Market Fee</p>
 						<p class="mt-2 text-3xl font-bold text-white">0-{$sessionStore.daoOverview.contractData.marketFeeBipsMax / 100}%</p>
@@ -97,7 +97,7 @@
 				</div>
 
 				<!-- <div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 					<div class="">
 						<p class="text-indigo-200/70 text-sm">Resolution Time</p>
 						<p class="mt-2 text-3xl font-bold text-white">24h-1y</p>
@@ -106,7 +106,7 @@
 				</div>
  -->
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 					<div class="relative">
 						<p class="text-indigo-200/70 text-sm">AI Markets</p>
 						<p class="mt-2 text-3xl font-bold text-white">Prompt</p>
@@ -117,7 +117,7 @@
 		</div>
 	</div>
 
-	<div class="mx-auto max-w-4xl px-6 py-4">
+	<div class="mx-auto my-10 w-full px-6 py-4">
 		<div class="my-2 flex w-full flex-col">
 			{#if canCreate}
 				<CreateMarket {examplePoll} onPollSubmit={handlePollSubmission} />
@@ -128,33 +128,35 @@
 	</div>
 
 	<!-- Features Section -->
-	<div class="border-t border-purple-900/20 bg-[#0F1225]/50 py-16 backdrop-blur-sm">
-		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-			<h2 class="text-center text-3xl font-bold text-white">Market Creation Features</h2>
-			<p class="text-indigo-200/70 mx-auto mt-4 max-w-2xl text-center">Everything you need to create and manage successful prediction markets</p>
+	<div class="mx-auto my-10 w-full px-6 py-4">
+		<div class="border-t border-purple-900/20 bg-[#0F1225]/50 py-16 backdrop-blur-sm">
+			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<h2 class="text-center text-3xl font-bold text-white">Market Creation Features</h2>
+				<p class="text-indigo-200/70 mx-auto mt-4 max-w-2xl text-center">Everything you need to create and manage successful prediction markets</p>
 
-			<div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-					<div class="relative">
-						<h3 class="text-lg font-semibold text-white">Multiple Market Types</h3>
-						<p class="text-indigo-200/70 mt-2 text-sm">Create binary, categorical, or scalar markets to suit your needs</p>
+				<div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
+						<div class="relative">
+							<h3 class="text-lg font-semibold text-white">Multiple Market Types</h3>
+							<p class="text-indigo-200/70 mt-2 text-sm">Create binary, categorical, or scalar markets to suit your needs</p>
+						</div>
 					</div>
-				</div>
 
-				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-					<div class="relative">
-						<h3 class="text-lg font-semibold text-white">Social Integration</h3>
-						<p class="text-indigo-200/70 mt-2 text-sm">Connect Twitter and Discord for community engagement</p>
+					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
+						<div class="relative">
+							<h3 class="text-lg font-semibold text-white">Social Integration</h3>
+							<p class="text-indigo-200/70 mt-2 text-sm">Connect Twitter and Discord for community engagement</p>
+						</div>
 					</div>
-				</div>
 
-				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-					<div class="relative">
-						<h3 class="text-lg font-semibold text-white">Flexible Resolution</h3>
-						<p class="text-indigo-200/70 mt-2 text-sm">Choose between automated oracles or community resolution</p>
+					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
+						<div class="relative">
+							<h3 class="text-lg font-semibold text-white">Flexible Resolution</h3>
+							<p class="text-indigo-200/70 mt-2 text-sm">Choose between automated oracles or community resolution</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -163,7 +165,7 @@
 	<div class="py-16">
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-8 text-center shadow-lg">
-				<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+				<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 				<div class="relative">
 					<h2 class="text-2xl font-bold text-white">Need Help?</h2>
 					<p class="text-indigo-200/70 mx-auto mt-4 max-w-2xl">Check out our documentation for detailed guides on creating and managing markets.</p>

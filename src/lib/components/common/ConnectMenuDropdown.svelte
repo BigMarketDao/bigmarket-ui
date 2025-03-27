@@ -70,7 +70,7 @@
 						{fmtMicroToStx(getStxBalance(), 6)}
 					{:else}
 						<span class="me-3 font-inter text-lg font-bold text-primary">BTC</span>
-						{fmtMicroToStx(getBtcBalance(), 6)}
+						{fmtMicroToStx(getBtcBalance(), 8)}
 					{/if}
 				</div>
 

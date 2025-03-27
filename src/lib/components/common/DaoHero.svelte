@@ -4,7 +4,7 @@
 </script>
 
 <div class=" z-0 border-b border-purple-900/20 py-24">
-	<div class=" inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+	<div class=" inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 
 	<div class=" mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="text-center">

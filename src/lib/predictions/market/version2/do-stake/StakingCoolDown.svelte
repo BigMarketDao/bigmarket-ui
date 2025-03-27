@@ -16,12 +16,13 @@
 
 <div class="mb-5">
 	{#if currentBlock <= coolDownBlock}
-		<p>Cool down is in progress (current block height {fmtNumber(currentBlock)}).</p>
-		<ul class="w-1/5 text-sm">
+		<p class="mb-5">Cool down is in progress (current block height {fmtNumber(currentBlock)}). The market will be resolved by the oracle at he end of this phase.</p>
+		<p class="mb-5">A dispute window will then open for stakers to challenge the outcome before the claims process starts.</p>
+		<!-- <ul class="w-1/5 text-sm">
 			<li class="flex justify-between"><span>Market start:</span><span>{fmtNumber(market.marketData.marketStart || 0)}</span></li>
 			<li class="flex justify-between"><span>Market end:</span><span>{fmtNumber(marketEndsBlock)}</span></li>
 			<li class="flex justify-between"><span>Cool down end:</span><span>{fmtNumber(coolDownBlock)}</span></li>
-		</ul>
+		</ul> -->
 		<div class="mt-0">
 			<BlockHeightProgressBar
 				startBurnHeight={(market.marketData.marketStart || 0) + (market.marketData.marketDuration || 0)}

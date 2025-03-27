@@ -66,7 +66,7 @@
 	<!-- Ending Soon Section -->
 	<section>
 		<h2 class="mb-6 text-2xl font-bold text-white">Ending Soon</h2>
-		<div class="grid gap-y-6 sm:grid-cols-1 lg:grid-cols-3">
+		<div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
 			{#each endingSoonMarkets as market}
 				<MarketCard {market} />
 			{/each}

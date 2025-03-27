@@ -18,7 +18,7 @@
 	let tokens: any;
 	let govToken: Sip10Data;
 	let totalSold: number;
-	let amount: number = 0;
+	let amount: number;
 	let txId: string;
 	let errorMessage: string | undefined;
 	let sip10Data: Sip10Data;
@@ -47,7 +47,8 @@
 	// 1 USD = x STX
 	// x SXT = 1 USD = 1/0.05 BIG
 	// 1 STX = 1/x USD = 1/(0.05x)
-	$: tokensReceived = stacksLeading ? (amount / (0.05 * fiatPerStx)).toFixed(6) : amount;
+	$: tokensReceivedFiat = stacksLeading ? (amount / 0.05).toFixed(6) : amount;
+	$: amountStx = stacksLeading ? (amount / (0.05 * fiatPerStx)).toFixed(6) : amount;
 	$: tokenAmount = stacksLeading ? (amount || 0).toFixed(6) : (amount / (0.05 * fiatPerStx) || 0).toFixed(6);
 
 	const switcheroo = () => {
@@ -69,7 +70,7 @@
 			return;
 		}
 		const mult = Number(`1e${govToken.decimals}`);
-		const actual = stacksLeading ? amount : tokenAmount;
+		const actual = stacksLeading ? amount * fiatPerStx : tokenAmount;
 		const microStxAmount = Math.round(parseFloat(String(actual)) * mult);
 		const contractAddress = getDaoConfig().VITE_DOA_DEPLOYER;
 		const contractName = getDaoConfig().VITE_DAO_TOKEN_SALE;
@@ -113,8 +114,8 @@
 	<div class="mx-auto max-w-7xl space-y-8 px-4 py-8">
 		<!-- Purchase Card -->
 		<div class="group relative overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg transition-all duration-300 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
-			<div class="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(168,85,247,0.05)_10px,rgba(168,85,247,0.05)_20px)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
+			<div class="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(168,85,247,0.05)_10px,rgba(168,85,247,0.05)_20px)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
 			<div class="relative">
 				<!-- Stage Info -->
@@ -126,8 +127,8 @@
 					<div class="text-right">
 						<p class="text-indigo-200/70 text-sm">Current Price</p>
 						<p class="text-xl font-bold text-purple-400">
-							{$selectedCurrency.code}
-							{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+							${stage.price / 100}
+							<!-- {$selectedCurrency.code}{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)} -->
 						</p>
 					</div>
 				</div>
@@ -167,16 +168,27 @@
 								on:change={handleChange}
 								class="placeholder-indigo-200/30 flex-1 rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
 							/>
-							<select on:change={() => switcheroo()} class="rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20">
+							<span class="rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20">USD</span>
+							<!-- <select on:change={() => switcheroo()} class="rounded-lg border border-purple-900/20 bg-[#151B2D] px-4 py-3 text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20">
 								<option>STX</option>
 								<option>BIG</option>
-							</select>
+							</select> -->
 						</div>
 
 						<div class="rounded-lg bg-[#151B2D] p-4">
 							<div class="flex justify-between text-sm">
 								<span class="text-indigo-200/70">You will receive</span>
-								<span class="text-white">{tokensReceived} BIG</span>
+								<span class="text-white"
+									>{#if tokensReceivedFiat !== 'NaN'}{tokensReceivedFiat}{/if} BIG</span
+								>
+							</div>
+						</div>
+						<div class="rounded-lg bg-[#151B2D] p-4">
+							<div class="flex justify-between text-sm">
+								<span class="text-indigo-200/70">You will pay</span>
+								<span class="text-white"
+									>{#if amount > 0}{amount * fiatPerStx}{/if} STX</span
+								>
 							</div>
 						</div>
 					</div>
@@ -202,7 +214,7 @@
 
 		<!-- Sale Stages -->
 		<div class="relative overflow-hidden rounded-xl border border-purple-900/20 bg-[#0F1225] p-8 shadow-lg">
-			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+			<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 
 			<div class="relative">
 				<h2 class="text-2xl font-bold text-white">Sale Stages</h2>
@@ -218,7 +230,8 @@
 										<div class="text-lg font-semibold text-white">{fmtMicroToStxNumber(stage.maxSupply).toLocaleString()} BIG</div>
 										<div class="text-indigo-200/50 text-sm">
 											{$selectedCurrency.code}
-											{toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)}
+											${stage.price / 100}
+											<!-- {toFiat($selectedCurrency.code, fmtStxMicro(1), { symbol: $sessionStore.daoOverview.contractData.tokenSymbol, decimals: $sessionStore.daoOverview.contractData.tokenDecimals } as Sip10Data, 1 / stage.price)} -->
 										</div>
 									</div>
 								</div>
@@ -230,7 +243,7 @@
 								</div>
 							</div>
 							<div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#0F1225]">
-								<div class="bg-gradient-to-r to-indigo-500 h-full rounded-full from-purple-500 transition-all duration-300" style="width: {(stage.tokensSold / stage.maxSupply) * 100}%" />
+								<div class="bg-gradient-to-r to-indigo-500 h-full rounded-full from-purple-500 transition-all duration-300" style="width: {(stage.tokensSold / stage.maxSupply) * 100}%"></div>
 							</div>
 						</button>
 					{/each}

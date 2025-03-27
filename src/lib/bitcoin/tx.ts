@@ -19,7 +19,7 @@ export async function buildAndSend(marketId: number, outcomeIndex: number, amoun
 	const microStxAmount = Math.round(parseFloat(String(amountBtc)) * mult);
 	const balance = getBtcBalance();
 	if (balance - FEE < microStxAmount) {
-		return { failed: true, message: 'Amount exceeds your balance' };
+		return { failed: true, message: 'Amount exceeds your current balance' };
 	}
 	const userPublicKey = getSession().keySets[getConfig().VITE_NETWORK].btcPubkeySegwit0!;
 	const { transaction, txFee } = await buildOpReturnStakeTransaction(marketId, outcomeIndex, getConfig().VITE_MEMPOOL_API, getConfig().VITE_NETWORK, getStxAddress(), amountBtc, userPublicKey, getBtcAddress());
@@ -30,16 +30,7 @@ export async function buildAndSend(marketId: number, outcomeIndex: number, amoun
 export async function buildAndSendDevnet(marketId: number, outcomeIndex: number, amountBtc: number): Promise<{ failed: boolean; message: string; transaction?: btc.Transaction }> {
 	const mult = 100_000_000;
 	const microStxAmount = Math.round(parseFloat(String(amountBtc)) * mult);
-	// const balance = getBtcBalance();
-	// if (balance - FEE < microStxAmount) {
-	// 	return { failed: true, message: 'Amount exceeds your balance' };
-	// }
-	// const userPublicKey = getSession().keySets[getConfig().VITE_NETWORK].btcPubkeySegwit0!;
-	//const transaction = await buildRegtestBitcoinSegwitTransaction(marketId, outcomeIndex, getStxAddress(), amount);
-
 	const txid = await buildAndSendTx(marketId, outcomeIndex, getStxAddress(), amountBtc);
-
-	//const txId = await signPSBT(transaction, broadcast);
 	return { failed: false, message: txid }; //{ failed: false, message: txId, transaction };
 }
 

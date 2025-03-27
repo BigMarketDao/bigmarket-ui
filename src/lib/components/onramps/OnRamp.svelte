@@ -35,13 +35,13 @@
 <div class="mx-auto max-w-lg space-y-8 rounded-xl bg-white p-6 font-inter font-medium shadow-md">
 	<div>
 		<h2 class="text-xl font-semibold text-gray-900">Buy STX & Connect Wallet</h2>
-		<p class="font-inter text-sm font-semibold text-gray-900">BigMarket inherits Bitcoin of security and finality via Stacks</p>
+		<!-- <p class="font-inter text-sm font-semibold text-gray-900">BigMarket inherits Bitcoin of security and finality via Stacks</p> -->
 	</div>
 	<div>
 		<h3 class="text-lg font-medium text-gray-700">Choose an on-ramp</h3>
-		<div class="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
+		<div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
 			<button class="rounded-md bg-white px-4 py-2 text-black" on:click={() => window.open('https://www.coinbase.com/price/stacks', '_blank')}>
-				<span class="whitespace-nowrap"
+				<span class="whitespace-nowrap pb-5"
 					><svg aria-label="Coinbase logo" class="cds-iconStyles-irtngcj inline bg-black" height="32" role="img" viewBox="0 0 48 48" width="32" xmlns="http://www.w3.org/2000/svg"
 						><title>Coinbase logo</title><path
 							d="M24,36c-6.63,0-12-5.37-12-12s5.37-12,12-12c5.94,0,10.87,4.33,11.82,10h12.09C46.89,9.68,36.58,0,24,0 C10.75,0,0,10.75,0,24s10.75,24,24,24c12.58,0,22.89-9.68,23.91-22H35.82C34.87,31.67,29.94,36,24,36z"
@@ -49,12 +49,11 @@
 						></path></svg
 					> Coinbase</span
 				>
-				Buy with Coinbase Pay
 			</button>
 			<button class="rounded-md px-4 py-2 text-black" on:click={() => window.open('https://global.transak.com?cryptoCurrency=STX', '_blank')}
 				><span class="whitespace-nowrap"><img class="" src="https://assets.transak.com/images/website/transak-logo.svg" alt="Transack logo" /> </span>
-				Buy with Transak
 			</button>
+			<!-- svelte-ignore a11y_consider_explicit_label -->
 			<button class="rounded-md bg-white px-4 py-2 text-black" on:click={() => window.open('https://buy.moonpay.com?currencyCode=STX', '_blank')}>
 				<span class="whitespace-nowrap"
 					><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 100 20" width="100px" height="20px"
@@ -66,14 +65,13 @@
 						><defs><clipPath id="1a"><path fill="#fff" d="M0 0h100v20H0z"></path></clipPath></defs></svg
 					></span
 				>
-				Buy with MoonPay
 			</button>
 		</div>
 	</div>
 
 	<div class="mt-20 w-full">
-		<h2 class="text-xl font-semibold text-gray-900">Crypto wallet</h2>
-		<p class="font-inter text-sm font-semibold text-gray-900">Continue by connecting your preferred wallet</p>
+		<h2 class="text-xl font-semibold text-gray-900">Connect wallet</h2>
+		<!-- <p class="font-inter text-sm font-semibold text-gray-900">Continue by connecting your preferred wallet</p> -->
 		{#if walletAddress}
 			<p class="mt-2 text-gray-900">Connected: {walletAddress}</p>
 		{:else}

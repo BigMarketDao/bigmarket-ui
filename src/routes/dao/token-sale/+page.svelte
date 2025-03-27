@@ -5,8 +5,10 @@
 	import TokenSaleV3 from '$lib/dao/token-sale/TokenSaleV3.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 	import DaoHero from '$lib/components/common/DaoHero.svelte';
+	import type { TokenSaleStage } from '@mijoco/stx_helpers';
 
 	let fiatPerStx = 0;
+	$: stage = $sessionStore.daoOverview?.tokenSale?.stages[0] || ({} as TokenSaleStage);
 
 	onMount(async () => {
 		const daoOverview = await getDaoOverview();
@@ -34,7 +36,7 @@
 	<!-- Hero Section -->
 	<DaoHero
 		title={'Join the BigMarket IDO'}
-		subtitle={'Secure your stake in the world\'s most advanced AI-enabled prediction platform<br/><br/><i><span class="text-primary">This is a work in progress - the final version will include feedback from early contributors via proposal voting.</span></i>'}
+		subtitle={'Secure your stake in the world\'s most advanced AI-enabled prediction platform<br/><br/><i><span class="text-primary">This is a work in progress - the final version will include feedback from early contributors and stakeholders.</span></i>'}
 	/>
 
 	<!-- Main Content -->
@@ -44,7 +46,7 @@
 			<div class="space-y-6">
 				<div class="grid grid-cols-3 gap-4">
 					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 						<div class="relative">
 							<p class="text-indigo-200/70 text-sm">Total Supply</p>
 							<p class="mt-2 text-3xl font-bold text-white">10,000,000</p>
@@ -53,16 +55,20 @@
 					</div>
 
 					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 						<div class="relative">
 							<p class="text-indigo-200/70 text-sm">Initial Price</p>
-							<p class="mt-2 text-3xl font-bold text-white">$0.05 ({fiatPerStx} STX)</p>
-							<p class="mt-1 text-sm text-purple-400">USD per BIG</p>
+							<p class="mt-2 text-3xl font-bold text-white">
+								${stage.price / 100}
+							</p>
+							<p class="mt-1 text-sm text-purple-400">
+								USD per BIG {#if fiatPerStx > 0}({(fiatPerStx / 20).toFixed(6)} STX per BIG){/if}
+							</p>
 						</div>
 					</div>
 
 					<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+						<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 						<div class="relative">
 							<p class="text-indigo-200/70 text-sm">Open Proposals</p>
 							<p class="mt-2 text-3xl font-bold text-white">3</p>
@@ -74,7 +80,7 @@
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 					<div class="relative">
 						<h2 class="text-xl font-bold text-white">Token Utility</h2>
 						<ul class="mt-4 space-y-3">
@@ -107,7 +113,7 @@
 				</div>
 
 				<div class="relative overflow-hidden rounded-lg border border-purple-900/20 bg-[#0F1225] p-6 shadow-lg">
-					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5" />
+					<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0F1225]/10 to-[#0F1225]/5"></div>
 					<div class="relative">
 						<h2 class="text-xl font-bold text-white">Token Distribution</h2>
 						<div class="mt-4 space-y-3">
